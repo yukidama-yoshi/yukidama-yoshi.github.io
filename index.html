@@ -19,7 +19,7 @@
 
     .sidebar {
       width: 200px;
-      background-color: #ffffff; /* ← 完全に不透明な白 */
+      background-color: #ffffff;
       border-right: 1px solid #ccc;
       padding: 20px;
       font-size: 14px;
@@ -55,22 +55,40 @@
     .main {
       flex: 1;
       padding: 40px 20px;
-      text-align: center;
       overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.65); /* ← 透かしを薄く調整 */
+      background-color: rgba(255, 255, 255, 0.65);
     }
 
-    h1 {
+    .content {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .image-block img {
+      height: 360px;
+      margin: 0;
+      padding: 0;
+      display: block;
+    }
+
+    .image-block p {
+      font-size: 14px;
+      margin: 4px 0 0;
+    }
+
+    .text-block h1 {
       font-size: 32px;
-      margin-bottom: 10px;
+      margin: 0 0 8px;
     }
 
-    p {
+    .text-block p {
       font-size: 16px;
       margin-bottom: 10px;
     }
 
-    hr {
+    .text-block hr {
       margin: 20px auto;
       width: 80%;
     }
@@ -87,24 +105,28 @@
     <a href="profile.html">プロフィール</a>
     <a href="#">リンク</a>
     <a href="#">連絡先</a>
-    <a href="devices.html">動作確認済みﾌﾞﾗｳｻﾞ</a> <!-- ← 追加済み -->
+    <a href="devices.html">動作確認済みﾌﾞﾗｳｻﾞ</a>
   </div>
   <div class="resizer" id="resizer"></div>
-<div class="main" style="display: flex; align-items: flex-start; gap: 1px;">
-  <img src="images/topyk.png" alt="タイトル画像" style="height: 400px;">
-  <div style="flex: 1;">
-    <h1>ゆきだまのﾎｰﾑﾍﾟｰｼﾞ</h1>
-    <hr>
-    <p>ゆきだまのﾎｰﾑﾍﾟｰｼﾞへようこそ。</p>
-    <p>こちらは、ゆきだまの情報を発信するために作成したﾎｰﾑﾍﾟｰｼﾞです。</p>
-    <hr>
-    <footer>
-      <p>© 2025 yukidama-yoshi. All rights reserved.</p>
-    </footer>
+
+  <div class="main">
+    <div class="content">
+      <div class="image-block">
+        <img src="images/topyk.png" alt="タイトル画像">
+        <p>画像提供：<a href="https://scratch.mit.edu/users/〇〇/" target="_blank">〇〇さん</a></p>
+      </div>
+      <div class="text-block">
+        <h1>ゆきだまのﾎｰﾑﾍﾟｰｼﾞ</h1>
+        <hr>
+        <p>ゆきだまのﾎｰﾑﾍﾟｰｼﾞへようこそ。</p>
+        <p>こちらは、ゆきだまの情報を発信するために作成したﾎｰﾑﾍﾟｰｼﾞです。</p>
+        <hr>
+        <footer>
+          <p>© 2025 yukidama-yoshi. All rights reserved.</p>
+        </footer>
+      </div>
+    </div>
   </div>
-</div>
-
-
 
   <script>
     const resizer = document.getElementById('resizer');
