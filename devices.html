@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>動作確認済み機種</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "MS Gothic", "Osaka", monospace;
+      background-image: url("images/devices.png"); /* ← 新しい背景画像 */
+      background-repeat: repeat;
+      background-size: 600px;
+      color: #000000;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #ffffff;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 6px 0;
+      color: blue;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .sidebar a::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #999;
+      margin-right: 8px;
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: ew-resize;
+      background-color: #ccc;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px 20px;
+      text-align: center;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.65);
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 90%;
+      background-color: #fff;
+    }
+
+    th, td {
+      border: 1px solid #999;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #ddd;
+    }
+
+    caption {
+      font-size: 16px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <a href="index.html">トップ</a>
+    <a href="profile.html">プロフィール</a>
+    <a href="links.html">リンク</a>
+    <a href="contact.html">連絡先</a>
+    <a href="devices.html">動作確認済み機種</a>
+  </div>
+  <div class="resizer" id="resizer"></div>
+  <div class="main">
+    <h1>動作確認済み機種</h1>
+    <hr>
+    <table>
+      <caption>互換性レポート（2025年9月1日)</caption>
+      <tr>
+        <th>機種・ブラウザ</th>
+        <th>判定</th>
+        <th>備考</th>
+      </tr>
+      <tr>
+        <td>Nintendo Switch 内部ブラウザ</td>
+        <td>◎</td>
+        <td>完全表示、操作も快適</td>
+      </tr>
+      <tr>
+        <td>Nintendo WiiU</td>
+        <td>未確認</td>
+        <td>今後の検証候補</td>
+      </tr>
+      <tr>
+        <td>Nintendo 3DS（初代）</td>
+        <td>△〜◯</td>
+        <td>表示は可能。ただ、メニューバーの崩れがあり</td>
+      </tr>
+      <tr>
+        <td>Nintendo DSi</td>
+        <td>✕</td>
+        <td>表示不能</td>
+      </tr>
+      <tr>
+        <td>Microsoft Internet Explorer 8</td>
+        <td>✕</td>
+        <td>ゴミ</td>
+      </tr>
+    </table>
+    <footer>
+      <p>最終更新日：2025年9月1日</p>
+      <p>© 2025 yukidama-yoshi. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', function () {
+      isResizing = true;
+      document.body.style.cursor = 'ew-resize';
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      sidebar.style.width = newWidth + 'px';
+    });
+
+    document.addEventListener('mouseup', function () {
+      isResizing = false;
+      document.body.style.cursor = 'default';
+    });
+  </script>
+</body>
+</html>
