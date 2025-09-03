@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>過去のイラストアーカイブ</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "MS Gothic", "Osaka", monospace;
+      background-image: url("images/pg.png");
+      background-repeat: repeat;
+      background-size: 600px;
+      color: #000000;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #ffffff;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 6px 0;
+      color: blue;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .sidebar a::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #999;
+      margin-right: 8px;
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: ew-resize;
+      background-color: #ccc;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px 20px;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.65);
+    }
+
+    .archive-title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .archive-description {
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+
+    iframe {
+      display: block;
+      margin: 0 auto 20px;
+      border: none;
+    }
+
+    .scratch-link {
+      text-align: center;
+      font-size: 14px;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <a href="index.html">トップ</a>
+    <a href="profile.html">プロフィール</a>
+    <a href="links.html">リンク</a>
+    <a href="contact.html">連絡先</a>
+    <a href="devices.html">動作確認済みﾌﾞﾗｳｻﾞ</a>
+  </div>
+  <div class="resizer" id="resizer"></div>
+
+  <div class="main">
+    <h1 class="archive-title">過去のイラストアーカイブ</h1>
+    <p class="archive-description">以下のScratchプロジェクトから、過去に掲載されたイラストをご覧いただけます。</p>
+
+    <iframe src="https://scratch.mit.edu/projects/123456789/embed"
+            width="485" height="402"
+            allowtransparency="true" scrolling="no" frameborder="0"></iframe>
+
+    <p class="scratch-link">
+      <a href="https://scratch.mit.edu/projects/123456789/" target="_blank">Scratchで全画面表示する</a>
+    </p>
+
+    <footer>
+      <p>© 2025 yukidama-yoshi. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', function () {
+      isResizing = true;
+      document.body.style.cursor = 'ew-resize';
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      sidebar.style.width = newWidth + 'px';
+    });
+
+    document.addEventListener('mouseup', function () {
+      isResizing = false;
+      document.body.style.cursor = 'default';
+    });
+  </script>
+</body>
+</html>
