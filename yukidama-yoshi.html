@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ここはゆきだまの領域ではありません</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "MS Gothic", "Osaka", monospace;
+      background-image: url("images/Profile.png");
+      background-repeat: repeat;
+      background-size: 300px;
+      color: #00ffff;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #ffffff;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 6px 0;
+      color: #3366cc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .sidebar a::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #999;
+      margin-right: 8px;
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: ew-resize;
+      background-color: #ccc;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px 20px;
+      text-align: center;
+      overflow-y: auto;
+      background-color: rgba(0, 0, 0, 0.75);
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    a {
+      color: #ffff00;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #888888;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <a href="index.html">トップ</a>
+    <a href="profile.html">プロフィール</a>
+    <a href="links.html">リンク</a>
+    <a href="contact.html">連絡先</a>
+    <a href="devices.html">動作確認済み機種</a>
+  </div>
+  <div class="resizer" id="resizer"></div>
+
+  <div class="main">
+    <h1>隠しページへようこそ。</h1>
+    <p>このページは、URLを手打ちうどん（またはそば）した者のみが辿り着ける幻の空間です。</p>
+    <p>リンクも案内もありません。あなたは選ばれし者です。
+    よければ、のんびりしていってください</p>
+    <p><a href="index.html">→ ホームに戻る</a></p>
+    <footer>
+      <p>© 2025 yukidama-yoshi. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', function () {
+      isResizing = true;
+      document.body.style.cursor = 'ew-resize';
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      sidebar.style.width = newWidth + 'px';
+    });
+
+    document.addEventListener('mouseup', function () {
+      isResizing = false;
+      document.body.style.cursor = 'default';
+    });
+  </script>
+</body>
+</html>
