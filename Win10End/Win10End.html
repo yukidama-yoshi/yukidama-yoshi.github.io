@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Win10サポート終了タイマー</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin-top: 100px;
+      background-color: #f0f0f0;
+    }
+    #timer {
+      font-size: 2em;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Windows 10 サポート終了までの残り時間</h1>
+  <div id="timer">読み込み中...</div>
+
+  <script>
+    const endDate = new Date("2025-10-14T00:00:00+09:00"); // JSTで設定
+
+    function updateTimer() {
+      const now = new Date();
+      const diff = endDate - now;
+
+      if (diff <= 0) {
+        document.getElementById("timer").innerText = "サポートは終了しました。";
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const centiseconds = Math.floor((diff % 1000) / 10);
+
+      const days = Math.floor(totalSeconds / (3600 * 24));
+      const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      document.getElementById("timer").innerText =
+        `${days}日 ${hours}時間 ${minutes}分 ${seconds}.${centiseconds.toString().padStart(2, '0')}秒`;
+    }
+
+    setInterval(updateTimer, 10); // 10msごとに更新（100分の1秒）
+  </script>
+</body>
+</html>
