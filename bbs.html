@@ -89,6 +89,7 @@
       top: 0;
     }
 
+    /* 投稿の共通デザイン */
     .post {
       margin-bottom: 15px;
       padding-bottom: 10px;
@@ -96,18 +97,13 @@
       line-height: 1.5;
     }
 
-    .post.admin {
-      background-color: #fff9e6;
-      border-left: 5px solid #ffcc00;
-      padding: 10px;
-    }
-
+    /* 管理人アイコンのみの設定（背景色などは削除） */
     .admin-icon {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       vertical-align: middle;
       margin-right: 5px;
-      border: 1px solid #999;
+      border: 1px solid #ccc;
     }
 
     h1, h2, h3 {
@@ -128,12 +124,12 @@
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
-    <h1>掲示板</h1>
+    <h1>掲示板（A館 記帳所）</h1>
     <hr style="width: 80%; margin: 20px auto;">
 
     <div class="bbs-container">
       <section id="bbs-log">
-        <h3>書き込み</h3>
+        <h3>過去の書き込み</h3>
         <div id="bbs-display-area">ログを読み込み中...</div>
       </section>
 
