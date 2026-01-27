@@ -35,6 +35,7 @@
       padding: 6px 0;
       color: blue;
       text-decoration: none;
+      font-weight: bold;
     }
 
     .sidebar a.current {
@@ -60,14 +61,14 @@
 
     .main {
       flex: 1;
-      padding: 20px;
+      padding: 40px 20px;
       overflow-y: auto;
       background-color: rgba(255, 255, 255, 0.65);
     }
 
     .bbs-container {
       display: flex;
-      gap: 20px;
+      gap: 32px;
       align-items: flex-start;
       max-width: 1200px;
       margin: 0 auto;
@@ -98,20 +99,27 @@
     h1, h2, h3 {
       text-align: center;
     }
+
+    footer {
+      margin-top: 40px;
+      font-size: 12px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
   <nav class="sidebar" id="sidebar"></nav>
+
   <div class="resizer" id="resizer"></div>
 
-  <main class="main">
-    <h1>掲示板</h1>
-    <hr>
+  <div class="main">
+    <h1>掲示板（A館 記帳所）</h1>
+    <hr style="width: 80%; margin: 20px auto;">
 
     <div class="bbs-container">
       <section id="bbs-log">
-        <h3>書き込み</h3>
+        <h3>過去の書き込み</h3>
         <div id="bbs-display-area">ログを読み込み中...</div>
       </section>
 
@@ -128,10 +136,10 @@
       </section>
     </div>
     
-    <footer style="margin-top: 40px; text-align: center; font-size: 12px;">
+    <footer>
       <p>© 2026 ゆきだま. All rights reserved.</p>
     </footer>
-  </main>
+  </div>
 
   <script src="js/load-sidebar.js"></script>
 
@@ -157,21 +165,23 @@
     const sidebar = document.getElementById('sidebar');
     let isResizing = false;
 
-    resizer.addEventListener('mousedown', () => {
+    resizer.addEventListener('mousedown', function () {
       isResizing = true;
-      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none'; 
     });
 
-    document.addEventListener('mousemove', (e) => {
+    document.addEventListener('mousemove', function (e) {
       if (!isResizing) return;
-      let newWidth = e.clientX;
-      if (newWidth > 100 && newWidth < 500) {
+      const newWidth = e.clientX;
+      if (newWidth > 100 && newWidth < 600) {
         sidebar.style.width = newWidth + 'px';
       }
     });
 
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('mouseup', function () {
       isResizing = false;
+      document.body.style.cursor = 'default';
       document.body.style.userSelect = 'auto';
     });
   </script>
