@@ -19,19 +19,22 @@
 
     .sidebar {
       width: 200px;
+      min-width: 100px;
       background-color: #ffffff;
       border-right: 1px solid #ccc;
       padding: 20px;
       font-size: 14px;
       box-sizing: border-box;
+      flex-shrink: 0;
     }
 
+    /* 共通化してもデザインが崩れないように設定を維持 */
     .sidebar a {
       display: flex;
       align-items: center;
       margin-bottom: 12px;
       padding: 6px 0;
-      color: #3366cc;
+      color: blue;
       text-decoration: none;
       font-weight: bold;
     }
@@ -55,19 +58,42 @@
     .main {
       flex: 1;
       padding: 40px 20px;
-      text-align: left;
       overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 0.65);
     }
 
-    h1 {
+    .content {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+    }
+
+    .image-block img {
+      width: 360px;
+      height: auto;
+      margin-left: 60px;
+      display: block;
+    }
+
+    .image-block p {
+      font-size: 14px;
+      margin: 4px 0 0;
+      text-align: center;
+    }
+
+    .text-block {
+      flex: 1;
+      text-align: center;
+    }
+
+    .text-block h1 {
       font-size: 32px;
-      margin-bottom: 20px;
+      margin: 0 0 8px;
     }
 
-    p {
-      font-size: 18px;
-      margin-bottom: 10px;
+    .text-block hr {
+      margin: 20px auto;
+      width: 80%;
     }
 
     footer {
@@ -77,13 +103,8 @@
   </style>
 </head>
 <body>
-  <div class="sidebar" id="sidebar">
-    <a href="index.html">トップ</a>
-    <a href="profile.html">プロフィール</a>
-    <a href="links.html">リンク</a>
-    <a href="contact.html">連絡先</a>
-    <a href="devices.html">動作確認済みﾌﾞﾗｳｻﾞ</a>
-  </div>
+
+  <nav class="sidebar" id="sidebar"></nav>
   <div class="resizer" id="resizer"></div>
   <div class="main">
     <h1>ゆきだまのプロフィール</h1>
