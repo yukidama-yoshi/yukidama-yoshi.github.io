@@ -105,7 +105,9 @@
 <body>
 
   <nav class="sidebar" id="sidebar"></nav>
+
   <div class="resizer" id="resizer"></div>
+
   <div class="main">
     <h1>ゆきだまのプロフィール</h1>
     <hr>
@@ -115,24 +117,26 @@
     <p>・noteでも多く活動しています。よければ見てみて下さい！</p>
     <p>・</p>
     <hr>
-<h2>公式ゆきだま画像配布！！</h2>
-<p>例のゆきだるまくんです。現時点での最高画質！</p>
-<a href="images/ykdm.png" download>
-  <button style="padding: 10px 20px; font-size: 16px;">ダウンロードする！(11.1KB)</button>
-</a>
-<p>※再配布・改変はご遠慮ください。個人利用の範囲でどうぞ。</p>
+    <h2>公式ゆきだま画像配布！！</h2>
+    <p>例のゆきだるまくんです。現時点での最高画質！</p>
+    <a href="images/ykdm.png" download>
+      <button style="padding: 10px 20px; font-size: 16px;">ダウンロードする！(11.1KB)</button>
+    </a>
+    <p>※再配布・改変はご遠慮ください。個人利用の範囲でどうぞ。</p>
     <hr>
-<h2>秘密のファイル（という名の雑記）</h2>
-<p>こちらは、色々な裏話や雑談が詰まったPDFです。</p>
-<a href="files/ゆきだまの秘密のファイル！.pdf" download>
-  <button style="padding: 10px 20px; font-size: 16px;">ダウンロードする！(136KB)</button>
-</a>
-<p>※こちらも再配布・改変はご遠慮ください。個人利用の範囲でどうぞ。</p>
+    <h2>秘密のファイル（という名の雑記）</h2>
+    <p>こちらは、色々な裏話や雑談が詰まったPDFです。</p>
+    <a href="files/ゆきだまの秘密のファイル！.pdf" download>
+      <button style="padding: 10px 20px; font-size: 16px;">ダウンロードする！(136KB)</button>
+    </a>
+    <p>※こちらも再配布・改変はご遠慮ください。個人利用の範囲でどうぞ。</p>
 
     <footer>
       <p>© 2025 yukidama-yoshi. All rights reserved.</p>
     </footer>
   </div>
+
+  <script src="js/load-sidebar.js"></script>
 
   <script>
     const resizer = document.getElementById('resizer');
@@ -142,17 +146,22 @@
     resizer.addEventListener('mousedown', function () {
       isResizing = true;
       document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none'; // テキスト選択を防いで操作しやすくする
     });
 
     document.addEventListener('mousemove', function (e) {
       if (!isResizing) return;
       const newWidth = e.clientX;
-      sidebar.style.width = newWidth + 'px';
+      // 幅の制限を設ける（100px〜600px）
+      if (newWidth > 100 && newWidth < 600) {
+        sidebar.style.width = newWidth + 'px';
+      }
     });
 
     document.addEventListener('mouseup', function () {
       isResizing = false;
       document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
     });
   </script>
 </body>
