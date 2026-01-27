@@ -17,18 +17,103 @@
       overflow: hidden;
     }
 
-<nav class="sidebar" id="sidebar">
-  </nav>
+    .sidebar {
+      width: 200px;
+      min-width: 100px;
+      background-color: #ffffff;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      font-size: 14px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
 
-<script src="js/load-sidebar.js"></script>
+    /* 共通化してもデザインが崩れないように設定を維持 */
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 6px 0;
+      color: blue;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .sidebar a::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #999;
+      margin-right: 8px;
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: ew-resize;
+      background-color: #ccc;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px 20px;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.65);
+    }
+
+    .content {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+    }
+
+    .image-block img {
+      width: 360px;
+      height: auto;
+      margin-left: 60px;
+      display: block;
+    }
+
+    .image-block p {
+      font-size: 14px;
+      margin: 4px 0 0;
+      text-align: center;
+    }
+
+    .text-block {
+      flex: 1;
+      text-align: center;
+    }
+
+    .text-block h1 {
+      font-size: 32px;
+      margin: 0 0 8px;
+    }
+
+    .text-block hr {
+      margin: 20px auto;
+      width: 80%;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar" id="sidebar"></nav>
+
+  <div class="resizer" id="resizer"></div>
 
   <div class="main">
     <div class="content">
       <div class="image-block">
         <img src="images/topyk.png" alt="タイトル画像">
         <p>イラスト：<a href="illustcreator.html">supica-0325cさん</a></p>
-        <p>イラストは、随時切り替わります！
-      </div>
+        <p>イラストは、随時切り替わります！</p> </div>
       <div class="text-block">
         <h1>ゆきだまのホームページ A館</h1>
         <hr>
@@ -42,6 +127,8 @@
     </div>
   </div>
 
+  <script src="js/load-sidebar.js"></script>
+
   <script>
     const resizer = document.getElementById('resizer');
     const sidebar = document.getElementById('sidebar');
@@ -50,17 +137,21 @@
     resizer.addEventListener('mousedown', function () {
       isResizing = true;
       document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none'; 
     });
 
     document.addEventListener('mousemove', function (e) {
       if (!isResizing) return;
       const newWidth = e.clientX;
-      sidebar.style.width = newWidth + 'px';
+      if (newWidth > 100 && newWidth < 600) {
+        sidebar.style.width = newWidth + 'px';
+      }
     });
 
     document.addEventListener('mouseup', function () {
       isResizing = false;
       document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
     });
   </script>
 </body>
