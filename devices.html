@@ -8,7 +8,7 @@
       margin: 0;
       padding: 0;
       font-family: "MS Gothic", "Osaka", monospace;
-      background-image: url("images/devices.png"); /* ← 新しい背景画像 */
+      background-image: url("images/devices.png");
       background-repeat: repeat;
       background-size: 300px;
       color: #000000;
@@ -19,11 +19,13 @@
 
     .sidebar {
       width: 200px;
+      min-width: 100px;
       background-color: #ffffff;
       border-right: 1px solid #ccc;
       padding: 20px;
       font-size: 14px;
       box-sizing: border-box;
+      flex-shrink: 0;
     }
 
     .sidebar a {
@@ -95,71 +97,65 @@
   </style>
 </head>
 <body>
-  <div class="sidebar" id="sidebar">
-    <a href="index.html">トップ</a>
-    <a href="profile.html">プロフィール</a>
-    <a href="links.html">リンク</a>
-    <a href="contact.html">連絡先</a>
-    <a href="devices.html">動作確認済みﾌﾞﾗｳｻﾞ</a>
-  </div>
+  <nav class="sidebar" id="sidebar"></nav>
+
   <div class="resizer" id="resizer"></div>
+
   <div class="main">
     <h1>動作確認済みブラウザー</h1>
     <hr>
     <table>
-  <caption>互換性ﾚﾎﾟｰﾄ（2025年10月16日版)</caption>
-  <caption>※Scratch埋め込みなど、外部サイトを経由するものはほぼ動作しません※</caption>
-    <tr>
-    <th>機種・ブラウザ</th>
-    <th>判定</th>
-    <th>備考</th>
-  </tr>
-  <tr>
-    <td>Nintendo Switch 内部ブラウザ</td>
-    <td>◎</td>
-    <td>完全表示、操作も快適</td>
-  </tr>
-  <tr>
-    <td>Nintendo WiiU</td>
-    <td>△～◯</td>
-    <td>表示は可能。ただ、メニューバーの崩れがあり</td>
-  </tr>
-  <tr>
-    <td>Nintendo 3DS（初代）</td>
-    <td>△〜◯</td>
-    <td>Wii Uと同様</td>
-  </tr>
-  <tr>
-    <td>Nintendo DSi</td>
-    <td>X</td>
-    <td>表示不能</td>
-  </tr>
-     <tr>
-    <td>Microsoft Internet Explorer 11</td>
-    <td>◎</td>
-    <td>互換性あり</td>
-  </tr>
-  <tr>
-    <td>Microsoft Internet Explorer 8</td>
-    <td>X</td>
-    <td>ゴミ</td>
-  </tr>
-    <tr>
-    <td>Microsoft Internet Explorer 6</td>
-    <td>X</td>
-    <td>Googleすら閲覧できない。</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td></td>
-    <td>※阿部 寛のホームページは、上記全てのブラウザで表示可能。</td>
-  </tr>
-</table>
+      <caption>互換性ﾚﾎﾟｰﾄ（2025年10月16日版)</caption>
+      <caption>※Scratch埋め込みなど、外部サイトを経由するものはほぼ動作しません※</caption>
+      <tr>
+        <th>機種・ブラウザ</th>
+        <th>判定</th>
+        <th>備考</th>
+      </tr>
+      <tr>
+        <td>Nintendo Switch 内部ブラウザ</td>
+        <td>◎</td>
+        <td>完全表示、操作も快適</td>
+      </tr>
+      <tr>
+        <td>Nintendo WiiU</td>
+        <td>△～◯</td>
+        <td>表示は可能。ただ、メニューバーの崩れがあり</td>
+      </tr>
+      <tr>
+        <td>Nintendo 3DS（初代）</td>
+        <td>△〜◯</td>
+        <td>Wii Uと同様</td>
+      </tr>
+      <tr>
+        <td>Nintendo DSi</td>
+        <td>X</td>
+        <td>表示不能</td>
+      </tr>
+      <tr>
+        <td>Microsoft Internet Explorer 11</td>
+        <td>◎</td>
+        <td>互換性あり</td>
+      </tr>
+      <tr>
+        <td>Microsoft Internet Explorer 8</td>
+        <td>X</td>
+        <td>ゴミ</td>
+      </tr>
+      <tr>
+        <td>Microsoft Internet Explorer 6</td>
+        <td>X</td>
+        <td>Googleすら閲覧できない。</td>
+      </tr>
+    </table>
+
     <footer>
       <p>記載されている会社名、製品名は、各社の商標または登録商標です。</p>
       <p>© 2025 yukidama-yoshi. All rights reserved.</p>
     </footer>
   </div>
+
+  <script src="js/load-sidebar.js"></script>
 
   <script>
     const resizer = document.getElementById('resizer');
@@ -169,17 +165,21 @@
     resizer.addEventListener('mousedown', function () {
       isResizing = true;
       document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none';
     });
 
     document.addEventListener('mousemove', function (e) {
       if (!isResizing) return;
       const newWidth = e.clientX;
-      sidebar.style.width = newWidth + 'px';
+      if (newWidth > 100 && newWidth < 600) {
+        sidebar.style.width = newWidth + 'px';
+      }
     });
 
     document.addEventListener('mouseup', function () {
       isResizing = false;
       document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
     });
   </script>
 </body>
