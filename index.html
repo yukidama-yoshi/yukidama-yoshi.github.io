@@ -17,104 +17,10 @@
       overflow: hidden;
     }
 
-    .sidebar {
-      width: 200px;
-      background-color: #ffffff;
-      border-right: 1px solid #ccc;
-      padding: 20px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
+<nav class="sidebar" id="sidebar">
+  </nav>
 
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-      padding: 6px 0;
-      color: blue;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .sidebar a::before {
-      content: "";
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #999;
-      margin-right: 8px;
-    }
-
-    .resizer {
-      width: 5px;
-      cursor: ew-resize;
-      background-color: #ccc;
-    }
-
-    .main {
-      flex: 1;
-      padding: 40px 20px;
-      overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.65);
-    }
-
-    .content {
-      display: flex;
-      align-items: flex-start;
-      gap: 32px;
-    }
-
-    .image-block img {
-      width: 360px;
-      height: auto;
-      margin: 0;
-      padding: 0;
-      display: block;
-      margin-left: 60px; /* ← さらに右に寄せました！ */
-    }
-
-    .image-block p {
-      font-size: 14px;
-      margin: 4px 0 0;
-      text-align: center;
-    }
-
-    .text-block {
-      flex: 1;
-      text-align: center;
-    }
-
-    .text-block h1 {
-      font-size: 32px;
-      margin: 0 0 8px;
-    }
-
-    .text-block p {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-
-    .text-block hr {
-      margin: 20px auto;
-      width: 80%;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 12px;
-    }
-  </style>
-</head>
-<body>
-  <div class="sidebar" id="sidebar">
-    <a href="index.html">トップ</a>
-    <a href="profile.html">プロフィール</a>
-    <a href="links.html">リンク</a>
-    <a href="contact.html">連絡先</a>
-    <a href="devices.html">動作確認済みﾌﾞﾗｳｻﾞ</a>
-  </div>
-  <div class="resizer" id="resizer"></div>
+<script src="js/load-sidebar.js"></script>
 
   <div class="main">
     <div class="content">
