@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>連絡先 - ゆきだまのホームページ</title>
   <style>
+    /* A館のスタイルをベースに移植 */
     body {
       margin: 0;
       padding: 0;
@@ -19,13 +20,16 @@
 
     .sidebar {
       width: 200px;
+      min-width: 100px;
       background-color: #ffffff;
       border-right: 1px solid #ccc;
       padding: 20px;
       font-size: 14px;
       box-sizing: border-box;
+      flex-shrink: 0;
     }
 
+    /* 共通サイドバー用のスタイル維持 */
     .sidebar a {
       display: flex;
       align-items: center;
@@ -57,12 +61,23 @@
       padding: 40px 20px;
       overflow-y: auto;
       background-color: rgba(255, 255, 255, 0.65);
-      text-align: center;
+      text-align: center; /* 連絡先は中央揃えを維持 */
+    }
+
+    /* 連絡先コンテンツ用のスタイル */
+    .contact-container {
+      max-width: 600px;
+      margin: 0 auto;
     }
 
     h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
+      font-size: 32px;
+      margin: 0 0 20px;
+    }
+
+    hr {
+      margin: 20px auto;
+      width: 80%;
     }
 
     p {
@@ -83,25 +98,26 @@
   </style>
 </head>
 <body>
-  <div class="sidebar" id="sidebar">
-    <a href="index.html">トップ</a>
-    <a href="profile.html">プロフィール</a>
-    <a href="links.html">リンク</a>
-    <a href="contact.html">連絡先</a>
-    <a href="devices.html">動作確認済みﾌﾞﾗｳｻﾞ</a>
-  </div>
+
+  <nav class="sidebar" id="sidebar"></nav>
+
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
-    <h1>連絡先</h1>
-    <p>このホームページに関するご意見・ご感想などは、</p>
-    <p><a href="https://scratch.mit.edu/projects/1184723015/" target="_blank">Scratchのコメント欄</a>にてどうぞ。</p>
-    <p>※メールは受け付けておりません。返信も保証されません。ご了承ください。</p>
-
-    <footer>
-      <p>© 2025 yukidama-yoshi. All rights reserved.</p>
-    </footer>
+    <div class="contact-container">
+      <h1>連絡先</h1>
+      <hr>
+      <p>このホームページに関するご意見・ご感想などは、</p>
+      <p><a href="https://twitter.com/yukidama_yoshi" target="_blank">Twitter</a>にてどうぞ。</p>
+      <p>※メールは受け付けておりません。返信も保証されません。ご了承ください。</p>
+      <hr>
+      <footer>
+        <p>© 2025 yukidama-yoshi. All rights reserved.</p>
+      </footer>
+    </div>
   </div>
+
+  <script src="js/load-sidebar.js"></script>
 
   <script>
     const resizer = document.getElementById('resizer');
@@ -111,17 +127,21 @@
     resizer.addEventListener('mousedown', function () {
       isResizing = true;
       document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none'; 
     });
 
     document.addEventListener('mousemove', function (e) {
       if (!isResizing) return;
       const newWidth = e.clientX;
-      sidebar.style.width = newWidth + 'px';
+      if (newWidth > 100 && newWidth < 600) {
+        sidebar.style.width = newWidth + 'px';
+      }
     });
 
     document.addEventListener('mouseup', function () {
       isResizing = false;
       document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
     });
   </script>
 </body>
