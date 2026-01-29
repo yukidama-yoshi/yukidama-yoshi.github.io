@@ -28,6 +28,7 @@
       flex-shrink: 0;
     }
 
+    /* 共通化してもデザインが崩れないように設定を維持 */
     .sidebar a {
       display: flex;
       align-items: center;
@@ -98,7 +99,6 @@
     footer {
       margin-top: 40px;
       font-size: 12px;
-      text-align: center;
     }
   </style>
 </head>
@@ -111,14 +111,8 @@
   <div class="main">
     <div class="content">
       <div class="text-block">
-        <h1>プロフィール</h1>
-        <hr>
-        </div>
+      </div>
     </div>
-    
-    <footer>
-      <p>© 2026 ゆきだま. All rights reserved.</p>
-    </footer>
   </div>
 
   <script src="js/load-sidebar.js"></script>
@@ -148,5 +142,6 @@
       document.body.style.userSelect = 'auto';
     });
   </script>
+
 </body>
 </html>
