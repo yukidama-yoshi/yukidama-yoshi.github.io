@@ -28,7 +28,6 @@
       flex-shrink: 0;
     }
 
-    /* 共通化してもデザインが崩れないように設定を維持 */
     .sidebar a {
       display: flex;
       align-items: center;
@@ -99,6 +98,7 @@
     footer {
       margin-top: 40px;
       font-size: 12px;
+      text-align: center;
     }
   </style>
 </head>
@@ -109,17 +109,44 @@
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
-    <h1>ゆきだまのプロフィール</h1>
-    <hr>
-    <p>名前：ゆきだま</p>
-    <p>10代、学生です</p>
-    <p>Scratch歴2年6ヶ月（2025年9月2日現在）</p>
-    <p></p>
-    <p></p>
-    <hr>
-    <h2>公式ゆきだま画像配布！！</h2>
-    <p>例のゆきだるまくんです。現時点での最高画質！？</p>
-    <a href="images/ykdm.png" download>
-   
+    <div class="content">
+      <div class="text-block">
+        <h1>プロフィール</h1>
+        <hr>
+        </div>
+    </div>
+    
+    <footer>
+      <p>© 2026 ゆきだま. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="js/load-sidebar.js"></script>
+
+  <script>
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', function () {
+      isResizing = true;
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none'; 
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      if (newWidth > 100 && newWidth < 600) {
+        sidebar.style.width = newWidth + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', function () {
+      isResizing = false;
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    });
+  </script>
 </body>
 </html>
