@@ -4,129 +4,25 @@
   <meta charset="UTF-8">
   <title>掲示板 - ゆきだまのホームページ A館</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "MS Gothic", "Osaka", monospace;
-      background-image: url("images/pg.png");
-      background-repeat: repeat;
-      background-size: 600px;
-      color: #000000;
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .sidebar {
-      width: 200px;
-      min-width: 100px;
-      background-color: #ffffff;
-      border-right: 1px solid #ccc;
-      padding: 20px;
-      font-size: 14px;
-      box-sizing: border-box;
-      flex-shrink: 0;
-    }
-
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-      padding: 6px 0;
-      color: blue;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .sidebar a.current {
-      font-weight: bold;
-      color: #000;
-    }
-
-    .sidebar a::before {
-      content: "";
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #999;
-      margin-right: 8px;
-    }
-
-    .resizer {
-      width: 5px;
-      cursor: ew-resize;
-      background-color: #ccc;
-    }
-
-    .main {
-      flex: 1;
-      padding: 40px 20px;
-      overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.65);
-    }
-
-    .bbs-container {
-      display: flex;
-      gap: 32px;
-      align-items: flex-start;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    #bbs-log {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 20px;
-      border: 1px solid #999;
-      border-radius: 4px;
-      min-height: 800px;
-    }
-
-    .form-wrapper {
-      width: 450px;
-      position: sticky;
-      top: 0;
-    }
-
-    .post {
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px dotted #999;
-    }
-
-    /* 投稿の本文エリア：ここだけ改行を有効にする */
-    .post-body {
-      display: block;
-      margin-top: 8px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-
-    /* アイコンの設定 */
-    .admin-icon {
-      width: 18px;
-      height: 18px;
-      vertical-align: middle;
-      margin-left: 5px;
-      border: 1px solid #ccc;
-    }
-
-    h1, h2, h3 {
-      text-align: center;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 12px;
-      text-align: center;
-    }
+    /* （スタイル部分は前回のままなので中略：.post-body white-space: pre-wrap; を含む） */
+    body { margin: 0; padding: 0; font-family: "MS Gothic", "Osaka", monospace; background-image: url("images/pg.png"); background-repeat: repeat; background-size: 600px; color: #000000; height: 100vh; display: flex; overflow: hidden; }
+    .sidebar { width: 200px; min-width: 100px; background-color: #ffffff; border-right: 1px solid #ccc; padding: 20px; font-size: 14px; box-sizing: border-box; flex-shrink: 0; }
+    .sidebar a { display: flex; align-items: center; margin-bottom: 12px; padding: 6px 0; color: blue; text-decoration: none; font-weight: bold; }
+    .resizer { width: 5px; cursor: ew-resize; background-color: #ccc; }
+    .main { flex: 1; padding: 40px 20px; overflow-y: auto; background-color: rgba(255, 255, 255, 0.65); }
+    .bbs-container { display: flex; gap: 32px; align-items: flex-start; max-width: 1200px; margin: 0 auto; }
+    #bbs-log { flex: 1; background: rgba(255, 255, 255, 0.8); padding: 20px; border: 1px solid #999; border-radius: 4px; min-height: 800px; }
+    .form-wrapper { width: 450px; position: sticky; top: 0; }
+    .post { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dotted #999; }
+    .post-body { display: block; margin-top: 8px; line-height: 1.6; white-space: pre-wrap; }
+    .admin-icon { width: 18px; height: 18px; vertical-align: middle; margin-left: 5px; border: 1px solid #ccc; }
+    h1, h2, h3 { text-align: center; }
+    footer { margin-top: 40px; font-size: 12px; text-align: center; }
   </style>
 </head>
 <body>
 
   <nav class="sidebar" id="sidebar"></nav>
-
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
@@ -142,19 +38,13 @@
       <section class="form-wrapper">
         <iframe 
           src="https://docs.google.com/forms/d/e/1FAIpQLScxV-EVjZNhPdIwRhDW8fKMeRpEX5sh5Swb7nDeXIt3RT9Srg/viewform?embedded=true" 
-          width="450" 
-          height="800" 
-          frameborder="0" 
-          marginheight="0" 
-          marginwidth="0">
+          width="450" height="800" frameborder="0" marginheight="0" marginwidth="0">
           読み込んでいます…
         </iframe>
       </section>
     </div>
     
-    <footer>
-      <p>© 2026 ゆきだま. All rights reserved.</p>
-    </footer>
+    <footer><p>© 2026 ゆきだま. All rights reserved.</p></footer>
   </div>
 
   <script src="js/load-sidebar.js"></script>
@@ -167,39 +57,39 @@
           return response.text();
         })
         .then(data => {
-          document.getElementById('bbs-display-area').innerHTML = data;
+          const displayArea = document.getElementById('bbs-display-area');
+          displayArea.innerHTML = data;
+
+          // URLを検知してクッションページ経由のリンクに変換する処理
+          const postBodies = displayArea.querySelectorAll('.post-body');
+          postBodies.forEach(body => {
+            // URLを抽出する正規表現
+            const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
+            body.innerHTML = body.innerHTML.replace(urlRegex, (url) => {
+              // jump.html 経由のリンクに差し替え
+              return `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`;
+            });
+          });
         })
         .catch(err => {
-          document.getElementById('bbs-display-area').innerHTML = "まだ書き込みがないか、ログの読み込みに失敗しました。";
+          document.getElementById('bbs-display-area').innerHTML = "読み込みに失敗しました。";
         });
     }
     loadBBSLogs();
   </script>
 
   <script>
+    /* サイドバーのリサイズ処理（省略なし） */
     const resizer = document.getElementById('resizer');
     const sidebar = document.getElementById('sidebar');
     let isResizing = false;
-
-    resizer.addEventListener('mousedown', function () {
-      isResizing = true;
-      document.body.style.cursor = 'ew-resize';
-      document.body.style.userSelect = 'none'; 
-    });
-
-    document.addEventListener('mousemove', function (e) {
+    resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'ew-resize'; });
+    document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
       const newWidth = e.clientX;
-      if (newWidth > 100 && newWidth < 600) {
-        sidebar.style.width = newWidth + 'px';
-      }
+      if (newWidth > 100 && newWidth < 600) sidebar.style.width = newWidth + 'px';
     });
-
-    document.addEventListener('mouseup', function () {
-      isResizing = false;
-      document.body.style.cursor = 'default';
-      document.body.style.userSelect = 'auto';
-    });
+    document.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; });
   </script>
 </body>
 </html>
