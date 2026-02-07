@@ -38,7 +38,6 @@
       font-weight: bold;
     }
 
-    /* 【復活！】リンクの横の丸を表示する設定 */
     .sidebar a::before {
       content: "";
       display: inline-block;
@@ -95,7 +94,7 @@
       display: block;
       margin-top: 8px;
       line-height: 1.6;
-      white-space: pre-wrap; /* 改行を有効にする設定 */
+      white-space: pre-wrap;
     }
 
     .admin-icon {
@@ -134,9 +133,6 @@
       </section>
 
       <section class="form-wrapper">
-        <p style="font-size: 13px; margin-bottom: 8px; text-align: center;">
-          投稿前に<a href="bbskiyaku.html" target="_blank" style="color: blue; font-weight: bold;">掲示板のルール</a>をご確認ください。
-        </p>
         <iframe 
           src="https://docs.google.com/forms/d/e/1FAIpQLScxV-EVjZNhPdIwRhDW8fKMeRpEX5sh5Swb7nDeXIt3RT9Srg/viewform?embedded=true" 
           width="450" 
@@ -167,7 +163,6 @@
           const displayArea = document.getElementById('bbs-display-area');
           displayArea.innerHTML = data;
 
-          // URL自動置換処理（クッションページ経由）
           const postBodies = displayArea.querySelectorAll('.post-body');
           postBodies.forEach(body => {
             const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
