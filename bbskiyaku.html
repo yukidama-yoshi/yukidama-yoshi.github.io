@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>掲示板のご利用規定 - ゆきだまのホームページ A館</title>
   <style>
-    /* 既存のスタイルを維持 */
+    /* 既存のスタイル */
     body { margin: 0; padding: 0; font-family: "MS Gothic", "Osaka", monospace; background-image: url("images/pg.png"); background-repeat: repeat; background-size: 600px; color: #000000; height: 100vh; display: flex; overflow: hidden; }
     .sidebar { width: 200px; min-width: 100px; background-color: #ffffff; border-right: 1px solid #ccc; padding: 20px; font-size: 14px; box-sizing: border-box; flex-shrink: 0; }
     .sidebar a { display: flex; align-items: center; margin-bottom: 12px; padding: 6px 0; color: blue; text-decoration: none; font-weight: bold; }
@@ -12,14 +12,16 @@
     .resizer { width: 5px; cursor: ew-resize; background-color: #ccc; }
     .main { flex: 1; padding: 40px 20px; overflow-y: auto; background-color: rgba(255, 255, 255, 0.65); }
     .text-block { max-width: 800px; margin: 0 auto; text-align: left; }
-    
-    /* タイトルの下線を削除 */
     .text-block h1 { font-size: 28px; text-align: center; margin: 0 0 12px; border-bottom: none; }
-    
     .text-block h2 { font-size: 18px; background: #333; color: #fff; padding: 5px 10px; margin-top: 30px; }
     .text-block hr { margin: 20px auto; width: 100%; }
+    
+    /* リストの行間調整 */
     ul { padding-left: 20px; }
-    li { margin-bottom: 10px; }
+    li { margin-bottom: 12px; line-height: 1.6; }
+    li ul { margin-top: 8px; }
+    li ul li { margin-bottom: 5px; }
+
     .important { color: red; font-weight: bold; }
     footer { margin-top: 40px; font-size: 12px; text-align: center; }
     .supplement { font-size: 13px; color: #000; margin-top: 40px; padding: 15px; border: 1px solid #333; background: #eee; font-weight: bold; line-height: 1.6; }
@@ -42,37 +44,55 @@
         <li>本掲示板は<strong>管理人承認制</strong>です。投稿は管理人のチェックを経て掲載されます。</li>
         <li>管理人が不適当と判断した投稿、または本規定に抵触する内容は、<span class="important">一切掲載しません。</span></li>
         <li>不掲載・削除の理由について、管理人は説明の義務を負いません。</li>
-        <li>投稿内容の著作権は投稿者に帰属しますが、管理人は掲示板の運営およびサイトの紹介を目的とする範囲において、投稿内容を無償で利用（引用やログ保管等）できるものとします。</li>
+        <li>投稿内容の著作権は投稿者に帰属しますが、管理人は掲示板の運営およびサイトの紹介を目的とする範囲において、投稿内容を無償で利用できるものとします。</li>
       </ul>
 
       <h2>2. 禁止事項</h2>
       <ul>
-        <li><strong>営利目的・宣伝行為：</strong> サイト、サーバー、あるいは商品の宣伝。</li>
+        <li><strong>不当な商業宣伝・勧誘：</strong> 自身の利益を目的とした露骨な宣伝、商材販売、怪しいサーバーへの勧誘行為。</li>
+        <li><strong>非公開コミュニティへの誘導：</strong> Discord、LINE、その他「招待やログインがないと内容を確認できないチャット・SNS」への招待リンク。</li>
+        <li><strong>過激なコンテンツ：</strong> 暴力的、猟奇的、公序良俗に反する内容、またはそれらを含むサイトへの誘導。</li>
         <li><strong>迷惑行為：</strong> 誹謗中傷、嫌がらせ、過度な身内ノリ、荒らし等。</li>
         <li><strong>個人情報の投稿：</strong> 住所・電話番号・メールアドレス等の公開。</li>
-        <li><strong>権利侵害：</strong> 著作権やその他の権利を侵害する内容。</li>
-        <li><strong>法令違反：</strong> 法律に違反する、またはそのおそれがある内容。</li>
-        <li><strong>なりすまし：</strong> 他者になりすます行為。</li>
+        <li><strong>権利侵害・法令違反：</strong> 著作権侵害、他者へのなりすまし、および法律に違反する行為。</li>
         <li><strong>その他：</strong> 管理人が運営上の支障があると判断する一切の行為。</li>
       </ul>
 
-      <h2>3. 免責事項</h2>
+      <h2>3. 外部リンクの制限</h2>
       <ul>
-        <li>URL等の外部リンクは<strong>クッションページ</strong>を経由します。</li>
+        <li>原則として、商業宣伝を主目的としたリンクや、安全性が確認できないサイトへのリンク投稿は禁止します。</li>
+        <li>投稿されたURLはすべて<strong>クッションページ</strong>を経由して表示されます。</li>
+      </ul>
+
+      <h2>4. 外部リンクの特例（掲載可能なもの）</h2>
+      <ul>
+        <li>
+          第2項および第3項の規定にかかわらず、<strong>「第三者がログイン不要で内容を閲覧可能なサイト」</strong>の一般的な共有目的であれば、リンクの投稿を歓迎します。
+          <ul>
+            <li>YouTube、ニコニコ、X（Twitter）等に投稿されている公開コンテンツ、個人ブログ</li>
+            <li>Wikipediaなどの情報サイト</li>
+            <li>Scratch（プロジェクト・スタジオ等）</li>
+            <li>その他管理人が安全と認めるサイト</li>
+          </ul>
+        </li>
+        <li><strong>補足：</strong> リンク先が広告掲載等により収益化されていても、それが純粋なコンテンツ共有であり、本掲示板を単なる宣伝媒体として利用するものでない限り、掲載を制限することはありません。</li>
+      </ul>
+
+      <h2>5. 免責事項</h2>
+      <ul>
         <li>リンク先および投稿内容に関連して発生した損害について、当サイトは一切の責任を負いません。</li>
       </ul>
 
-      <h2>4. 規定の変更</h2>
+      <h2>6. 規定の変更</h2>
       <ul>
         <li>本規定は、管理人の判断により、利用者に事前の通知なくいつでも変更・改定できるものとします。</li>
-        <li>利用者は常に最新の規定を確認し、その内容に同意しているものとみなします。</li>
       </ul>
 
       <div class="supplement">
         【附則】<br>
         1. 本規定は令和8年2月7日より施行します。<br>
-        2. 本規約は掲示板の健全な運営を目的として制定されたものであり、<strong>本規定の施行・改定前に投稿された内容に対しても、一律に遡って適用するものとします。</strong><br>
-        3. 利用者は、投稿を行った時点およびその後の利用において、常に最新の規定に同意しているものとみなされます。
+        2. 本規定の施行・改定前に投稿された内容に対しても、一律に遡って適用するものとします。<br>
+        3. 利用者は、常に最新の規定に同意しているものとみなされます。
       </div>
 
       <hr>
