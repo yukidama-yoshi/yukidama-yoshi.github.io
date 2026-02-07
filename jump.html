@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>外部リンクへの移動確認 - ゆきだまのホームページ</title>
+  <style>
+    body { font-family: "MS Gothic", "Osaka", monospace; background: #eee; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .container { background: white; padding: 30px; border: 2px solid #333; box-shadow: 5px 5px 0px #999; max-width: 500px; width: 90%; text-align: center; }
+    h2 { font-size: 18px; color: #d00; border-bottom: 2px solid #d00; padding-bottom: 10px; }
+    .url-display { background: #f9f9f9; border: 1px inset #ccc; padding: 15px; margin: 20px 0; word-break: break-all; font-size: 14px; color: #555; }
+    .btns { display: flex; gap: 10px; justify-content: center; }
+    .btn { text-decoration: none; padding: 10px 20px; border: 1px solid #333; color: #000; font-weight: bold; background: #fff; cursor: pointer; }
+    .btn:hover { background: #eee; }
+    .btn-go { background: #007bff; color: white; border-color: #0056b3; }
+    .btn-go:hover { background: #0056b3; }
+    .notice { font-size: 11px; color: #666; margin-top: 20px; text-align: left; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>⚠ 外部リンクへの移動確認</h2>
+    <p>掲示板に投稿されたリンクをクリックしました。<br>これより先は外部のサイトへ移動します。</p>
+    
+    <div id="target-url" class="url-display">URLを取得中...</div>
+
+    <div class="btns">
+      <a href="javascript:history.back()" class="btn">戻る</a>
+      <a id="jump-link" href="" class="btn btn-go">サイトへ移動する</a>
+    </div>
+
+    <div class="notice">
+      ※移動先のサイトで発生したトラブルやウイルス感染等について、当サイト（ゆきだまのホームページ）は一切の責任を負いません。リンク先の安全性を確認した上で移動してください。
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const url = params.get('url');
+    if (url) {
+      document.getElementById('target-url').innerText = url;
+      document.getElementById('jump-link').href = url;
+    } else {
+      document.getElementById('target-url').innerText = "エラー：URLが見つかりません。";
+      document.getElementById('jump-link').style.display = "none";
+    }
+  </script>
+</body>
+</html>
