@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>イラスト作成者さん紹介ページ</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "MS Gothic", "Osaka", monospace;
+      background-image: url("images/pg.png");
+      background-repeat: repeat;
+      background-size: 600px;
+      color: #000000;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #ffffff;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 6px 0;
+      color: blue;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .sidebar a::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #999;
+      margin-right: 8px;
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: ew-resize;
+      background-color: #ccc;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px 20px;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.65);
+    }
+
+    .creator-block {
+      margin-bottom: 40px;
+      background-color: rgba(255, 255, 255, 0.85);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    .creator-block img {
+      width: 300px;
+      height: auto;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .creator-block h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
+    .creator-block p {
+      font-size: 14px;
+      margin: 6px 0;
+    }
+
+    iframe {
+      margin-top: 10px;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <a href="index.html">トップ</a>
+    <a href="profile.html">プロフィール</a>
+    <a href="#">リンク</a>
+    <a href="contact.html">連絡先</a>
+    <a href="devices.html">動作確認済みﾌﾞﾗｳｻﾞ</a>
+  </div>
+  <div class="resizer" id="resizer"></div>
+
+  <div class="main">
+    <h1>イラスト作成者さん紹介ページ</h1>
+    <p>このページでは、トップページに掲載されたイラストの作成者さんをご紹介しています。</p>
+   <body>
+  <p>過去に掲載されたイラストを確認したい場合、<a href="image_archives.html" target="_blank">こちら</a>からご覧いただけます。</p>
+</body>
+</p>
+
+<div class="creator-block" style="display: flex; align-items: flex-start; gap: 24px;">
+<img src="images/topyk.png" alt="イラスト" style="width:413px; height:auto;">
+
+  <div class="creator-info" style="flex: 1;">
+    <h2>イラスト作成者：supica-0325cさん</h2>
+    <p><strong>Scratch：</strong> <a href="https://scratch.mit.edu/users/supica-0325c/" target="_blank">こちら</a></p>
+    <p><strong>ひとこと：</strong>背景の空の色を冬っぽく、影も頑張りました！</p>
+
+    <h3>イラスト作成者さんの注目のプロジェクト</h3>
+<p><strong>タイトル：</strong>
+  主ちゃんのカレーうどん狂騒曲
+</p>
+<p><strong>コメント：</strong>
+  かなり頑張って作りました！@yamaokamoti-とのコラボです！
+</p>
+    <iframe src="https://scratch.mit.edu/projects/1207145752/embed" allowtransparency="true" width="435" height="360" scrolling="no"></iframe>
+    <p><strong>・</strong> <a href="https://scratch.mit.edu/projects/1207145752/" target="_blank">プロジェクトをScratchで見る！</a></p>
+  </div>
+</div>
+
+    <p style="text-align: center; margin-top: 40px;">
+  <a href="index.html">トップへ戻る</a>
+</p>
+  </div>
+
+  <script>
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', function () {
+      isResizing = true;
+      document.body.style.cursor = 'ew-resize';
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      sidebar.style.width = newWidth + 'px';
+    });
+
+    document.addEventListener('mouseup', function () {
+      isResizing = false;
+      document.body.style.cursor = 'default';
+    });
+  </script>
+</body>
+</html>

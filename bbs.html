@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>掲示板 - ゆきだまのホームページ A館</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "MS Gothic", "Osaka", monospace;
+      background-image: url("images/pg.png");
+      background-repeat: repeat;
+      background-size: 600px;
+      color: #000000;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 200px;
+      min-width: 100px;
+      background-color: #ffffff;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+      font-size: 14px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 6px 0;
+      color: blue;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .sidebar a::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #999;
+      margin-right: 8px;
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: ew-resize;
+      background-color: #ccc;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px 20px;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.65);
+    }
+
+    .bbs-container {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    #bbs-log {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border: 1px solid #999;
+      border-radius: 4px;
+      min-height: 800px;
+    }
+
+    .form-wrapper {
+      width: 450px;
+      position: sticky;
+      top: 0;
+    }
+
+    .post {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px dotted #999;
+    }
+
+    .post-body {
+      display: block;
+      margin-top: 8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .admin-icon {
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+      margin-left: 5px;
+      border: 1px solid #ccc;
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar" id="sidebar"></nav>
+
+  <div class="resizer" id="resizer"></div>
+
+  <div class="main">
+    <h1>掲示板</h1>
+    <hr style="width: 80%; margin: 20px auto;">
+
+    <div class="bbs-container">
+      <section id="bbs-log">
+        <h3>書き込み</h3>
+        <div id="bbs-display-area">ログを読み込み中...</div>
+      </section>
+
+      <section class="form-wrapper">
+        <iframe 
+          src="https://docs.google.com/forms/d/e/1FAIpQLScxV-EVjZNhPdIwRhDW8fKMeRpEX5sh5Swb7nDeXIt3RT9Srg/viewform?embedded=true" 
+          width="450" 
+          height="800" 
+          frameborder="0" 
+          marginheight="0" 
+          marginwidth="0">
+          読み込んでいます…
+        </iframe>
+      </section>
+    </div>
+    
+    <footer>
+      <p>© 2026 ゆきだま. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="js/load-sidebar.js"></script>
+
+  <script>
+    function loadBBSLogs() {
+      fetch('bbs_logs.html?t=' + new Date().getTime())
+        .then(response => {
+          if (!response.ok) throw new Error('Not Found');
+          return response.text();
+        })
+        .then(data => {
+          const displayArea = document.getElementById('bbs-display-area');
+          displayArea.innerHTML = data;
+
+          const postBodies = displayArea.querySelectorAll('.post-body');
+          postBodies.forEach(body => {
+            const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
+            body.innerHTML = body.innerHTML.replace(urlRegex, (url) => {
+              return `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`;
+            });
+          });
+        })
+        .catch(err => {
+          document.getElementById('bbs-display-area').innerHTML = "まだ書き込みがないか、ログの読み込みに失敗しました。";
+        });
+    }
+    loadBBSLogs();
+  </script>
+
+  <script>
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', function () {
+      isResizing = true;
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none'; 
+    });
+
+    document.addEventListener('mousemove', function (e) {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      if (newWidth > 100 && newWidth < 600) {
+        sidebar.style.width = newWidth + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', function () {
+      isResizing = false;
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    });
+  </script>
+</body>
+</html>
