@@ -155,7 +155,7 @@
     <div class="bbs-container">
       <section id="bbs-log">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px;">
-          <h3 style="margin: 0;">書き込み</h3>
+          <h3 style="margin: 0;">書き込み <span id="post-count" style="font-weight: normal; font-size: 0.9em;">(0件)</span></h3>
           <button type="button" class="refresh-btn" onclick="loadBBSLogs()">最新の情報に更新</button>
         </div>
         <div id="bbs-display-area"></div>
@@ -189,6 +189,7 @@
 
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
+      const countDisplay = document.getElementById('post-count');
       displayArea.innerHTML = '<div class="status-msg"><img src="bbs_parts/loading.gif" class="status-icon">ログを読み込み中...</div>';
 
       fetch('bbs_logs.html?t=' + new Date().getTime())
@@ -198,6 +199,10 @@
         })
         .then(data => {
           displayArea.innerHTML = data;
+
+          // 投稿数をカウントして表示
+          const posts = displayArea.querySelectorAll('.post');
+          countDisplay.textContent = `(${posts.length}件)`;
 
           const postBodies = displayArea.querySelectorAll('.post-body');
           postBodies.forEach(body => {
@@ -209,6 +214,7 @@
         })
         .catch(err => {
           displayArea.innerHTML = '<div class="status-msg"><img src="bbs_parts/error.png" class="status-icon">ログの読み込みに失敗しました。</div>';
+          countDisplay.textContent = '(取得失敗)';
         });
     }
     loadBBSLogs();
