@@ -1,0 +1,41 @@
+name: BBS Auto Update
+
+on:
+  repository_dispatch:
+    types: [new-post]
+
+jobs:
+  update-html:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update BBS Log
+        run: |
+          # Cloudflareから届いたデータを受け取る
+          NAME="${{ github.event.client_payload.name }}"
+          MESSAGE="${{ github.event.client_payload.message }}"
+          # 日本時間に設定
+          DATE=$(TZ=Asia/Tokyo date '+%Y/%m/%d %H:%M')
+
+          # 改行コードをHTML用の<br>に変換
+          FORMATTED_MSG=$(echo "${MESSAGE}" | sed ':a;N;$!ba;s/\n/<br>/g')
+
+          # あなたのbbs_logs.htmlの形式を完全再現
+          NEW_POST="<div class=\"post\"><strong>${NAME}</strong> [${DATE}] <span class=\"post-body\">${FORMATTED_MSG}</span></div>"
+
+          # 「」という目印の直後に、新しい投稿を差し込む
+          # ※ファイル名が bbs_logs.html であることを確認してください
+          sed -i "//a ${NEW_POST}" bbs_logs.html
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add bbs_logs.html
+          git commit -m "New post: ${{ github.event.client_payload.name }}"
+          git push
