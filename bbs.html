@@ -127,9 +127,18 @@
       background: #ddd;
     }
 
-    .status-img {
-      display: block;
-      margin: 20px auto;
+    .status-msg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .status-icon {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
     }
   </style>
 </head>
@@ -175,7 +184,7 @@
   <script>
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
-      displayArea.innerHTML = '<img src="/bbs_parts/loading.gif" alt="読み込み中..." class="status-img">';
+      displayArea.innerHTML = '<div class="status-msg"><img src="/bbs_parts/loading.gif" class="status-icon">ログを読み込み中...</div>';
 
       fetch('bbs_logs.html?t=' + new Date().getTime())
         .then(response => {
@@ -194,7 +203,7 @@
           });
         })
         .catch(err => {
-          displayArea.innerHTML = '<img src="/bbs_parts/error.png" alt="エラー" class="status-img"><p style="text-align:center;">ログの読み込みに失敗しました。</p>';
+          displayArea.innerHTML = '<div class="status-msg"><img src="/bbs_parts/error.png" class="status-icon">ログの読み込みに失敗しました。</div>';
         });
     }
     loadBBSLogs();
