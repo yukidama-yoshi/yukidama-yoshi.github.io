@@ -140,6 +140,18 @@
       height: 16px;
       object-fit: contain;
     }
+
+    /* 文字数カウンター用のスタイル */
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+    .char-over {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -164,8 +176,14 @@
       <section class="form-wrapper">
         <div style="background: rgba(255, 255, 255, 0.8); padding: 20px; border: 1px solid #999; border-radius: 4px;">
           <h3 style="margin-top:0;">新規投稿</h3>
-          <p>名前：<br><input type="text" id="post-name" placeholder="名無しさん" style="width: 100%; box-sizing: border-box; padding: 5px;"></p>
-          <p>内容：<br><textarea id="post-message" placeholder="メッセージを入力してください" style="width: 100%; height: 200px; box-sizing: border-box; padding: 5px; resize: vertical;"></textarea></p>
+          <p>名前：<br>
+            <input type="text" id="post-name" placeholder="名無しさん" style="width: 100%; box-sizing: border-box; padding: 5px;">
+            <div id="name-count" class="char-count">0/20</div>
+          </p>
+          <p>内容：<br>
+            <textarea id="post-message" placeholder="メッセージを入力してください" style="width: 100%; height: 200px; box-sizing: border-box; padding: 5px; resize: vertical;"></textarea>
+            <div id="message-count" class="char-count">0/300</div>
+          </p>
           <button type="button" onclick="submitToCloudflare()" id="submit-btn" style="width: 100%; padding: 10px; cursor: pointer; background: #eee; border: 1px solid #999; font-family: inherit; font-weight: bold;">投稿する</button>
           <p id="send-status" style="font-size: 12px; margin-top: 10px; text-align: center; color: #666;"></p>
         </div>
@@ -184,6 +202,23 @@
     preloadErrorImg.src = "bbs_parts/error.png";
     const preloadLoadingImg = new Image();
     preloadLoadingImg.src = "bbs_parts/loading.gif";
+
+    // 文字数カウンターのリアルタイム反映
+    const nameInput = document.getElementById('post-name');
+    const nameCount = document.getElementById('name-count');
+    nameInput.addEventListener('input', () => {
+      const len = nameInput.value.length;
+      nameCount.innerText = `${len}/20`;
+      nameCount.className = len > 20 ? "char-count char-over" : "char-count";
+    });
+
+    const msgInput = document.getElementById('post-message');
+    const msgCount = document.getElementById('message-count');
+    msgInput.addEventListener('input', () => {
+      const len = msgInput.value.length;
+      msgCount.innerText = `${len}/300`;
+      msgCount.className = len > 300 ? "char-count char-over" : "char-count";
+    });
 
     // ログの読み込み処理
     function loadBBSLogs() {
@@ -245,9 +280,13 @@
           status.style.color = "green";
           status.innerText = "成功！反映まで約1分かかります。";
           messageInput.value = ""; 
+          // 文字数表示をリセット
+          msgCount.innerText = "0/300";
         } else {
+          // Workersから返ってきたエラーメッセージ（「本文が長すぎます」など）を取得
+          const errorMsg = await response.text();
           status.style.color = "red";
-          status.innerText = "エラー：GitHub Actionsの起動に失敗しました。";
+          status.innerText = "エラー：" + errorMsg;
         }
       } catch (e) {
         status.style.color = "red";
