@@ -114,6 +114,18 @@
       font-size: 12px;
       text-align: center;
     }
+
+    .refresh-btn {
+      cursor: pointer;
+      padding: 4px 10px;
+      font-family: "MS Gothic", "Osaka", monospace;
+      font-size: 12px;
+      background: #eee;
+      border: 1px solid #999;
+    }
+    .refresh-btn:hover {
+      background: #ddd;
+    }
   </style>
 </head>
 <body>
@@ -128,7 +140,10 @@
 
     <div class="bbs-container">
       <section id="bbs-log">
-        <h3>書き込み</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px;">
+          <h3 style="margin: 0;">書き込み</h3>
+          <button type="button" class="refresh-btn" onclick="loadBBSLogs()">最新の情報に更新</button>
+        </div>
         <div id="bbs-display-area">ログを読み込み中...</div>
       </section>
 
@@ -154,6 +169,8 @@
 
   <script>
     function loadBBSLogs() {
+      document.getElementById('bbs-display-area').style.opacity = "0.6";
+
       fetch('bbs_logs.html?t=' + new Date().getTime())
         .then(response => {
           if (!response.ok) throw new Error('Not Found');
@@ -162,6 +179,7 @@
         .then(data => {
           const displayArea = document.getElementById('bbs-display-area');
           displayArea.innerHTML = data;
+          displayArea.style.opacity = "1";
 
           const postBodies = displayArea.querySelectorAll('.post-body');
           postBodies.forEach(body => {
@@ -172,7 +190,9 @@
           });
         })
         .catch(err => {
-          document.getElementById('bbs-display-area').innerHTML = "まだ書き込みがないか、ログの読み込みに失敗しました。";
+          const displayArea = document.getElementById('bbs-display-area');
+          displayArea.innerHTML = "まだ書き込みがないか、ログの読み込みに失敗しました。";
+          displayArea.style.opacity = "1";
         });
     }
     loadBBSLogs();
