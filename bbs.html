@@ -126,6 +126,11 @@
     .refresh-btn:hover {
       background: #ddd;
     }
+
+    .status-img {
+      display: block;
+      margin: 20px auto;
+    }
   </style>
 </head>
 <body>
@@ -144,7 +149,7 @@
           <h3 style="margin: 0;">書き込み</h3>
           <button type="button" class="refresh-btn" onclick="loadBBSLogs()">最新の情報に更新</button>
         </div>
-        <div id="bbs-display-area">ログを読み込み中...</div>
+        <div id="bbs-display-area"></div>
       </section>
 
       <section class="form-wrapper">
@@ -169,7 +174,8 @@
 
   <script>
     function loadBBSLogs() {
-      document.getElementById('bbs-display-area').style.opacity = "0.6";
+      const displayArea = document.getElementById('bbs-display-area');
+      displayArea.innerHTML = '<img src="/bbs_parts/loading.gif" alt="読み込み中..." class="status-img">';
 
       fetch('bbs_logs.html?t=' + new Date().getTime())
         .then(response => {
@@ -177,9 +183,7 @@
           return response.text();
         })
         .then(data => {
-          const displayArea = document.getElementById('bbs-display-area');
           displayArea.innerHTML = data;
-          displayArea.style.opacity = "1";
 
           const postBodies = displayArea.querySelectorAll('.post-body');
           postBodies.forEach(body => {
@@ -190,9 +194,7 @@
           });
         })
         .catch(err => {
-          const displayArea = document.getElementById('bbs-display-area');
-          displayArea.innerHTML = "まだ書き込みがないか、ログの読み込みに失敗しました。";
-          displayArea.style.opacity = "1";
+          displayArea.innerHTML = '<img src="/bbs_parts/error.png" alt="エラー" class="status-img"><p style="text-align:center;">ログの読み込みに失敗しました。</p>';
         });
     }
     loadBBSLogs();
