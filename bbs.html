@@ -184,7 +184,7 @@
   <script>
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
-      displayArea.innerHTML = '<div class="status-msg"><img src="/bbs_parts/loading.gif" class="status-icon">ログを読み込み中...</div>';
+      displayArea.innerHTML = '<div class="status-msg"><img src="bbs_parts/loading.gif" class="status-icon">ログを読み込み中...</div>';
 
       fetch('bbs_logs.html?t=' + new Date().getTime())
         .then(response => {
@@ -203,7 +203,7 @@
           });
         })
         .catch(err => {
-          displayArea.innerHTML = '<div class="status-msg"><img src="/bbs_parts/error.png" class="status-icon">ログの読み込みに失敗しました。</div>';
+          displayArea.innerHTML = '<div class="status-msg"><img src="bbs_parts/error.png" class="status-icon">ログの読み込みに失敗しました。</div>';
         });
     }
     loadBBSLogs();
