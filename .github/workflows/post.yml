@@ -30,7 +30,7 @@ jobs:
 
           # 「」という目印の直後に、新しい投稿を差し込む
           # ※ファイル名が bbs_logs.html であることを確認してください
-          sed -i "//a ${NEW_POST}" bbs_logs.html
+          sed -i "/<!--CONTENTS_START-->/a ${NEW_POST}" bbs_logs.html
 
       - name: Commit and Push
         run: |
