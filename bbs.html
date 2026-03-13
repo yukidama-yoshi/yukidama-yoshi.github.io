@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>掲示板 - ゆきだまのホームページ A館</title>
   <style>
+    /* 元のデザインを完全に維持 */
     body { margin: 0; padding: 0; font-family: "MS Gothic", "Osaka", monospace; background-image: url("images/pg.png"); background-repeat: repeat; background-size: 600px; color: #000000; height: 100vh; display: flex; overflow: hidden; }
     .sidebar { width: 200px; min-width: 100px; background-color: #ffffff; border-right: 1px solid #ccc; padding: 20px; font-size: 14px; box-sizing: border-box; flex-shrink: 0; }
     .resizer { width: 5px; cursor: ew-resize; background-color: #ccc; }
@@ -18,15 +19,18 @@
     .post::after { content: ""; display: block; clear: both; }
     .post-body { display: block; margin-top: 8px; line-height: 1.6; white-space: pre-wrap; }
 
-    /* アンカーリンクの見た目 */
+    /* 管理者アイコン用のスタイルを復元 */
+    .admin-icon { width: 16px; height: 16px; vertical-align: middle; margin-left: 4px; }
+
+    /* アンカーリンクの見た目（青く、ポインタに） */
     .anchor-link {
-      color: #0000ee;
-      text-decoration: underline;
-      cursor: pointer;
+      color: #0000ee !important;
+      text-decoration: underline !important;
+      cursor: pointer !important;
       font-weight: bold;
     }
     .anchor-link:hover {
-      color: #ff0000;
+      color: #ff0000 !important;
       background-color: #ffff00;
     }
 
@@ -87,7 +91,6 @@
     const nameCount = document.getElementById('name-count');
     const msgCount = document.getElementById('message-count');
 
-    // 文字数カウント
     nameInput.addEventListener('input', () => {
       const len = nameInput.value.length;
       nameCount.innerText = `${len}/20`;
@@ -100,7 +103,6 @@
       msgCount.className = len > 300 ? "char-count char-over" : "char-count";
     });
 
-    // 返信ボタンの処理 (アンカーをテキストエリアに追加)
     function addReply(no) {
       const anchor = `>>${no}\n`;
       msgInput.value = anchor + msgInput.value;
@@ -108,12 +110,11 @@
       msgInput.dispatchEvent(new Event('input'));
     }
 
-    // アンカークリック時のジャンプ処理
     function scrollToPost(no) {
       const target = document.querySelector(`.post[data-no="${no}"]`);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        target.style.backgroundColor = "#fff9c4"; // ハイライト
+        target.style.backgroundColor = "#fff9c4";
         setTimeout(() => { target.style.backgroundColor = ""; }, 1500);
       } else {
         alert("投稿 No." + no + " は見つかりませんでした。");
@@ -128,7 +129,7 @@
       fetch('bbs_logs.html?t=' + new Date().getTime())
         .then(response => { if (!response.ok) throw new Error('Not Found'); return response.text(); })
         .then(data => {
-          // CONTENTS_STARTを除去して挿入
+          // CONTENTS_STARTを削除してHTMLを流し込む
           displayArea.innerHTML = data.replace('CONTENTS_START', '');
 
           const posts = displayArea.querySelectorAll('.post');
@@ -139,7 +140,6 @@
               metaArea.className = 'post-meta-right';
               post.prepend(metaArea);
 
-              // No.表示の追加
               if (!metaArea.querySelector('.post-no')) {
                 const noSpan = document.createElement('span');
                 noSpan.className = 'post-no';
@@ -147,7 +147,6 @@
                 metaArea.appendChild(noSpan);
               }
 
-              // 返信ボタンの追加
               if (!metaArea.querySelector('.reply-btn-in-post')) {
                 const replyBtn = document.createElement('button');
                 replyBtn.type = "button";
@@ -161,7 +160,7 @@
 
           countDisplay.textContent = `(${posts.length}件)`;
 
-          // --- 本文の加工 (URLリンク化 & アンカーリンク化) ---
+          // --- 本文の加工（ここが修正の肝です） ---
           const postBodies = displayArea.querySelectorAll('.post-body');
           postBodies.forEach(body => {
             let html = body.innerHTML;
@@ -170,8 +169,7 @@
             const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
             html = html.replace(urlRegex, (url) => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
 
-            // 2. アンカーの「文字」をリンク用スパンに置換
-            // &gt;&gt;1 などのエスケープ文字にも対応
+            // 2. アンカーの置換 (&gt;&gt;1 と >>1 両方に対応)
             html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
               return `<span class="anchor-link" data-target="${p1}">>>${p1}</span>`;
             });
@@ -179,9 +177,10 @@
             body.innerHTML = html;
           });
 
-          // --- 3. リンク化した後にクリックイベントを一括で付与する ---
+          // リンク化した後にクリックイベントを付与
           displayArea.querySelectorAll('.anchor-link').forEach(link => {
             link.addEventListener('click', (e) => {
+              e.stopPropagation();
               const targetNo = link.getAttribute('data-target');
               scrollToPost(targetNo);
             });
@@ -192,20 +191,14 @@
           displayArea.innerHTML = '<div class="status-msg">読み込みエラー</div>';
         });
     }
-    
-    // 初回読み込み
     loadBBSLogs();
 
-    // Cloudflare Workersへの送信処理
     async function submitToCloudflare() {
       const status = document.getElementById('send-status');
       const btn = document.getElementById('submit-btn');
       const name = nameInput.value.trim() || "名無しさん";
       const message = msgInput.value.trim();
-      
       if (!message) { alert("内容を入力してください"); return; }
-      if (name.length > 20 || message.length > 300) { alert("文字数制限を超えています"); return; }
-
       status.style.color = "#666"; status.innerText = "送信中..."; btn.disabled = true;
       try {
         const response = await fetch('https://dry-silence-4f1f.y-bb0.workers.dev', {
@@ -214,16 +207,14 @@
         });
         if (response.ok) {
           status.style.color = "green"; status.innerText = "送信完了";
-          msgInput.value = ""; 
-          msgCount.innerText = "0/300"; 
-          loadBBSLogs(); 
+          msgInput.value = ""; msgCount.innerText = "0/300"; loadBBSLogs(); 
         } else { status.innerText = "エラー"; }
       } catch (e) { status.innerText = "失敗"; } finally { btn.disabled = false; }
     }
   </script>
 
   <script>
-    // サイドバーのリサイズ機能
+    /* サイドバーのリサイズ機能を完全に復元 */
     const resizer = document.getElementById('resizer');
     const sidebar = document.getElementById('sidebar');
     let isResizing = false;
