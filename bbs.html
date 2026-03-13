@@ -151,16 +151,19 @@
     }
 
     /* 投稿ヘッダーを横並びにするための設定 */
-    .post-header {
+.post-header {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      justify-content: flex-end; /* 右端に寄せる */
       font-size: 12px;
-      margin-bottom: 5px;
+      height: 0; /* 高さをゼロにして下の要素と重なりやすくする */
+      position: relative;
+      top: 0;
     }
     .post-no {
       color: #666;
       font-weight: bold;
+      background: rgba(255, 255, 255, 0.7); /* 文字が重なっても読みやすくする */
+      padding: 2px 5px;
     }
     .reply-btn {
       color: blue;
@@ -268,7 +271,7 @@ function loadBBSLogs() {
             if (no && !post.querySelector('.post-header')) {
               const header = document.createElement('div');
               header.className = 'post-header';
-              header.innerHTML = `<div></div><div class="post-no">No.${no} <span class="reply-btn" onclick="insertAnchor('${no}')">[返信]</span></div>`;
+header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclick="insertAnchor('${no}')">[返信]</span></div>`;
               post.insertBefore(header, post.firstChild);
             }
 
@@ -378,14 +381,17 @@ function loadBBSLogs() {
       document.body.style.userSelect = 'auto';
     });
 
-    function insertAnchor(no) {
+function insertAnchor(no) {
       const currentMsg = msgInput.value;
-      if (currentMsg.length > 0 && !currentMsg.endsWith('\n')) {
-        msgInput.value += '\n' + '>>' + no + '\n';
-      } else {
-        msgInput.value += '>>' + no + '\n';
-      }
+      const anchor = '>>' + no + '\n';
+      
+      // 先頭にアンカーを追加し、その後に元のメッセージを繋げる
+      msgInput.value = anchor + currentMsg;
+      
       msgInput.focus();
+      // カーソルを末尾に移動（必要なければ削除してください）
+      msgInput.setSelectionRange(msgInput.value.length, msgInput.value.length);
+      
       msgInput.dispatchEvent(new Event('input'));
     }
   </script>
