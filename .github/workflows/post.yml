@@ -16,20 +16,32 @@ jobs:
 
       - name: Update BBS Log
         run: |
-          # Cloudflareから届いたデータを受け取る
+          # データの取得
           NAME="${{ github.event.client_payload.name }}"
           MESSAGE="${{ github.event.client_payload.message }}"
-          # 日本時間に設定
           DATE=$(TZ=Asia/Tokyo date '+%Y/%m/%d %H:%M')
+
+          # --- 永久欠番対応：最大番号を抽出して+1する ---
+          if [ -f bbs_logs.html ]; then
+            # ログの中から "No.数字" をすべて探し、その中の最大値(max)を特定
+            MAX_NUM=$(grep -o 'No\.[0-9]\+' bbs_logs.html | sed 's/No\.//' | sort -n | tail -1)
+            # 番号が見つからなければ 0 とみなす
+            if [ -z "$MAX_NUM" ]; then
+              NEW_NUM=1
+            else
+              NEW_NUM=$((MAX_NUM + 1))
+            fi
+          else
+            NEW_NUM=1
+          fi
 
           # 改行コードをHTML用の<br>に変換
           FORMATTED_MSG=$(echo "${MESSAGE}" | sed ':a;N;$!ba;s/\n/<br>/g')
 
-          # あなたのbbs_logs.htmlの形式を完全再現
-          NEW_POST="<div class=\"post\"><strong>${NAME}</strong> [${DATE}] <span class=\"post-body\">${FORMATTED_MSG}</span></div>"
+          # 新しい投稿のHTML組み立て（番号を右端に飛ばすためのクラス付き）
+          NEW_POST="<div class=\"post\"><span class=\"post-no\">No.${NEW_NUM}</span> <strong>${NAME}</strong> [${DATE}] <span class=\"post-body\">${FORMATTED_MSG}</span></div>"
 
-          # 「」という目印の直後に、新しい投稿を差し込む
-          # ※ファイル名が bbs_logs.html であることを確認してください
+          # 目印「CONTENTS_START」の直後に新しい投稿を差し込む
           sed -i "/<!--CONTENTS_START-->/a ${NEW_POST}" bbs_logs.html
 
       - name: Commit and Push
@@ -37,5 +49,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add bbs_logs.html
-          git commit -m "New post: ${{ github.event.client_payload.name }}"
+          git commit -m "New post: No.${NEW_NUM}" || echo "No changes to commit"
           git push
