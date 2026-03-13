@@ -144,7 +144,6 @@
       font-weight: bold;
     }
 
-    /* ステータスメッセージのスタイル */
     .status-msg {
       text-align: center;
       padding: 20px;
@@ -182,7 +181,7 @@
             <div id="message-count" class="char-count">0/300</div>
           </p>
           <button type="button" onclick="submitToCloudflare()" id="submit-btn" style="width: 100%; padding: 10px; cursor: pointer; background: #eee; border: 1px solid #999; font-family: inherit; font-weight: bold;">投稿する</button>
-          <p id="send-status" style="font-size: 12px; margin-top: 10px; text-align: center; min-height: 1.2em;"></p>
+          <p id="send-status" style="font-size: 12px; margin-top: 10px; text-align: center; min-height: 1.2em; font-weight: bold;"></p>
         </div>
       </section>
     </div>
@@ -198,7 +197,6 @@
     const msgInput = document.getElementById('post-message');
     const msgCount = document.getElementById('message-count');
 
-    // 文字数カウンター
     nameInput.addEventListener('input', () => {
       const len = nameInput.value.length;
       nameCount.innerText = `${len}/20`;
@@ -211,7 +209,6 @@
       msgCount.className = len > 300 ? "char-count char-over" : "char-count";
     });
 
-    // アンカーへのジャンプ機能
     function scrollToPost(no) {
       const target = document.querySelector(`.post[data-no="${no}"]`);
       if (target) {
@@ -221,12 +218,10 @@
       }
     }
 
-    // ログの読み込み処理 (loading表示とリンク化を修正)
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
       const countDisplay = document.getElementById('post-count');
       
-      // loading.gifを表示
       displayArea.innerHTML = `
         <div class="status-msg">
           <img src="images/loading.gif" alt="" style="vertical-align:middle; margin-right:8px;">
@@ -239,30 +234,21 @@
           return response.text();
         })
         .then(data => {
-          // CONTENTS_STARTを削除して表示エリアに挿入
           displayArea.innerHTML = data.replace('CONTENTS_START', '');
-
           const posts = displayArea.querySelectorAll('.post');
           countDisplay.textContent = `(${posts.length}件)`;
 
-          // 本文内のURLリンク化とアンカーリンク化
           const postBodies = displayArea.querySelectorAll('.post-body');
           postBodies.forEach(body => {
             let html = body.innerHTML;
-            
-            // URLリンク化
             const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
             html = html.replace(urlRegex, (url) => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
-
-            // アンカーリンク化 (&gt;&gt;1 と >>1 に対応)
             html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
               return `<span class="anchor-link" data-target="${p1}">>>${p1}</span>`;
             });
-
             body.innerHTML = html;
           });
 
-          // アンカークリックイベントの付与
           displayArea.querySelectorAll('.anchor-link').forEach(link => {
             link.addEventListener('click', () => {
               scrollToPost(link.getAttribute('data-target'));
@@ -275,7 +261,7 @@
     }
     loadBBSLogs();
 
-    // 投稿送信処理 (エラーハンドリング強化)
+    // ★修正版：Cloudflareからのエラーメッセージをしっかり受け取る
     async function submitToCloudflare() {
       const status = document.getElementById('send-status');
       const btn = document.getElementById('submit-btn');
@@ -297,19 +283,31 @@
 
         if (response.ok) {
           status.style.color = "green";
-          status.innerText = "送信しました！";
+          status.innerText = "投稿に成功しました！";
           msgInput.value = "";
           msgCount.innerText = "0/300";
-          setTimeout(() => { status.innerText = ""; }, 3000); // 3秒後に消す
+          setTimeout(() => { status.innerText = ""; }, 5000);
           loadBBSLogs();
         } else {
-          throw new Error(`サーバーエラー (${response.status})`);
+          // サーバーが返したエラーメッセージ（テキストまたはJSON）を取得
+          let errorMessage = `エラー (${response.status})`;
+          try {
+            const errorData = await response.text();
+            // WorkerがJSONを返す場合はパース、そうでなければテキストをそのまま使う
+            try {
+              const json = JSON.parse(errorData);
+              errorMessage = json.message || json.error || errorData;
+            } catch {
+              errorMessage = errorData;
+            }
+          } catch (e) { /* ignore */ }
+          
+          throw new Error(errorMessage);
         }
       } catch (e) {
         status.style.color = "red";
-        // ネットワークエラー（オフラインやCORS設定不備）かそれ以外かを判別
-        const errorMsg = e.message.includes('Failed to fetch') ? "通信エラー（CORSまたは接続不可）" : e.message;
-        status.innerText = "失敗: " + errorMsg;
+        const displayMsg = e.message.includes('Failed to fetch') ? "通信エラーが発生しました" : e.message;
+        status.innerText = "失敗: " + displayMsg;
       } finally {
         btn.disabled = false;
       }
