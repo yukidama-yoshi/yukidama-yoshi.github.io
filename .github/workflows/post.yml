@@ -20,25 +20,20 @@ jobs:
           MESSAGE="${{ github.event.client_payload.message }}"
           DATE=$(TZ=Asia/Tokyo date '+%Y/%m/%d %H:%M')
 
-          # 永久欠番：ログから最大番号を探して+1する
+          # 最大番号を探して+1する
           if [ -f bbs_logs.html ]; then
-            MAX_NUM=$(grep -o 'No\.[0-9]\+' bbs_logs.html | sed 's/No\.//' | sort -n | tail -1)
-            if [ -z "$MAX_NUM" ]; then
-              NEW_NUM=1
-            else
-              NEW_NUM=$((MAX_NUM + 1))
-            fi
+            MAX_NUM=$(grep -o 'data-no="[0-9]\+"' bbs_logs.html | sed 's/data-no="//;s/"//' | sort -n | tail -1)
+            [ -z "$MAX_NUM" ] && MAX_NUM=0
           else
-            NEW_NUM=1
+            MAX_NUM=0
           fi
+          NEW_NUM=$((MAX_NUM + 1))
 
-          # 改行を<br>に変換
           FORMATTED_MSG=$(echo "${MESSAGE}" | sed ':a;N;$!ba;s/\n/<br>/g')
 
-          # 投稿番号を右端に表示するためのHTML
-          NEW_POST="<div class=\"post\"><span class=\"post-no\">No.${NEW_NUM}</span> <strong>${NAME}</strong> [${DATE}] <span class=\"post-body\">${FORMATTED_MSG}</span></div>"
+          # ログには data-no 属性として数字だけを記録する
+          NEW_POST="<div class=\"post\" data-no=\"${NEW_NUM}\"><strong>${NAME}</strong> [${DATE}] <span class=\"post-body\">${FORMATTED_MSG}</span></div>"
 
-          # CONTENTS_START という文字の直後に挿入
           sed -i "/CONTENTS_START/a ${NEW_POST}" bbs_logs.html
 
       - name: Commit and Push
