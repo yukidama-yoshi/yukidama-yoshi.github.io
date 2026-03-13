@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <title>掲示板 - ゆきだまのホームページ A館</title>
   <style>
-    /* --- 1. 元のデザインをそのまま維持 --- */
     body {
       margin: 0;
       padding: 0;
+      /* ここで設定されているフォントにすべて統一されます */
       font-family: "MS Gothic", "Osaka", monospace;
       background-image: url("images/pg.png");
       background-repeat: repeat;
@@ -86,19 +86,19 @@
     }
 
     .post {
-      position: relative; /* 投稿番号を右端に置くための基準 */
+      position: relative;
       margin-bottom: 20px;
       padding-bottom: 15px;
       border-bottom: 1px dotted #999;
     }
 
-    /* --- 2. 投稿番号のスタイルだけ追加 --- */
+    /* 投稿番号のスタイル（フォントは他と統一） */
     .post-no {
       float: right;
       color: rgba(0, 0, 0, 0.2);
       font-size: 0.85em;
-      font-family: monospace;
       font-weight: bold;
+      /* font-familyを指定しないことでbodyの設定を継承します */
     }
 
     .post::after {
@@ -135,7 +135,7 @@
     .refresh-btn {
       cursor: pointer;
       padding: 4px 10px;
-      font-family: "MS Gothic", "Osaka", monospace;
+      font-family: inherit;
       font-size: 12px;
       background: #eee;
       border: 1px solid #999;
@@ -213,7 +213,6 @@
   <script src="js/load-sidebar.js"></script>
 
   <script>
-    // --- 元のプリロード設定を維持 ---
     const preloadErrorImg = new Image();
     preloadErrorImg.src = "bbs_parts/error.png";
     const preloadLoadingImg = new Image();
@@ -235,7 +234,6 @@
       msgCount.className = len > 300 ? "char-count char-over" : "char-count";
     });
 
-    // --- ロジックのみ修正版のloadBBSLogs ---
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
       const countDisplay = document.getElementById('post-count');
@@ -247,10 +245,9 @@
           return response.text();
         })
         .then(data => {
-          // CONTENTS_STARTを消して表示
           displayArea.innerHTML = data.replace('CONTENTS_START', '');
 
-          // No.を後付け付与する
+          // No.を後付け付与する（フォントは他と統一済み）
           const posts = displayArea.querySelectorAll('.post');
           posts.forEach(post => {
             const num = post.getAttribute('data-no');
@@ -279,11 +276,9 @@
     }
     loadBBSLogs();
 
-    // --- 送信処理も元の仕様（Workersのエラー表示付き）を維持 ---
     async function submitToCloudflare() {
       const status = document.getElementById('send-status');
       const btn = document.getElementById('submit-btn');
-
       const name = nameInput.value.trim() || "名無しさん";
       const message = msgInput.value.trim();
 
@@ -306,6 +301,7 @@
           status.innerText = "送信しました。反映までには時間がかかります。";
           msgInput.value = ""; 
           msgCount.innerText = "0/300";
+          loadBBSLogs(); // 再読み込みして反映を確認
         } else {
           const errorMsg = await response.text();
           status.style.color = "red";
@@ -321,7 +317,6 @@
   </script>
 
   <script>
-    // --- 元のリサイズ処理も維持 ---
     const resizer = document.getElementById('resizer');
     const sidebar = document.getElementById('sidebar');
     let isResizing = false;
