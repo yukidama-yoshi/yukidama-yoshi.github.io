@@ -377,6 +377,17 @@ function loadBBSLogs() {
       document.body.style.cursor = 'default';
       document.body.style.userSelect = 'auto';
     });
+
+    function insertAnchor(no) {
+      const currentMsg = msgInput.value;
+      if (currentMsg.length > 0 && !currentMsg.endsWith('\n')) {
+        msgInput.value += '\n' + '>>' + no + '\n';
+      } else {
+        msgInput.value += '>>' + no + '\n';
+      }
+      msgInput.focus();
+      msgInput.dispatchEvent(new Event('input'));
+    }
   </script>
 </body>
 </html>
