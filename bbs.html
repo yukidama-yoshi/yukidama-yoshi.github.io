@@ -255,8 +255,13 @@ function loadBBSLogs() {
             });
           });
         })
-        .catch(err => {
-          displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`;
+.catch(err => {
+          // エラー時に error.png を表示するように変更
+          displayArea.innerHTML = `
+            <div class="status-msg" style="color:red;">
+              <img src="bbs_parts/error.png" alt="" style="vertical-align:middle; margin-right:8px; height:18px;">
+              読み込み失敗: ${err.message}
+            </div>`;
         });
     }
     loadBBSLogs();
@@ -304,10 +309,11 @@ function loadBBSLogs() {
           
           throw new Error(errorMessage);
         }
-      } catch (e) {
+} catch (e) {
         status.style.color = "red";
         const displayMsg = e.message.includes('Failed to fetch') ? "通信エラーが発生しました" : e.message;
-        status.innerText = "失敗: " + displayMsg;
+        // ここにも error.png を追加
+        status.innerHTML = `<img src="bbs_parts/error.png" alt="" style="vertical-align:middle; margin-right:5px; height:14px;"> 失敗: ${displayMsg}`;
       } finally {
         btn.disabled = false;
       }
