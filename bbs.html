@@ -149,6 +149,29 @@
       padding: 20px;
       font-size: 14px;
     }
+
+    /* 投稿ヘッダーを横並びにするための設定 */
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    .post-no {
+      color: #666;
+      font-weight: bold;
+    }
+    .reply-btn {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .reply-btn:hover {
+      color: red;
+    }
+    
   </style>
 </head>
 <body>
@@ -227,7 +250,7 @@ function loadBBSLogs() {
           <img src="bbs_parts/loading.gif" alt="" style="vertical-align:middle; margin-right:8px; height:18px;">
           ログを読み込み中...
         </div>`;
-      
+
       fetch('bbs_logs.html?t=' + new Date().getTime())
         .then(response => {
           if (!response.ok) throw new Error('ログファイルが見つかりません');
@@ -238,15 +261,27 @@ function loadBBSLogs() {
           const posts = displayArea.querySelectorAll('.post');
           countDisplay.textContent = `(${posts.length}件)`;
 
-          const postBodies = displayArea.querySelectorAll('.post-body');
-          postBodies.forEach(body => {
-            let html = body.innerHTML;
-            const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
-            html = html.replace(urlRegex, (url) => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
-            html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
-              return `<span class="anchor-link" data-target="${p1}">>>${p1}</span>`;
-            });
-            body.innerHTML = html;
+          posts.forEach(post => {
+            const no = post.getAttribute('data-no');
+            
+            // 右側に番号と返信ボタンを追加
+            if (no && !post.querySelector('.post-header')) {
+              const header = document.createElement('div');
+              header.className = 'post-header';
+              header.innerHTML = `<div></div><div class="post-no">No.${no} <span class="reply-btn" onclick="insertAnchor('${no}')">[返信]</span></div>`;
+              post.insertBefore(header, post.firstChild);
+            }
+
+            const body = post.querySelector('.post-body');
+            if (body) {
+              let html = body.innerHTML;
+              const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
+              html = html.replace(urlRegex, (url) => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
+              html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
+                return `<span class="anchor-link" data-target="${p1}">>>${p1}</span>`;
+              });
+              body.innerHTML = html;
+            }
           });
 
           displayArea.querySelectorAll('.anchor-link').forEach(link => {
@@ -255,8 +290,7 @@ function loadBBSLogs() {
             });
           });
         })
-.catch(err => {
-          // エラー時に error.png を表示するように変更
+        .catch(err => {
           displayArea.innerHTML = `
             <div class="status-msg" style="color:red;">
               <img src="bbs_parts/error.png" alt="" style="vertical-align:middle; margin-right:8px; height:18px;">
