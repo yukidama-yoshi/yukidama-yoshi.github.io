@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>掲示板 - ゆきだまのホームページ A館</title>
   <style>
-    /* 1. 【装飾】body全体のレイアウト (bbs (1).htmlを完全継承) */
+    /* 1. 【装飾】body全体のレイアウト */
     body {
       margin: 0;
       padding: 0;
@@ -18,7 +18,7 @@
       overflow: hidden;
     }
 
-    /* 2. 【装飾】サイドバーのBeautifulな設定 */
+    /* 2. 【装飾】サイドバー */
     .sidebar {
       width: 200px;
       min-width: 100px;
@@ -30,7 +30,6 @@
       flex-shrink: 0;
     }
 
-    /* サイドバーのリンク装飾：青文字とグレーのドット */
     .sidebar a {
       display: flex;
       align-items: center;
@@ -87,12 +86,12 @@
       top: 0;
     }
 
-    /* 3. 【装飾】投稿のデザイン (bbs (1).htmlを継承 + ハイライト用transition) */
+    /* 3. 【装飾】投稿のデザイン */
     .post {
       margin-bottom: 20px;
       padding-bottom: 15px;
       border-bottom: 1px dotted #999;
-      transition: background-color 0.5s; /* ジャンプ時の演出用 */
+      transition: background-color 0.5s;
     }
 
     .post-body {
@@ -102,7 +101,6 @@
       white-space: pre-wrap;
     }
 
-    /* 管理者アイコンの枠線 (bbs (1).htmlの設定) */
     .admin-icon {
       width: 18px;
       height: 18px;
@@ -111,7 +109,6 @@
       border: 1px solid #ccc;
     }
 
-    /* アンカーリンクの新規スタイル */
     .anchor-link {
       color: blue;
       text-decoration: underline;
@@ -146,6 +143,13 @@
       color: red;
       font-weight: bold;
     }
+
+    /* ステータスメッセージのスタイル */
+    .status-msg {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -178,7 +182,7 @@
             <div id="message-count" class="char-count">0/300</div>
           </p>
           <button type="button" onclick="submitToCloudflare()" id="submit-btn" style="width: 100%; padding: 10px; cursor: pointer; background: #eee; border: 1px solid #999; font-family: inherit; font-weight: bold;">投稿する</button>
-          <p id="send-status" style="font-size: 12px; margin-top: 10px; text-align: center; color: #666;"></p>
+          <p id="send-status" style="font-size: 12px; margin-top: 10px; text-align: center; min-height: 1.2em;"></p>
         </div>
       </section>
     </div>
@@ -217,22 +221,31 @@
       }
     }
 
-    // ログの読み込み処理 (表示されない問題を修正)
+    // ログの読み込み処理 (loading表示とリンク化を修正)
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
       const countDisplay = document.getElementById('post-count');
-      displayArea.innerHTML = '<div class="status-msg">ログを読み込み中...</div>';
+      
+      // loading.gifを表示
+      displayArea.innerHTML = `
+        <div class="status-msg">
+          <img src="images/loading.gif" alt="" style="vertical-align:middle; margin-right:8px;">
+          ログを読み込み中...
+        </div>`;
 
       fetch('bbs_logs.html?t=' + new Date().getTime())
-        .then(response => response.text())
+        .then(response => {
+          if (!response.ok) throw new Error('ログファイルが見つかりません');
+          return response.text();
+        })
         .then(data => {
-          // 1. CONTENTS_STARTを削除して表示エリアに挿入
+          // CONTENTS_STARTを削除して表示エリアに挿入
           displayArea.innerHTML = data.replace('CONTENTS_START', '');
 
           const posts = displayArea.querySelectorAll('.post');
           countDisplay.textContent = `(${posts.length}件)`;
 
-          // 2. 本文内のURLリンク化とアンカーリンク化
+          // 本文内のURLリンク化とアンカーリンク化
           const postBodies = displayArea.querySelectorAll('.post-body');
           postBodies.forEach(body => {
             let html = body.innerHTML;
@@ -249,7 +262,7 @@
             body.innerHTML = html;
           });
 
-          // 3. アンカークリックイベントの付与
+          // アンカークリックイベントの付与
           displayArea.querySelectorAll('.anchor-link').forEach(link => {
             link.addEventListener('click', () => {
               scrollToPost(link.getAttribute('data-target'));
@@ -257,12 +270,12 @@
           });
         })
         .catch(err => {
-          displayArea.innerHTML = '<div class="status-msg">読み込みに失敗しました。</div>';
+          displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`;
         });
     }
     loadBBSLogs();
 
-    // 投稿送信処理
+    // 投稿送信処理 (エラーハンドリング強化)
     async function submitToCloudflare() {
       const status = document.getElementById('send-status');
       const btn = document.getElementById('submit-btn');
@@ -270,7 +283,9 @@
       const message = msgInput.value.trim();
 
       if (!message) { alert("内容を入力してください"); return; }
+      
       btn.disabled = true;
+      status.style.color = "#666";
       status.innerText = "送信中...";
 
       try {
@@ -279,19 +294,28 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: name, message: message })
         });
+
         if (response.ok) {
-          status.innerText = "送信しました。";
+          status.style.color = "green";
+          status.innerText = "送信しました！";
           msgInput.value = "";
           msgCount.innerText = "0/300";
+          setTimeout(() => { status.innerText = ""; }, 3000); // 3秒後に消す
           loadBBSLogs();
+        } else {
+          throw new Error(`サーバーエラー (${response.status})`);
         }
-      } catch (e) { status.innerText = "失敗しました。"; }
-      finally { btn.disabled = false; }
+      } catch (e) {
+        status.style.color = "red";
+        // ネットワークエラー（オフラインやCORS設定不備）かそれ以外かを判別
+        const errorMsg = e.message.includes('Failed to fetch') ? "通信エラー（CORSまたは接続不可）" : e.message;
+        status.innerText = "失敗: " + errorMsg;
+      } finally {
+        btn.disabled = false;
+      }
     }
-  </script>
 
-  <script>
-    /* サイドバーのリサイズ機能 (bbs (1).htmlを完全再現) */
+    /* サイドバーのリサイズ機能 */
     const resizer = document.getElementById('resizer');
     const sidebar = document.getElementById('sidebar');
     let isResizing = false;
