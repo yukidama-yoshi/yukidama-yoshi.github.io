@@ -28,6 +28,8 @@
     .refresh-btn:hover { background: #ddd; }
     .status-msg { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; }
     .status-icon { width: 16px; height: 16px; object-fit: contain; }
+
+    /* 文字数カウンター用のスタイル */
     .char-count { text-align: right; font-size: 11px; color: #666; margin-top: 2px; }
     .char-over { color: red; font-weight: bold; }
   </style>
@@ -49,8 +51,14 @@
       <section class="form-wrapper">
         <div style="background: rgba(255, 255, 255, 0.8); padding: 20px; border: 1px solid #999; border-radius: 4px;">
           <h3 style="margin-top:0;">新規投稿</h3>
-          <p>名前：<br><input type="text" id="post-name" placeholder="名無しさん" style="width: 100%; box-sizing: border-box; padding: 5px;"><div id="name-count" class="char-count">0/20</div></p>
-          <p>内容：<br><textarea id="post-message" placeholder="メッセージを入力してください" style="width: 100%; height: 200px; box-sizing: border-box; padding: 5px; resize: vertical;"></textarea><div id="message-count" class="char-count">0/300</div></p>
+          <p>名前：<br>
+            <input type="text" id="post-name" placeholder="名無しさん" style="width: 100%; box-sizing: border-box; padding: 5px;">
+            <div id="name-count" class="char-count">0/20</div>
+          </p>
+          <p>内容：<br>
+            <textarea id="post-message" placeholder="メッセージを入力してください" style="width: 100%; height: 200px; box-sizing: border-box; padding: 5px; resize: vertical;"></textarea>
+            <div id="message-count" class="char-count">0/300</div>
+          </p>
           <button type="button" onclick="submitToCloudflare()" id="submit-btn" style="width: 100%; padding: 10px; cursor: pointer; background: #eee; border: 1px solid #999; font-family: inherit; font-weight: bold;">投稿する</button>
           <p id="send-status" style="font-size: 12px; margin-top: 10px; text-align: center; color: #666;"></p>
         </div>
@@ -61,6 +69,24 @@
 
   <script src="js/load-sidebar.js"></script>
   <script>
+    // --- 【復旧】文字数カウンターの処理 ---
+    const nameInput = document.getElementById('post-name');
+    const nameCount = document.getElementById('name-count');
+    nameInput.addEventListener('input', () => {
+      const len = nameInput.value.length;
+      nameCount.innerText = `${len}/20`;
+      nameCount.className = len > 20 ? "char-count char-over" : "char-count";
+    });
+
+    const msgInput = document.getElementById('post-message');
+    const msgCount = document.getElementById('message-count');
+    msgInput.addEventListener('input', () => {
+      const len = msgInput.value.length;
+      msgCount.innerText = `${len}/300`;
+      msgCount.className = len > 300 ? "char-count char-over" : "char-count";
+    });
+
+    // ログの読み込み
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
       const countDisplay = document.getElementById('post-count');
@@ -86,15 +112,18 @@
     }
     loadBBSLogs();
 
+    // 投稿送信処理
     async function submitToCloudflare() {
-      const nameInput = document.getElementById('post-name');
-      const messageInput = document.getElementById('post-message');
       const status = document.getElementById('send-status');
       const btn = document.getElementById('submit-btn');
       const name = nameInput.value.trim() || "名無しさん";
-      const message = messageInput.value.trim();
+      const message = msgInput.value.trim();
 
+      // 送信前のバリデーション
+      if (name.length > 20) { alert("名前は20文字以内で入力してください"); return; }
       if (!message) { alert("内容を入力してください"); return; }
+      if (message.length > 300) { alert("内容は300文字以内で入力してください"); return; }
+
       status.innerText = "送信中...";
       btn.disabled = true;
 
@@ -107,9 +136,11 @@
         });
         if (response.ok) {
           status.innerText = "送信しました。反映までには時間がかかります。";
-          messageInput.value = ""; 
+          msgInput.value = ""; 
+          msgCount.innerText = "0/300";
         } else {
-          status.innerText = "エラーが発生しました";
+          const errorMsg = await response.text();
+          status.innerText = "エラー：" + errorMsg;
         }
       } catch (e) {
         status.innerText = "送信に失敗しました";
@@ -117,6 +148,20 @@
         btn.disabled = false;
       }
     }
+  </script>
+
+  <script>
+    // サイドバーのリサイズ
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+    resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'ew-resize'; });
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      const newWidth = e.clientX;
+      if (newWidth > 100 && newWidth < 600) sidebar.style.width = newWidth + 'px';
+    });
+    document.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; });
   </script>
 </body>
 </html>
