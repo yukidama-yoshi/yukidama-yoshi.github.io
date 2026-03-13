@@ -7,7 +7,6 @@
     body {
       margin: 0;
       padding: 0;
-      /* ここで設定されているフォントにすべて統一されます */
       font-family: "MS Gothic", "Osaka", monospace;
       background-image: url("images/pg.png");
       background-repeat: repeat;
@@ -90,15 +89,14 @@
       margin-bottom: 20px;
       padding-bottom: 15px;
       border-bottom: 1px dotted #999;
+      transition: background-color 0.5s; /* アンカー移動時の演出用 */
     }
 
-    /* 投稿番号のスタイル（フォントは他と統一） */
     .post-no {
       float: right;
       color: rgba(0, 0, 0, 0.2);
       font-size: 0.85em;
       font-weight: bold;
-      /* font-familyを指定しないことでbodyの設定を継承します */
     }
 
     .post::after {
@@ -112,6 +110,20 @@
       margin-top: 8px;
       line-height: 1.6;
       white-space: pre-wrap;
+    }
+
+    /* 返信ボタンのスタイル */
+    .reply-btn-in-post {
+      margin-left: 10px;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 2px 5px;
+      background: #f4f4f4;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    .reply-btn-in-post:hover {
+      background: #e0e0e0;
     }
 
     .admin-icon {
@@ -168,11 +180,10 @@
       color: red;
       font-weight: bold;
     }
-    /* 入力欄とボタンのフォントを全体と統一する */
-input, textarea, button {
-  font-family: inherit; /* 親要素（body）のフォントを継承 */
-  font-size: 14px;      /* 必要に応じてサイズも調整 */
-}
+    input, textarea, button {
+      font-family: inherit;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -218,11 +229,6 @@ input, textarea, button {
   <script src="js/load-sidebar.js"></script>
 
   <script>
-    const preloadErrorImg = new Image();
-    preloadErrorImg.src = "bbs_parts/error.png";
-    const preloadLoadingImg = new Image();
-    preloadLoadingImg.src = "bbs_parts/loading.gif";
-
     const nameInput = document.getElementById('post-name');
     const nameCount = document.getElementById('name-count');
     nameInput.addEventListener('input', () => {
@@ -239,6 +245,26 @@ input, textarea, button {
       msgCount.className = len > 300 ? "char-count char-over" : "char-count";
     });
 
+    // 返信ボタン用の関数
+    function addReply(no) {
+      const anchor = `>>${no}\n`;
+      msgInput.value = anchor + msgInput.value;
+      msgInput.focus();
+      msgInput.dispatchEvent(new Event('input')); // 文字数カウントを更新させる
+    }
+
+    // アンカークリック時の移動用関数
+    function scrollToPost(no) {
+      const target = document.querySelector(`.post[data-no="${no}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.style.backgroundColor = "#fff9c4"; // どこに飛んだかハイライト
+        setTimeout(() => { target.style.backgroundColor = ""; }, 1500);
+      } else {
+        alert("投稿 No." + no + " は見つかりませんでした。");
+      }
+    }
+
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
       const countDisplay = document.getElementById('post-count');
@@ -252,26 +278,51 @@ input, textarea, button {
         .then(data => {
           displayArea.innerHTML = data.replace('CONTENTS_START', '');
 
-          // No.を後付け付与する（フォントは他と統一済み）
           const posts = displayArea.querySelectorAll('.post');
           posts.forEach(post => {
             const num = post.getAttribute('data-no');
-            if (num && !post.querySelector('.post-no')) {
-              const noSpan = document.createElement('span');
-              noSpan.className = 'post-no';
-              noSpan.innerText = `No.${num}`;
-              post.prepend(noSpan);
+            if (num) {
+              // No.表示（既存）
+              if (!post.querySelector('.post-no')) {
+                const noSpan = document.createElement('span');
+                noSpan.className = 'post-no';
+                noSpan.innerText = `No.${num}`;
+                post.prepend(noSpan);
+              }
+              // 返信ボタン追加
+              if (!post.querySelector('.reply-btn-in-post')) {
+                const replyBtn = document.createElement('button');
+                replyBtn.type = "button";
+                replyBtn.className = 'reply-btn-in-post';
+                replyBtn.innerText = '返信';
+                replyBtn.onclick = () => addReply(num);
+                
+                // 名前の後ろ（strongタグ）に挿入
+                const nameTag = post.querySelector('strong');
+                if (nameTag) nameTag.after(replyBtn);
+              }
             }
           });
 
           countDisplay.textContent = `(${posts.length}件)`;
 
+          // 本文のリンク化
           const postBodies = displayArea.querySelectorAll('.post-body');
           postBodies.forEach(body => {
+            let html = body.innerHTML;
+            
+            // URLリンク化
             const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
-            body.innerHTML = body.innerHTML.replace(urlRegex, (url) => {
+            html = html.replace(urlRegex, (url) => {
               return `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`;
             });
+
+            // アンカーリンク化 (>>数字)
+            html = html.replace(/>>(\d+)/g, (match, p1) => {
+              return `<a href="javascript:void(0)" onclick="scrollToPost(${p1})" style="color:blue; text-decoration:none;">${match}</a>`;
+            });
+
+            body.innerHTML = html;
           });
         })
         .catch(err => {
@@ -306,7 +357,7 @@ input, textarea, button {
           status.innerText = "送信しました。反映までには時間がかかります。";
           msgInput.value = ""; 
           msgCount.innerText = "0/300";
-          loadBBSLogs(); // 再読み込みして反映を確認
+          loadBBSLogs(); 
         } else {
           const errorMsg = await response.text();
           status.style.color = "red";
