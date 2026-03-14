@@ -5,7 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>外部リンクへの移動確認 - ゆきだまのホームページ</title>
   <style>
-    body { font-family: "MS Gothic", "Osaka", monospace; background: #eee; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    /* 判定が終わるまで中身を隠しておく（一瞬のチラつき防止） */
+    body { 
+      display: none; 
+      font-family: "MS Gothic", "Osaka", monospace; 
+      background: #eee; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      margin: 0; 
+    }
     .container { background: white; padding: 30px; border: 2px solid #333; box-shadow: 5px 5px 0px #999; max-width: 500px; width: 90%; text-align: center; }
     h2 { font-size: 18px; color: #d00; border-bottom: 2px solid #d00; padding-bottom: 10px; }
     .url-display { background: #f9f9f9; border: 1px inset #ccc; padding: 15px; margin: 20px 0; word-break: break-all; font-size: 14px; color: #555; }
@@ -35,15 +44,40 @@
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const url = params.get('url');
-    if (url) {
-      document.getElementById('target-url').innerText = url;
-      document.getElementById('jump-link').href = url;
-    } else {
-      document.getElementById('target-url').innerText = "エラー：URLが見つかりません。";
-      document.getElementById('jump-link').style.display = "none";
-    }
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const urlString = params.get('url');
+
+      if (!urlString) {
+        showError("エラー：URLが見つかりません。");
+        return;
+      }
+
+      try {
+        // 相対パス（index.html など）にも対応するため、第2引数に現在の場所を渡す
+        const targetUrl = new URL(urlString, window.location.href);
+        const currentHost = window.location.hostname;
+
+        // 【判定】ドメインが同じ、または相対パスの場合は即リダイレクト
+        if (targetUrl.hostname === currentHost || !targetUrl.hostname) {
+          window.location.replace(urlString);
+        } else {
+          // 外部ドメインの場合のみ、画面を表示する
+          document.getElementById('target-url').innerText = urlString;
+          document.getElementById('jump-link').href = urlString;
+          document.body.style.display = 'flex';
+        }
+      } catch (e) {
+        // URLとして解析できない変な文字列の場合、念のため警告を出す
+        showError("エラー：無効なURL形式です。");
+      }
+
+      function showError(msg) {
+        document.getElementById('target-url').innerText = msg;
+        document.getElementById('jump-link').style.display = "none";
+        document.body.style.display = 'flex';
+      }
+    })();
   </script>
 </body>
 </html>
