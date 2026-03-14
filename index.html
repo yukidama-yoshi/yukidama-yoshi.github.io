@@ -65,6 +65,8 @@
       display: flex;
       align-items: flex-start;
       gap: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
     .image-block img {
@@ -95,6 +97,49 @@
       width: 80%;
     }
 
+    /* ★ 掲示板プレビュー用のスタイル */
+    #recent-bbs {
+      margin-top: 20px;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 15px;
+      border: 1px solid #999;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    #recent-bbs h2 {
+      font-size: 16px;
+      margin-top: 0;
+      border-bottom: 1px solid #999;
+      padding-bottom: 5px;
+    }
+
+    .recent-post {
+      border-bottom: 1px dotted #ccc;
+      padding: 8px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .recent-post:last-child {
+      border-bottom: none;
+    }
+
+    .recent-post .post-body {
+      color: #333;
+    }
+
+    .more-link {
+      display: block;
+      text-align: right;
+      margin-top: 10px;
+      font-size: 12px;
+      color: blue;
+      text-decoration: underline;
+    }
+
     footer {
       margin-top: 40px;
       font-size: 12px;
@@ -112,15 +157,23 @@
       <div class="image-block">
         <img src="images/topyk.png" alt="タイトル画像">
         <p>イラスト：<a href="illustcreator.html">supica-0325cさん</a></p>
-        <p>イラストは、随時切り替わります！</p> </div>
+        <p>イラストは、随時切り替わります！</p> 
+      </div>
       <div class="text-block">
         <h1>ゆきだまのホームページ A館</h1>
         <hr>
         <p>ゆきだまのホームページへようこそ！</p>
         <p>こちらは、ゆきだまの情報を発信するために作成したホームページです。</p>
+        
+        <section id="recent-bbs">
+          <h2>掲示板の最新投稿</h2>
+          <div id="bbs-preview">読み込み中...</div>
+          <a href="bbs.html" class="more-link">もっと見る »</a>
+        </section>
+
         <hr>
         <footer>
-          <p>© 2025 ゆきだま. All rights reserved.</p>
+          <p>© 2026 ゆきだま. All rights reserved.</p>
         </footer>
       </div>
     </div>
@@ -129,6 +182,7 @@
   <script src="js/load-sidebar.js"></script>
 
   <script>
+    /* サイドバーのリサイズ機能 */
     const resizer = document.getElementById('resizer');
     const sidebar = document.getElementById('sidebar');
     let isResizing = false;
@@ -152,6 +206,49 @@
       document.body.style.cursor = 'default';
       document.body.style.userSelect = 'auto';
     });
+
+    /* ★ 掲示板の最新3件を取得して表示するスクリプト */
+    function loadRecentBBS() {
+      const previewArea = document.getElementById('bbs-preview');
+
+      fetch('bbs_logs.html?t=' + new Date().getTime())
+        .then(response => {
+          if (!response.ok) throw new Error('ログが見つかりません');
+          return response.text();
+        })
+        .then(data => {
+          const tempDiv = document.createElement('div');
+          // CONTENTS_STARTを削除してパース
+          tempDiv.innerHTML = data.replace('CONTENTS_START', '');
+          
+          const posts = tempDiv.querySelectorAll('.post');
+          if (posts.length === 0) {
+            previewArea.innerText = "書き込みはまだありません。";
+            return;
+          }
+
+          previewArea.innerHTML = '';
+          // 最新の3件（最初から3つ）を取得
+          for (let i = 0; i < Math.min(posts.length, 3); i++) {
+            const post = posts[i];
+            const name = post.querySelector('strong') ? post.querySelector('strong').innerText : "名無しさん";
+            const body = post.querySelector('.post-body') ? post.querySelector('.post-body').innerText : "";
+            
+            const div = document.createElement('div');
+            div.className = 'recent-post';
+            // 名前：メッセージ の形式で表示
+            div.innerHTML = `<strong>${name}</strong>: <span class="post-body">${body.replace(/\n/g, ' ')}</span>`;
+            previewArea.appendChild(div);
+          }
+        })
+        .catch(err => {
+          previewArea.innerText = "読み込みに失敗しました。";
+          console.error(err);
+        });
+    }
+
+    // 実行
+    loadRecentBBS();
   </script>
 </body>
 </html>
