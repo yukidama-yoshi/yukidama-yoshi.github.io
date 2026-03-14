@@ -347,17 +347,17 @@
 function loadBBSLogs() {
   const displayArea = document.getElementById('bbs-display-area');
   const countDisplay = document.getElementById('post-count');
+  const sortOrder = document.getElementById('sort-order').value; // 並び順（最新/投稿順）を取得
   
   // 読み込み中の表示
   displayArea.innerHTML = '<div class="status-msg">最新のログを読み込み中...</div>';
 
-  // あなたのWorkerのURL（先ほど確認したもの）
   const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
 
   fetch(WORKER_URL)
     .then(response => {
       if (!response.ok) throw new Error('通信エラーが発生しました');
-      return response.json(); // JSONとして受け取る
+      return response.json();
     })
     .then(posts => {
       countDisplay.textContent = `(${posts.length}件)`;
@@ -368,9 +368,14 @@ function loadBBSLogs() {
         return;
       }
 
-      // JSONデータをループしてHTMLを生成
-      posts.forEach(post => {
-        // 管理者アイコンの判定（名前が「ゆきだま」ならアイコンを表示）
+      // ★ ここが重要：選択されている並び順に合わせてデータを並び替える
+      // Workerからは通常「新しい順」で届くので、投稿順(asc)なら反転させる
+      let displayPosts = [...posts];
+      if (sortOrder === 'asc') {
+        displayPosts.reverse();
+      }
+
+      displayPosts.forEach(post => {
         const adminIcon = post.name === 'ゆきだま' 
           ? '<img src="images/ykadmbbsicon.png" class="admin-icon" style="height:1.2em; vertical-align:middle; margin-left:4px;">' 
           : '';
@@ -379,7 +384,6 @@ function loadBBSLogs() {
         div.className = 'post';
         div.setAttribute('data-no', post.no);
         
-        // メッセージ内の改行やリンクを処理して組み立て
         div.innerHTML = `
           <div class="post-header">
             <div class="post-no">No.${post.no} <span class="reply-btn" style="cursor:pointer; color:blue; font-size:0.8em;" onclick="insertAnchor('${post.no}')">[返信]</span></div>
@@ -394,7 +398,6 @@ function loadBBSLogs() {
       displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`;
     });
 }
-
 /* メッセージ内の特殊処理（URLのリンク化やアンカー） */
 function processMessage(text) {
   // 1. 安全のためにHTMLタグを無効化（エスケープ）
