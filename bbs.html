@@ -188,13 +188,13 @@
   (function() {
     const ua = navigator.userAgent;
     if (ua.indexOf('iPhone') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0) {
-      // ユーザーに確認を促す場合
       if (confirm('こちらは主にパソコン向けのページです。モバイル端末ではうまく表示できないかもしれません。[OK]を押すとモバイル向けのページへ移動します。')) {
         location.href = 'bbs_mobile.html';
       }
     }
   })();
 </script>
+
   <nav class="sidebar" id="sidebar"></nav>
   <div class="resizer" id="resizer"></div>
 
@@ -246,6 +246,7 @@
     const msgInput = document.getElementById('post-message');
     const msgCount = document.getElementById('message-count');
 
+    // 文字数カウント処理
     nameInput.addEventListener('input', () => {
       const len = nameInput.value.length;
       nameCount.innerText = `${len}/20`;
@@ -258,6 +259,7 @@
       msgCount.className = len > 300 ? "char-count char-over" : "char-count";
     });
 
+    // アンカークリック時のスクロール処理
     function scrollToPost(no) {
       const target = document.querySelector(`.post[data-no="${no}"]`);
       if (target) {
@@ -267,153 +269,77 @@
       }
     }
     
-    // ★ 戻り値としてPromiseを返すように変更（投稿後のスクロール制御のため）
+    /* 掲示板のログをWorkerから取得して表示する関数 */
     function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
       const countDisplay = document.getElementById('post-count');
-      const sortOrder = document.getElementById('sort-order').value; // 選択された並び順を取得
+      const sortOrder = document.getElementById('sort-order').value; // 並び順（最新/投稿順）を取得
       
-      displayArea.innerHTML = `
-        <div class="status-msg">
-          <img src="bbs_parts/loading.gif" alt="" style="vertical-align:middle; margin-right:8px; height:18px;">
-          ログを読み込み中...
-        </div>`;
+      // 読み込み中の表示
+      displayArea.innerHTML = '<div class="status-msg">最新のログを読み込み中...</div>';
 
-      return fetch('bbs_logs.html?t=' + new Date().getTime())
+      const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
+
+      fetch(WORKER_URL)
         .then(response => {
-          if (!response.ok) throw new Error('ログファイルが見つかりません');
-          return response.text();
+          if (!response.ok) throw new Error('通信エラーが発生しました');
+          return response.json();
         })
-        .then(data => {
-          // 一旦仮の要素に入れてパースする
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = data.replace('CONTENTS_START', '');
-          
-          // 投稿要素を配列として取得
-          let posts = Array.from(tempDiv.querySelectorAll('.post'));
+        .then(posts => {
           countDisplay.textContent = `(${posts.length}件)`;
+          displayArea.innerHTML = '';
 
-          // ★ もとのログは降順(新しい順)なので、古い順が選ばれている場合は反転させる
-          if (sortOrder === 'asc') {
-            posts.reverse();
+          if (posts.length === 0) {
+            displayArea.innerHTML = '<div class="status-msg">書き込みがありません。</div>';
+            return;
           }
 
-          displayArea.innerHTML = ''; // ローディング表示を消去
+          // ★ ここが重要：選択されている並び順に合わせてデータを並び替える
+          let displayPosts = [...posts];
+          if (sortOrder === 'asc') {
+            displayPosts.reverse();
+          }
 
-          posts.forEach(post => {
-            const no = post.getAttribute('data-no');
+          displayPosts.forEach(post => {
+            const adminIcon = post.name === 'ゆきだま' 
+              ? '<img src="images/ykadmbbsicon.png" class="admin-icon" style="height:1.2em; vertical-align:middle; margin-left:4px;">' 
+              : '';
+
+            const div = document.createElement('div');
+            div.className = 'post';
+            div.setAttribute('data-no', post.no);
             
-            // 右側に番号と返信ボタンを追加
-            if (no && !post.querySelector('.post-header')) {
-              const header = document.createElement('div');
-              header.className = 'post-header';
-              header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclick="insertAnchor('${no}')">[返信]</span></div>`;
-              post.insertBefore(header, post.firstChild);
-            }
-
-            const body = post.querySelector('.post-body');
-            if (body) {
-              let html = body.innerHTML;
-              const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+(?![\w?=&.\/-;#~%-]*">))/g;
-              html = html.replace(urlRegex, (url) => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
-              html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
-                return `<span class="anchor-link" data-target="${p1}">>>${p1}</span>`;
-              });
-              body.innerHTML = html;
-            }
-            
-            // 処理した要素を表示エリアに追加
-            displayArea.appendChild(post);
-          });
-
-          // アンカーリンクのクリックイベントを再設定
-          displayArea.querySelectorAll('.anchor-link').forEach(link => {
-            link.addEventListener('click', () => {
-              scrollToPost(link.getAttribute('data-target'));
-            });
+            div.innerHTML = `
+              <div class="post-header">
+                <div class="post-no">No.${post.no} <span class="reply-btn" style="cursor:pointer; color:blue; font-size:0.8em;" onclick="insertAnchor('${post.no}')">[返信]</span></div>
+              </div>
+              <strong>${post.name}</strong>${adminIcon} [${post.date}]
+              <span class="post-body" style="display:block; margin-top:8px; white-space:pre-wrap;">${processMessage(post.message)}</span>
+            `;
+            displayArea.appendChild(div);
           });
         })
         .catch(err => {
-          displayArea.innerHTML = `
-            <div class="status-msg" style="color:red;">
-              <img src="bbs_parts/error.png" alt="" style="vertical-align:middle; margin-right:8px; height:18px;">
-              読み込み失敗: ${err.message}
-            </div>`;
+          displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`;
         });
     }
-    
-    // 初回読み込み
-    /* 掲示板のログをWorkerから取得して表示する関数 */
-function loadBBSLogs() {
-  const displayArea = document.getElementById('bbs-display-area');
-  const countDisplay = document.getElementById('post-count');
-  const sortOrder = document.getElementById('sort-order').value; // 並び順（最新/投稿順）を取得
-  
-  // 読み込み中の表示
-  displayArea.innerHTML = '<div class="status-msg">最新のログを読み込み中...</div>';
 
-  const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
-
-  fetch(WORKER_URL)
-    .then(response => {
-      if (!response.ok) throw new Error('通信エラーが発生しました');
-      return response.json();
-    })
-    .then(posts => {
-      countDisplay.textContent = `(${posts.length}件)`;
-      displayArea.innerHTML = '';
-
-      if (posts.length === 0) {
-        displayArea.innerHTML = '<div class="status-msg">書き込みがありません。</div>';
-        return;
-      }
-
-      // ★ ここが重要：選択されている並び順に合わせてデータを並び替える
-      // Workerからは通常「新しい順」で届くので、投稿順(asc)なら反転させる
-      let displayPosts = [...posts];
-      if (sortOrder === 'asc') {
-        displayPosts.reverse();
-      }
-
-      displayPosts.forEach(post => {
-        const adminIcon = post.name === 'ゆきだま' 
-          ? '<img src="images/ykadmbbsicon.png" class="admin-icon" style="height:1.2em; vertical-align:middle; margin-left:4px;">' 
-          : '';
-
-        const div = document.createElement('div');
-        div.className = 'post';
-        div.setAttribute('data-no', post.no);
-        
-        div.innerHTML = `
-          <div class="post-header">
-            <div class="post-no">No.${post.no} <span class="reply-btn" style="cursor:pointer; color:blue; font-size:0.8em;" onclick="insertAnchor('${post.no}')">[返信]</span></div>
-          </div>
-          <strong>${post.name}</strong>${adminIcon} [${post.date}]
-          <span class="post-body" style="display:block; margin-top:8px; white-space:pre-wrap;">${processMessage(post.message)}</span>
-        `;
-        displayArea.appendChild(div);
+    /* メッセージ内の特殊処理（URLのリンク化やアンカー） */
+    function processMessage(text) {
+      // 1. 安全のためにHTMLタグを無効化（エスケープ）
+      let html = text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+      
+      // 2. URLをリンクにする
+      const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+)/g;
+      html = html.replace(urlRegex, url => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
+      
+      // 3. >>数字 をアンカーにする
+      html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
+        return `<span class="anchor-link" style="color:blue; cursor:pointer;" onclick="scrollToPost('${p1}')">>>${p1}</span>`;
       });
-    })
-    .catch(err => {
-      displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`;
-    });
-}
-/* メッセージ内の特殊処理（URLのリンク化やアンカー） */
-function processMessage(text) {
-  // 1. 安全のためにHTMLタグを無効化（エスケープ）
-  let html = text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  
-  // 2. URLをリンクにする
-  const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+)/g;
-  html = html.replace(urlRegex, url => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
-  
-  // 3. >>数字 をアンカーにする
-  html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
-    return `<span class="anchor-link" style="color:blue; cursor:pointer;" onclick="scrollToPost('${p1}')">>>${p1}</span>`;
-  });
-  
-  return html;
-}
+      
+      return html;
+    }
 
     /* サイドバーのリサイズ機能 */
     const resizer = document.getElementById('resizer');
@@ -440,6 +366,7 @@ function processMessage(text) {
       document.body.style.userSelect = 'auto';
     });
 
+    /* 返信ボタンの処理 */
     function insertAnchor(no) {
       const currentMsg = msgInput.value;
       const anchor = '>>' + no + '\n';
@@ -453,58 +380,62 @@ function processMessage(text) {
     }
 
     /* Cloudflare Workerに投稿を送信する関数 */
-function submitToCloudflare() {
-  const name = document.getElementById('post-name').value;
-  const message = document.getElementById('post-message').value;
-  const status = document.getElementById('send-status');
-  const submitBtn = document.getElementById('submit-btn');
+    function submitToCloudflare() {
+      const name = document.getElementById('post-name').value;
+      const message = document.getElementById('post-message').value;
+      const status = document.getElementById('send-status');
+      const submitBtn = document.getElementById('submit-btn');
 
-  // メッセージが空なら中断
-  if (!message.trim()) {
-    status.style.color = "red";
-    status.innerText = "メッセージを入力してください。";
-    return;
-  }
+      // メッセージが空なら中断
+      if (!message.trim()) {
+        status.style.color = "red";
+        status.innerText = "メッセージを入力してください。";
+        return;
+      }
 
-  // 二重投稿防止：ボタンを無効化
-  submitBtn.disabled = true;
-  status.style.color = "black";
-  status.innerText = "投稿中...";
+      // 二重投稿防止：ボタンを無効化
+      submitBtn.disabled = true;
+      status.style.color = "black";
+      status.innerText = "投稿中...";
 
-  const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
+      const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
 
-  fetch(WORKER_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name, message: message })
-  })
-  .then(response => {
-    if (!response.ok) throw new Error('サーバーエラーが発生しました');
-    return response.json();
-  })
-  .then(data => {
-    status.style.color = "green";
-    status.innerText = "投稿しました！";
-    
-    // 入力欄を空にする
-    document.getElementById('post-message').value = "";
-    document.getElementById('post-message').dispatchEvent(new Event('input'));
+      fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, message: message })
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('サーバーエラーが発生しました');
+        return response.json();
+      })
+      .then(data => {
+        status.style.color = "green";
+        status.innerText = "投稿しました！";
+        
+        // 入力欄を空にする
+        document.getElementById('post-message').value = "";
+        document.getElementById('post-message').dispatchEvent(new Event('input'));
 
-    // 3秒後にステータスを消す
-    setTimeout(() => { status.innerText = ""; }, 3000);
+        // 3秒後にステータスを消す
+        setTimeout(() => { status.innerText = ""; }, 3000);
 
-    // ★ ログを再読み込みして即座に反映させる
+        // ★ ログを再読み込みして即座に反映させる
+        loadBBSLogs();
+      })
+      .catch(err => {
+        status.style.color = "red";
+        status.innerText = "エラー: " + err.message;
+      })
+      .finally(() => {
+        // ボタンを元に戻す
+        submitBtn.disabled = false;
+      });
+    }
+
+    // ★ ページを開いた瞬間にログを読み込む処理（これを一番最後に書きます）
     loadBBSLogs();
-  })
-  .catch(err => {
-    status.style.color = "red";
-    status.innerText = "エラー: " + err.message;
-  })
-  .finally(() => {
-    // ボタンを元に戻す
-    submitBtn.disabled = false;
-  });
-}
+
   </script>
 </body>
 </html>
