@@ -130,6 +130,14 @@
     }
     .refresh-btn:hover { background: #ddd; }
 
+    .sort-select {
+      padding: 3px;
+      font-family: "MS Gothic", "Osaka", monospace;
+      font-size: 12px;
+      border: 1px solid #999;
+      background: #fff;
+    }
+
     .char-count {
       text-align: right;
       font-size: 11px;
@@ -147,7 +155,7 @@
       font-size: 14px;
     }
 
-.post-header {
+    .post-header {
       display: flex;
       justify-content: flex-end; 
       font-size: 12px;
@@ -178,7 +186,7 @@
   <nav class="sidebar" id="sidebar"></nav>
   <div class="resizer" id="resizer"></div>
 
-  <div class="main">
+  <div class="main" id="main-area">
     <h1>掲示板</h1>
     <hr style="width: 80%; margin: 20px auto;">
 
@@ -186,7 +194,14 @@
       <section id="bbs-log">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px;">
           <h3 style="margin: 0;">書き込み <span id="post-count" style="font-weight: normal; font-size: 0.9em;">(0件)</span></h3>
-          <button type="button" class="refresh-btn" onclick="loadBBSLogs()">最新の情報に更新</button>
+          
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <select id="sort-order" class="sort-select" onchange="loadBBSLogs()">
+              <option value="asc">古い順 (1から)</option>
+              <option value="desc">新しい順 (最新から)</option>
+            </select>
+            <button type="button" class="refresh-btn" onclick="loadBBSLogs()">最新の情報に更新</button>
+          </div>
         </div>
         <div id="bbs-display-area"></div>
       </section>
@@ -240,9 +255,11 @@
       }
     }
     
-function loadBBSLogs() {
+    // ★ 戻り値としてPromiseを返すように変更（投稿後のスクロール制御のため）
+    function loadBBSLogs() {
       const displayArea = document.getElementById('bbs-display-area');
       const countDisplay = document.getElementById('post-count');
+      const sortOrder = document.getElementById('sort-order').value; // 選択された並び順を取得
       
       displayArea.innerHTML = `
         <div class="status-msg">
@@ -250,15 +267,26 @@ function loadBBSLogs() {
           ログを読み込み中...
         </div>`;
 
-      fetch('bbs_logs.html?t=' + new Date().getTime())
+      return fetch('bbs_logs.html?t=' + new Date().getTime())
         .then(response => {
           if (!response.ok) throw new Error('ログファイルが見つかりません');
           return response.text();
         })
         .then(data => {
-          displayArea.innerHTML = data.replace('CONTENTS_START', '');
-          const posts = displayArea.querySelectorAll('.post');
+          // 一旦仮の要素に入れてパースする
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = data.replace('CONTENTS_START', '');
+          
+          // 投稿要素を配列として取得
+          let posts = Array.from(tempDiv.querySelectorAll('.post'));
           countDisplay.textContent = `(${posts.length}件)`;
+
+          // ★ もとのログは降順(新しい順)なので、古い順が選ばれている場合は反転させる
+          if (sortOrder === 'asc') {
+            posts.reverse();
+          }
+
+          displayArea.innerHTML = ''; // ローディング表示を消去
 
           posts.forEach(post => {
             const no = post.getAttribute('data-no');
@@ -267,7 +295,7 @@ function loadBBSLogs() {
             if (no && !post.querySelector('.post-header')) {
               const header = document.createElement('div');
               header.className = 'post-header';
-header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclick="insertAnchor('${no}')">[返信]</span></div>`;
+              header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclick="insertAnchor('${no}')">[返信]</span></div>`;
               post.insertBefore(header, post.firstChild);
             }
 
@@ -281,8 +309,12 @@ header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclic
               });
               body.innerHTML = html;
             }
+            
+            // 処理した要素を表示エリアに追加
+            displayArea.appendChild(post);
           });
 
+          // アンカーリンクのクリックイベントを再設定
           displayArea.querySelectorAll('.anchor-link').forEach(link => {
             link.addEventListener('click', () => {
               scrollToPost(link.getAttribute('data-target'));
@@ -297,6 +329,8 @@ header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclic
             </div>`;
         });
     }
+    
+    // 初回読み込み
     loadBBSLogs();
 
     async function submitToCloudflare() {
@@ -324,13 +358,24 @@ header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclic
           msgInput.value = "";
           msgCount.innerText = "0/300";
           setTimeout(() => { status.innerText = ""; }, 5000);
-          loadBBSLogs();
+          
+          // ★ 再読み込み後に、順序に合わせて自動スクロール
+          loadBBSLogs().then(() => {
+            const sortOrder = document.getElementById('sort-order').value;
+            const mainArea = document.getElementById('main-area'); // スクロール領域
+            if (sortOrder === 'asc') {
+              // 古い順の場合は一番下（最新投稿）へスクロール
+              mainArea.scrollTo({ top: mainArea.scrollHeight, behavior: 'smooth' });
+            } else {
+              // 新しい順の場合は一番上へスクロール
+              mainArea.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          });
+          
         } else {
-          // サーバーが返したエラーメッセージ（テキストまたはJSON）を取得
           let errorMessage = `エラー (${response.status})`;
           try {
             const errorData = await response.text();
-            // WorkerがJSONを返す場合はパース、そうでなければテキストをそのまま使う
             try {
               const json = JSON.parse(errorData);
               errorMessage = json.message || json.error || errorData;
@@ -341,10 +386,9 @@ header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclic
           
           throw new Error(errorMessage);
         }
-} catch (e) {
+      } catch (e) {
         status.style.color = "red";
         const displayMsg = e.message.includes('Failed to fetch') ? "通信エラーが発生しました" : e.message;
-        // ここにも error.png を追加
         status.innerHTML = `<img src="bbs_parts/error.png" alt="" style="vertical-align:middle; margin-right:5px; height:14px;"> 失敗: ${displayMsg}`;
       } finally {
         btn.disabled = false;
@@ -376,7 +420,7 @@ header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclic
       document.body.style.userSelect = 'auto';
     });
 
-function insertAnchor(no) {
+    function insertAnchor(no) {
       const currentMsg = msgInput.value;
       const anchor = '>>' + no + '\n';
       
@@ -384,9 +428,7 @@ function insertAnchor(no) {
       msgInput.value = anchor + currentMsg;
       
       msgInput.focus();
-      // カーソルを末尾に移動（必要なければ削除してください）
       msgInput.setSelectionRange(msgInput.value.length, msgInput.value.length);
-      
       msgInput.dispatchEvent(new Event('input'));
     }
   </script>
