@@ -97,7 +97,7 @@
       width: 80%;
     }
 
-    /* ★ 掲示板プレビュー用のスタイル */
+    /* 掲示板プレビューエリアの調整 */
     #recent-bbs {
       margin-top: 20px;
       text-align: left;
@@ -115,20 +115,28 @@
       padding-bottom: 5px;
     }
 
+    #bbs-preview {
+      max-height: 300px; /* 長くなりすぎないよう制限 */
+      overflow-y: auto;
+    }
+
     .recent-post {
       border-bottom: 1px dotted #ccc;
-      padding: 8px 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      padding: 10px 0;
+      /* 改行を許可し、自動で折り返す設定 */
+      white-space: pre-wrap; 
+      word-wrap: break-word;
+      line-height: 1.4;
     }
 
     .recent-post:last-child {
       border-bottom: none;
     }
 
-    .recent-post .post-body {
-      color: #333;
+    .recent-post strong {
+      color: #000;
+      display: block; /* 名前を独立させて読みやすく */
+      margin-bottom: 3px;
     }
 
     .more-link {
@@ -149,7 +157,6 @@
 <body>
 
   <nav class="sidebar" id="sidebar"></nav>
-
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
@@ -168,7 +175,7 @@
         <section id="recent-bbs">
           <h2>掲示板の最新投稿</h2>
           <div id="bbs-preview">読み込み中...</div>
-          <a href="bbs.html" class="more-link">もっと見る »</a>
+          <a href="bbs.html" class="more-link">掲示板へ行く »</a>
         </section>
 
         <hr>
@@ -207,7 +214,7 @@
       document.body.style.userSelect = 'auto';
     });
 
-    /* ★ 掲示板の最新3件を取得して表示するスクリプト */
+    /* 掲示板の最新3件を取得して表示するスクリプト */
     function loadRecentBBS() {
       const previewArea = document.getElementById('bbs-preview');
 
@@ -218,7 +225,7 @@
         })
         .then(data => {
           const tempDiv = document.createElement('div');
-          // CONTENTS_STARTを削除してパース
+          // CONTENTS_STARTを削除
           tempDiv.innerHTML = data.replace('CONTENTS_START', '');
           
           const posts = tempDiv.querySelectorAll('.post');
@@ -228,7 +235,7 @@
           }
 
           previewArea.innerHTML = '';
-          // 最新の3件（最初から3つ）を取得
+          // 最新の3件を表示
           for (let i = 0; i < Math.min(posts.length, 3); i++) {
             const post = posts[i];
             const name = post.querySelector('strong') ? post.querySelector('strong').innerText : "名無しさん";
@@ -236,18 +243,16 @@
             
             const div = document.createElement('div');
             div.className = 'recent-post';
-            // 名前：メッセージ の形式で表示
-            div.innerHTML = `<strong>${name}</strong>: <span class="post-body">${body.replace(/\n/g, ' ')}</span>`;
+            // 改行を維持したまま挿入
+            div.innerHTML = `<strong>${name}</strong>${body}`;
             previewArea.appendChild(div);
           }
         })
         .catch(err => {
           previewArea.innerText = "読み込みに失敗しました。";
-          console.error(err);
         });
     }
 
-    // 実行
     loadRecentBBS();
   </script>
 </body>
