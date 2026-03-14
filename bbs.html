@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>掲示板 - ゆきだまのホームページ A館</title>
   <style>
-    /* 1. 【装飾】body全体のレイアウト */
     body {
       margin: 0;
       padding: 0;
@@ -18,7 +17,6 @@
       overflow: hidden;
     }
 
-    /* 2. 【装飾】サイドバー */
     .sidebar {
       width: 200px;
       min-width: 100px;
@@ -86,7 +84,6 @@
       top: 0;
     }
 
-    /* 3. 【装飾】投稿のデザイン */
     .post {
       margin-bottom: 20px;
       padding-bottom: 15px;
@@ -150,19 +147,18 @@
       font-size: 14px;
     }
 
-    /* 投稿ヘッダーを横並びにするための設定 */
 .post-header {
       display: flex;
-      justify-content: flex-end; /* 右端に寄せる */
+      justify-content: flex-end; 
       font-size: 12px;
-      height: 0; /* 高さをゼロにして下の要素と重なりやすくする */
+      height: 0; 
       position: relative;
       top: 0;
     }
     .post-no {
       color: #666;
       font-weight: bold;
-      background: rgba(255, 255, 255, 0.7); /* 文字が重なっても読みやすくする */
+      background: rgba(255, 255, 255, 0.7); 
       padding: 2px 5px;
     }
     .reply-btn {
@@ -303,7 +299,6 @@ header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclic
     }
     loadBBSLogs();
 
-    // ★修正版：Cloudflareからのエラーメッセージをしっかり受け取る
     async function submitToCloudflare() {
       const status = document.getElementById('send-status');
       const btn = document.getElementById('submit-btn');
@@ -325,7 +320,7 @@ header.innerHTML = `<div class="post-no">No.${no} <span class="reply-btn" onclic
 
         if (response.ok) {
           status.style.color = "green";
-          status.innerText = "投稿に成功しました！";
+          status.innerText = "投稿しました！反映にはしばらく時間がかかります";
           msgInput.value = "";
           msgCount.innerText = "0/300";
           setTimeout(() => { status.innerText = ""; }, 5000);
