@@ -393,6 +393,18 @@
         return;
       }
 
+      // ★ 追加：文字数オーバーなら中断
+  if (name.length > 20) {
+    status.style.color = "red";
+    status.innerText = "名前は20文字以内にしてください。";
+    return;
+  }
+  if (message.length > 300) {
+    status.style.color = "red";
+    status.innerText = "メッセージは300文字以内にしてください。";
+    return;
+  }
+
       // 二重投稿防止：ボタンを無効化
       submitBtn.disabled = true;
       status.style.color = "black";
