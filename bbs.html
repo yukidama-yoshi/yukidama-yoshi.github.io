@@ -110,7 +110,7 @@
   function loadBBSLogs() {
     const displayArea = document.getElementById('bbs-display-area');
     const sortOrder = document.getElementById('sort-order').value;
-    displayArea.innerHTML = `<div class="status-msg"><img src="bbs_parts/loading.gif" style="height:1.2em; vertical-align:middle; margin-right:8px;">最新のログを読み込み中...</div>`;
+    displayArea.innerHTML = `<div class="status-msg"><img src="bbs_parts/loading.gif" style="height:1.2em; vertical-align:middle; margin-right:8px;">ログを読み込み中...</div>`;
 
     fetch(WORKER_URL)
       .then(res => res.json())
