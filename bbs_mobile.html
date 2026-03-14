@@ -8,260 +8,236 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-      background-color: #efefef; /* PC版の背景画像を流用せず、あえて軽量化 */
-      color: #000;
-      line-height: 1.4;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
     }
 
-    /* ヘッダー：サイト名など */
+    /* ヘッダー */
     header {
-      background: #ffffff;
+      background: #fff;
       padding: 10px;
       text-align: center;
       border-bottom: 2px solid #ccc;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1000;
     }
-    header h1 { font-size: 18px; margin: 0; }
-    .nav-links { font-size: 12px; margin-top: 5px; }
-    .nav-links a { color: blue; text-decoration: none; margin: 0 10px; font-weight: bold; }
+    header h1 { font-size: 18px; margin: 0; color: #000; }
+    .nav { margin-top: 8px; font-size: 13px; }
+    .nav a { color: blue; text-decoration: none; margin: 0 10px; font-weight: bold; }
 
-    .container { padding: 10px; }
+    .container { padding: 12px; }
 
-    /* 投稿フォーム：スマホでは押しやすさが命 */
-    .form-box {
+    /* 投稿フォーム */
+    .post-form {
       background: #fff;
       border: 1px solid #999;
       border-radius: 8px;
       padding: 15px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .form-box h2 { font-size: 16px; margin: 0 0 10px 0; border-left: 4px solid #666; padding-left: 8px; }
+    .post-form h2 { font-size: 15px; margin: 0 0 12px 0; border-left: 4px solid #333; padding-left: 8px; }
     
     input[type="text"], textarea {
       width: 100%;
       box-sizing: border-box;
-      padding: 10px;
-      margin-bottom: 5px;
+      padding: 12px;
+      margin-bottom: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
-      font-size: 16px; /* 16px以上にするとiPhoneで入力時に勝手にズームされません */
+      font-size: 16px; /* iOSのズーム防止 */
     }
 
-    .btn-post {
+    .submit-btn {
       width: 100%;
       padding: 12px;
-      background: #eee;
-      border: 1px solid #999;
+      background: #444;
+      color: #fff;
+      border: none;
       font-weight: bold;
       font-size: 16px;
-      cursor: pointer;
+      border-radius: 4px;
     }
 
-    /* ログ表示部分 */
-    .log-area {
+    /* 掲示板ログ */
+    .log-container {
       background: #fff;
-      border-radius: 8px;
-      overflow: hidden;
       border: 1px solid #ccc;
+      border-radius: 8px;
     }
-    .log-ctrl {
-      background: #f8f8f8;
-      padding: 8px 10px;
-      border-bottom: 1px solid #eee;
+    .log-header {
+      padding: 10px;
+      background: #eee;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 13px;
+      border-bottom: 1px solid #ccc;
     }
 
     .post {
-      padding: 12px;
+      padding: 15px;
       border-bottom: 1px solid #eee;
     }
     .post:last-child { border-bottom: none; }
-    .post-header {
-      display: flex;
-      justify-content: space-between;
+
+    .post-info {
       font-size: 12px;
       color: #666;
-      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
     }
-    .post-name { font-weight: bold; color: #004080; }
-    .post-body {
+    .post-name { font-weight: bold; color: #d32f2f; font-size: 14px; }
+    .admin-label { color: #fff; background: #e91e63; padding: 1px 4px; border-radius: 3px; font-size: 10px; margin-left: 4px; }
+
+    .post-content {
       font-size: 15px;
+      line-height: 1.6;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
 
-    /* アンカーとリンク */
-    .anchor-link { color: blue; font-weight: bold; text-decoration: underline; }
-    .reply-tag {
-      background: #e1f5fe;
-      color: #0288d1;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 11px;
+    .reply-btn {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: bold;
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 10px;
     }
 
-    footer { text-align: center; padding: 30px 10px; font-size: 11px; color: #888; }
-
-    /* ユーティリティ */
-    .status-msg { text-align: center; font-size: 13px; padding: 20px; }
-    .char-count { text-align: right; font-size: 11px; color: #999; margin-bottom: 10px; }
+    .anchor-link { color: blue; font-weight: bold; text-decoration: underline; }
+    footer { text-align: center; padding: 20px; font-size: 11px; color: #999; }
   </style>
 </head>
 <body>
 
 <header>
   <h1>ゆきだまのホームページ A館</h1>
-  <div class="nav-links">
-    <a href="index.html">TOP</a>
+  <div class="nav">
+    <a href="index.html">トップ</a>
     <a href="bbs.html">PC版掲示板</a>
-    <a href="javascript:location.reload()">更新</a>
+    <a href="#" onclick="location.reload(); return false;">更新</a>
   </div>
 </header>
 
 <div class="container">
-  <section class="form-box">
-    <h2>新規投稿</h2>
-    <input type="text" id="post-name" placeholder="名無しさん(20字まで)">
-    <textarea id="post-message" placeholder="メッセージを入力(300字まで)" rows="4"></textarea>
-    <div id="message-count" class="char-count">0/300</div>
-    <button type="button" class="btn-post" onclick="submitToCloudflare()" id="submit-btn">投稿する</button>
-    <p id="send-status" style="font-size: 12px; text-align: center; margin-top: 8px; font-weight: bold;"></p>
+  <section class="post-form">
+    <h2>掲示板に書く</h2>
+    <input type="text" id="m-name" placeholder="名前 (空欄で名無し)">
+    <textarea id="m-message" placeholder="内容を入力してください" rows="4"></textarea>
+    <button class="submit-btn" onclick="submitMobile()" id="m-submit">投稿する</button>
+    <p id="m-status" style="font-size:12px; text-align:center; margin-top:8px;"></p>
   </section>
 
-  <section class="log-area">
-    <div class="log-ctrl">
-      <span id="post-count">ログを読み込み中...</span>
-      <select id="sort-order" onchange="loadBBSLogs()">
+  <section class="log-container">
+    <div class="log-header">
+      <span id="m-count">読み込み中...</span>
+      <select id="m-sort" onchange="fetchLogs()">
         <option value="desc">最新順</option>
         <option value="asc">投稿順</option>
       </select>
     </div>
-    <div id="bbs-display-area"></div>
+    <div id="m-display"></div>
   </section>
 </div>
 
-<footer>
-  © 2026 ゆきだま. All rights reserved.
-</footer>
+<footer>&copy; 2026 ゆきだま</footer>
 
 <script>
-  // PC版のロジックをスマホ版のID体系に合わせて移植
-  const nameInput = document.getElementById('post-name');
-  const msgInput = document.getElementById('post-message');
-  const msgCount = document.getElementById('message-count');
-
-  msgInput.addEventListener('input', () => {
-    msgCount.innerText = `${msgInput.value.length}/300`;
-  });
-
-  function loadBBSLogs() {
-    const displayArea = document.getElementById('bbs-display-area');
-    const countDisplay = document.getElementById('post-count');
-    const sortOrder = document.getElementById('sort-order').value;
-
-    displayArea.innerHTML = '<div class="status-msg">読み込み中...</div>';
-
-    fetch('bbs_logs.html?t=' + new Date().getTime())
+  // ログ読み込み
+  function fetchLogs() {
+    const display = document.getElementById('m-display');
+    const sort = document.getElementById('m-sort').value;
+    
+    fetch('bbs_logs.html?t=' + Date.now())
       .then(res => res.text())
-      .then(data => {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = data.replace('CONTENTS_START', '');
-        let posts = Array.from(tempDiv.querySelectorAll('.post'));
-        countDisplay.textContent = `${posts.length}件の書き込み`;
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html.replace('CONTENTS_START', ''), 'text/html');
+        let posts = Array.from(doc.querySelectorAll('.post'));
+        
+        document.getElementById('m-count').textContent = posts.length + "件の投稿";
+        if (sort === 'asc') posts.reverse();
 
-        if (sortOrder === 'asc') posts.reverse();
-
-        displayArea.innerHTML = '';
-        posts.forEach(post => {
-          const no = post.getAttribute('data-no');
-          const body = post.querySelector('.post-body');
-          const name = post.querySelector('b')?.innerText || '名無しさん';
+        display.innerHTML = '';
+        posts.forEach(p => {
+          const no = p.getAttribute('data-no');
+          const name = p.querySelector('strong') ? p.querySelector('strong').innerText : "名無しさん";
+          const isAdmin = p.querySelector('.admin-icon') ? '<span class="admin-label">管理人</span>' : '';
+          const body = p.querySelector('.post-body') ? p.querySelector('.post-body').innerHTML : "";
           
-          let bodyHtml = body.innerHTML;
-          // アンカーリンクの置換
-          bodyHtml = bodyHtml.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
-            return `<span class="anchor-link" onclick="scrollToPost(${p1})">>>${p1}</span>`;
-          });
+          // アンカー処理
+          const processedBody = body.replace(/(?:&gt;&gt;|>>)(\d+)/g, '<span class="anchor-link" onclick="jumpTo($1)">>>$1</span>');
 
-          const postDiv = document.createElement('div');
-          postDiv.className = 'post';
-          postDiv.setAttribute('data-no', no);
-          postDiv.innerHTML = `
-            <div class="post-header">
-              <span>No.<strong style="font-size:14px;">${no}</strong> <span class="post-name">${name}</span></span>
-              <span class="reply-tag" onclick="insertAnchor(${no})">返信</span>
+          const div = document.createElement('div');
+          div.className = 'post';
+          div.id = 'p' + no;
+          div.innerHTML = `
+            <div class="post-info">
+              <span>No.${no} <span class="post-name">${name}</span>${isAdmin}</span>
+              <span class="reply-btn" onclick="setReply(${no})">返信</span>
             </div>
-            <div class="post-body">${bodyHtml}</div>
+            <div class="post-content">${processedBody}</div>
           `;
-          displayArea.appendChild(postDiv);
+          display.appendChild(div);
         });
-      })
-      .catch(err => {
-        displayArea.innerHTML = '<div class="status-msg" style="color:red;">エラー: ' + err.message + '</div>';
       });
   }
 
-  function insertAnchor(no) {
-    msgInput.value = `>>${no}\n` + msgInput.value;
+  function setReply(no) {
+    const msg = document.getElementById('m-message');
+    msg.value = ">>" + no + "\n" + msg.value;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    msgInput.focus();
+    msg.focus();
   }
 
-  function scrollToPost(no) {
-    const target = document.querySelector(`.post[data-no="${no}"]`);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      target.style.backgroundColor = "#fff9c4";
-      setTimeout(() => { target.style.backgroundColor = ""; }, 1500);
+  function jumpTo(no) {
+    const el = document.getElementById('p' + no);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.backgroundColor = '#fff9c4';
+      setTimeout(() => el.style.backgroundColor = 'transparent', 2000);
     }
   }
 
-  async function submitToCloudflare() {
-    const status = document.getElementById('send-status');
-    const btn = document.getElementById('submit-btn');
-    const name = nameInput.value.trim() || "名無しさん";
-    const message = msgInput.value.trim();
+  async function submitMobile() {
+    const btn = document.getElementById('m-submit');
+    const status = document.getElementById('m-status');
+    const name = document.getElementById('m-name').value.trim() || "名無しさん";
+    const message = document.getElementById('m-message').value.trim();
 
-    if (!message) { alert("内容を入力してください"); return; }
-    
+    if (!message) return alert("内容を入力してください");
+
     btn.disabled = true;
-    status.style.color = "#666";
     status.innerText = "送信中...";
 
     try {
-      const response = await fetch('https://dry-silence-4f1f.y-bb0.workers.dev', {
+      const res = await fetch('https://dry-silence-4f1f.y-bb0.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, message: message })
+        body: JSON.stringify({ name, message })
       });
 
-      if (response.ok) {
+      if (res.ok) {
         status.style.color = "green";
-        status.innerText = "投稿成功！";
-        msgInput.value = "";
-        msgCount.innerText = "0/300";
-        setTimeout(() => { status.innerText = ""; }, 3000);
-        loadBBSLogs();
+        status.innerText = "投稿完了！";
+        document.getElementById('m-message').value = "";
+        setTimeout(() => { status.innerText = ""; fetchLogs(); }, 2000);
       } else {
-        throw new Error("送信失敗");
+        throw new Error();
       }
     } catch (e) {
       status.style.color = "red";
-      status.innerText = "失敗しました";
+      status.innerText = "送信失敗しました";
     } finally {
       btn.disabled = false;
     }
   }
 
-  // 初回読み込み
-  loadBBSLogs();
+  fetchLogs();
 </script>
 </body>
 </html>
