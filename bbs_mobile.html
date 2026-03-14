@@ -23,11 +23,11 @@
     .log-container { background: #eee; border-radius: 8px; overflow: hidden; }
     .log-header { padding: 10px; background: #ddd; display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-bottom: 1px solid #ccc; }
     
-    /* 投稿ごとのデザイン（境界線を太くし、カード状に分離） */
+    /* 投稿ごとのデザイン */
     .post { 
       padding: 15px; 
       background: #fff; 
-      border-bottom: 4px solid #ccc; /* 境界線を太く強調 */
+      border-bottom: 4px solid #ccc; 
       margin-bottom: 2px; 
     }
     .post:last-child { border-bottom: none; }
@@ -37,7 +37,11 @@
     .admin-icon { width: 18px; height: 18px; vertical-align: middle; margin-left: 4px; border: 1px solid #ccc; }
     .post-content { font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
     .reply-btn { color: #007bff; background: #f0f0f0; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+    
+    /* 読み込み中表示のスタイル */
     .status-msg { text-align: center; padding: 20px; font-size: 14px; }
+    .loading-icon { height: 1em; vertical-align: middle; margin-right: 5px; }
+
     footer { text-align: center; padding: 20px; font-size: 11px; color: #999; }
   </style>
 </head>
@@ -58,7 +62,7 @@
   </section>
   <section class="log-container">
     <div class="log-header">
-      <span id="m-count">読み込み中...</span>
+      <span id="m-count"><img src="/bbs_parts/loading.gif" class="loading-icon">読み込み中...</span>
       <select id="m-sort" onchange="fetchLogs()">
         <option value="desc">最新順</option>
         <option value="asc">投稿順</option>
@@ -74,6 +78,7 @@
   const nameIn = document.getElementById('m-name');
   const msgIn = document.getElementById('m-message');
   const statusMsg = document.getElementById('m-status');
+  const loadingHtml = '<img src="/bbs_parts/loading.gif" class="loading-icon">読み込み中...';
 
   nameIn.oninput = () => {
     const len = nameIn.value.split('#')[0].length;
@@ -86,7 +91,7 @@
   function fetchLogs() {
     const display = document.getElementById('m-display');
     const sort = document.getElementById('m-sort').value;
-    display.innerHTML = `<div class="status-msg">読み込み中...</div>`;
+    display.innerHTML = `<div class="status-msg">${loadingHtml}</div>`;
     
     fetch(WORKER_URL)
       .then(res => res.json())
@@ -170,12 +175,12 @@
         }, 1500);
       } else {
         const d = await res.json(); 
-        alert(d.error); // ここでNGワード等のエラーダイアログが出る
-        statusMsg.innerText = ""; // ダイアログを閉じた後に「送信中...」を消去
+        alert(d.error); 
+        statusMsg.innerText = ""; 
       }
     } catch (e) { 
       alert("通信エラーが発生しました"); 
-      statusMsg.innerText = ""; // エラー時も消去
+      statusMsg.innerText = ""; 
     } finally { 
       btn.disabled = false; 
     }
