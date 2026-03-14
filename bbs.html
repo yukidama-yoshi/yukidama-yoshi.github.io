@@ -5,453 +5,206 @@
   <title>掲示板 - ゆきだまのホームページ A館</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: "MS Gothic", "Osaka", monospace;
       background-image: url("images/pg.png");
-      background-repeat: repeat;
-      background-size: 600px;
-      color: #000000;
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
+      background-repeat: repeat; background-size: 600px;
+      color: #000000; height: 100vh; display: flex; overflow: hidden;
     }
-
-    .sidebar {
-      width: 200px;
-      min-width: 100px;
-      background-color: #ffffff;
-      border-right: 1px solid #ccc;
-      padding: 20px;
-      font-size: 14px;
-      box-sizing: border-box;
-      flex-shrink: 0;
-    }
-
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-      padding: 6px 0;
-      color: blue;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .sidebar a::before {
-      content: "";
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #999;
-      margin-right: 8px;
-    }
-
-    .resizer {
-      width: 5px;
-      cursor: ew-resize;
-      background-color: #ccc;
-    }
-
-    .main {
-      flex: 1;
-      padding: 40px 20px;
-      overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.65);
-    }
-
-    .bbs-container {
-      display: flex;
-      gap: 32px;
-      align-items: flex-start;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    #bbs-log {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 20px;
-      border: 1px solid #999;
-      border-radius: 4px;
-      min-height: 800px;
-    }
-
-    .form-wrapper {
-      width: 450px;
-      position: sticky;
-      top: 0;
-    }
-
-    .post {
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px dotted #999;
-      transition: background-color 0.5s;
-    }
-
-    .post-body {
-      display: block;
-      margin-top: 8px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-
-    .admin-icon {
-      width: 18px;
-      height: 18px;
-      vertical-align: middle;
-      margin-left: 5px;
-      border: 1px solid #ccc;
-    }
-
-    .anchor-link {
-      color: blue;
-      text-decoration: underline;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .anchor-link:hover {
-      color: red;
-      background-color: #ffff00;
-    }
-
-    h1, h2, h3 { text-align: center; }
+    .sidebar { width: 200px; min-width: 100px; background-color: #ffffff; border-right: 1px solid #ccc; padding: 20px; font-size: 14px; box-sizing: border-box; flex-shrink: 0; }
+    .sidebar a { display: flex; align-items: center; margin-bottom: 12px; padding: 6px 0; color: blue; text-decoration: none; font-weight: bold; }
+    .sidebar a::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #999; margin-right: 8px; }
+    .resizer { width: 5px; cursor: ew-resize; background-color: #ccc; }
+    .main { flex: 1; padding: 40px 20px; overflow-y: auto; background-color: rgba(255, 255, 255, 0.65); }
+    .bbs-container { display: flex; gap: 32px; align-items: flex-start; max-width: 1200px; margin: 0 auto; }
+    #bbs-log { flex: 1; background: rgba(255, 255, 255, 0.8); padding: 20px; border: 1px solid #999; border-radius: 4px; min-height: 800px; }
+    .form-wrapper { width: 450px; position: sticky; top: 0; }
+    .post { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dotted #999; transition: background-color 0.5s; }
+    .post-body { display: block; margin-top: 8px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
+    .admin-icon { width: 18px; height: 18px; vertical-align: middle; margin-left: 5px; border: 1px solid #ccc; }
+    .anchor-link { color: blue; text-decoration: underline; cursor: pointer; font-weight: bold; }
+    .anchor-link:hover { color: red; background-color: #ffff00; }
+    h1, h3 { text-align: center; }
+    .refresh-btn { cursor: pointer; padding: 4px 10px; font-family: inherit; font-size: 12px; background: #eee; border: 1px solid #999; }
+    .sort-select { padding: 3px; font-family: inherit; font-size: 12px; border: 1px solid #999; background: #fff; }
+    .char-count { text-align: right; font-size: 11px; color: #666; margin-top: 2px; }
+    .char-over { color: red; font-weight: bold; }
+    .status-msg { text-align: center; padding: 20px; font-size: 14px; }
+    .post-header { display: flex; justify-content: flex-end; font-size: 12px; height: 0; position: relative; top: 0; }
+    .post-no { color: #666; font-weight: bold; background: rgba(255, 255, 255, 0.7); padding: 2px 5px; }
     footer { margin-top: 40px; font-size: 12px; text-align: center; }
-
-    .refresh-btn {
-      cursor: pointer;
-      padding: 4px 10px;
-      font-family: "MS Gothic", "Osaka", monospace;
-      font-size: 12px;
-      background: #eee;
-      border: 1px solid #999;
-    }
-    .refresh-btn:hover { background: #ddd; }
-
-    .sort-select {
-      padding: 3px;
-      font-family: "MS Gothic", "Osaka", monospace;
-      font-size: 12px;
-      border: 1px solid #999;
-      background: #fff;
-    }
-
-    .char-count {
-      text-align: right;
-      font-size: 11px;
-      color: #666;
-      margin-top: 2px;
-    }
-    .char-over {
-      color: red;
-      font-weight: bold;
-    }
-
-    .status-msg {
-      text-align: center;
-      padding: 20px;
-      font-size: 14px;
-    }
-
-    .post-header {
-      display: flex;
-      justify-content: flex-end; 
-      font-size: 12px;
-      height: 0; 
-      position: relative;
-      top: 0;
-    }
-    .post-no {
-      color: #666;
-      font-weight: bold;
-      background: rgba(255, 255, 255, 0.7); 
-      padding: 2px 5px;
-    }
-    .reply-btn {
-      color: blue;
-      text-decoration: underline;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-    .reply-btn:hover {
-      color: red;
-    }
-    
   </style>
 </head>
 <body>
-  
+
 <script>
-  // モバイル端末かどうかを判定してリダイレクト
   (function() {
     const ua = navigator.userAgent;
     if (ua.indexOf('iPhone') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0) {
-      if (confirm('こちらは主にパソコン向けのページです。モバイル端末ではうまく表示できないかもしれません。[OK]を押すとモバイル向けのページへ移動します。')) {
+      if (confirm('こちらはパソコン向けのページです。モバイル版へ移動しますか？')) {
         location.href = 'bbs_mobile.html';
       }
     }
   })();
 </script>
 
-  <nav class="sidebar" id="sidebar"></nav>
-  <div class="resizer" id="resizer"></div>
+<nav class="sidebar" id="sidebar"></nav>
+<div class="resizer" id="resizer"></div>
 
-  <div class="main" id="main-area">
-    <h1>掲示板</h1>
-    <hr style="width: 80%; margin: 20px auto;">
+<div class="main">
+  <h1>掲示板</h1>
+  <hr style="width: 80%; margin: 20px auto;">
 
-    <div class="bbs-container">
-      <section id="bbs-log">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px;">
-          <h3 style="margin: 0;">書き込み <span id="post-count" style="font-weight: normal; font-size: 0.9em;">(0件)</span></h3>
-          
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <select id="sort-order" class="sort-select" onchange="loadBBSLogs()">
-              <option value="desc">並び：最新</option>
-              <option value="asc">並び：投稿順</option>
-            </select>
-            <button type="button" class="refresh-btn" onclick="loadBBSLogs()">最新の情報に更新</button>
-          </div>
+  <div class="bbs-container">
+    <section id="bbs-log">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ccc; padding-bottom: 5px;">
+        <h3 style="margin: 0;">書き込み <span id="post-count" style="font-weight: normal; font-size: 0.9em;">(0件)</span></h3>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <select id="sort-order" class="sort-select" onchange="loadBBSLogs()">
+            <option value="desc">並び：最新</option>
+            <option value="asc">並び：投稿順</option>
+          </select>
+          <button type="button" class="refresh-btn" onclick="loadBBSLogs()">最新の情報に更新</button>
         </div>
-        <div id="bbs-display-area"></div>
-      </section>
+      </div>
+      <div id="bbs-display-area"></div>
+    </section>
 
-      <section class="form-wrapper">
-        <div style="background: rgba(255, 255, 255, 0.8); padding: 20px; border: 1px solid #999; border-radius: 4px;">
-          <h3 style="margin-top:0;">新規投稿</h3>
-          <p>名前：<br>
-            <input type="text" id="post-name" placeholder="空欄だと「名無しさん」になります" style="width: 100%; box-sizing: border-box; padding: 5px;">
-            <div id="name-count" class="char-count">0/20</div>
-          </p>
-          <p>内容：<br>
-            <textarea id="post-message" placeholder="メッセージを入力してください" style="width: 100%; height: 200px; box-sizing: border-box; padding: 5px; resize: vertical;"></textarea>
-            <div id="message-count" class="char-count">0/300</div>
-          </p>
-          <button type="button" onclick="submitToCloudflare()" id="submit-btn" style="width: 100%; padding: 10px; cursor: pointer; background: #eee; border: 1px solid #999; font-family: inherit; font-weight: bold;">投稿する</button>
-          <p id="send-status" style="font-size: 12px; margin-top: 10px; text-align: center; min-height: 1.2em; font-weight: bold;"></p>
-        </div>
-      </section>
-    </div>
-    
-    <footer><p>© 2026 ゆきだま. All rights reserved.</p></footer>
+    <section class="form-wrapper">
+      <div style="background: rgba(255, 255, 255, 0.8); padding: 20px; border: 1px solid #999; border-radius: 4px;">
+        <h3 style="margin-top:0;">新規投稿</h3>
+        <p>名前：<br>
+          <input type="text" id="post-name" placeholder="名無しさん" maxlength="40" style="width: 100%; box-sizing: border-box; padding: 5px;">
+          <div id="name-count" class="char-count">0/20</div>
+        </p>
+        <p>内容：<br>
+          <textarea id="post-message" placeholder="メッセージを入力してください" maxlength="300" style="width: 100%; height: 200px; box-sizing: border-box; padding: 5px; resize: vertical;"></textarea>
+          <div id="message-count" class="char-count">0/300</div>
+        </p>
+        <button type="button" onclick="submitToCloudflare()" id="submit-btn" style="width: 100%; padding: 10px; cursor: pointer; background: #eee; border: 1px solid #999; font-weight: bold;">投稿する</button>
+        <p id="send-status" style="font-size: 12px; margin-top: 10px; text-align: center; min-height: 1.2em; font-weight: bold;"></p>
+      </div>
+    </section>
   </div>
+  <footer><p>© 2026 ゆきだま</p></footer>
+</div>
 
-  <script src="js/load-sidebar.js"></script>
+<script src="js/load-sidebar.js"></script>
+<script>
+  const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
+  const nameInput = document.getElementById('post-name');
+  const msgInput = document.getElementById('post-message');
 
-  <script>
-    const nameInput = document.getElementById('post-name');
-    const nameCount = document.getElementById('name-count');
-    const msgInput = document.getElementById('post-message');
-    const msgCount = document.getElementById('message-count');
+  nameInput.addEventListener('input', () => {
+    const len = nameInput.value.split('#')[0].length; // 合言葉を除いた長さで表示
+    document.getElementById('name-count').innerText = `${len}/20`;
+    document.getElementById('name-count').className = len > 20 ? "char-count char-over" : "char-count";
+  });
 
-    // 文字数カウント処理
-    nameInput.addEventListener('input', () => {
-      const len = nameInput.value.length;
-      nameCount.innerText = `${len}/20`;
-      nameCount.className = len > 20 ? "char-count char-over" : "char-count";
-    });
+  msgInput.addEventListener('input', () => {
+    const len = msgInput.value.length;
+    document.getElementById('message-count').innerText = `${len}/300`;
+    document.getElementById('message-count').className = len > 300 ? "char-count char-over" : "char-count";
+  });
 
-    msgInput.addEventListener('input', () => {
-      const len = msgInput.value.length;
-      msgCount.innerText = `${len}/300`;
-      msgCount.className = len > 300 ? "char-count char-over" : "char-count";
-    });
+  function loadBBSLogs() {
+    const displayArea = document.getElementById('bbs-display-area');
+    const sortOrder = document.getElementById('sort-order').value;
+    displayArea.innerHTML = `<div class="status-msg"><img src="bbs_parts/loading.gif" style="height:1.2em; vertical-align:middle; margin-right:8px;">最新のログを読み込み中...</div>`;
 
-    // アンカークリック時のスクロール処理
-    function scrollToPost(no) {
-      const target = document.querySelector(`.post[data-no="${no}"]`);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        target.style.backgroundColor = "#fff9c4";
-        setTimeout(() => { target.style.backgroundColor = ""; }, 1500);
-      }
-    }
-    
-    /* 掲示板のログをWorkerから取得して表示する関数 */
-    function loadBBSLogs() {
-      const displayArea = document.getElementById('bbs-display-area');
-      const countDisplay = document.getElementById('post-count');
-      const sortOrder = document.getElementById('sort-order').value; // 並び順（最新/投稿順）を取得
-      
-      // 読み込み中の表示
-displayArea.innerHTML = `
-    <div class="status-msg">
-      <img src="bbs_parts/loading.gif" alt="" style="height: 1.2em; vertical-align: middle; margin-right: 8px;">
-      最新のログを読み込み中...
-    </div>`;
-      
-      const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
+    fetch(WORKER_URL)
+      .then(res => res.json())
+      .then(posts => {
+        document.getElementById('post-count').textContent = `(${posts.length}件)`;
+        displayArea.innerHTML = '';
+        if (posts.length === 0) { displayArea.innerHTML = '<div class="status-msg">書き込みがありません。</div>'; return; }
 
-      fetch(WORKER_URL)
-        .then(response => {
-          if (!response.ok) throw new Error('通信エラーが発生しました');
-          return response.json();
-        })
-        .then(posts => {
-          countDisplay.textContent = `(${posts.length}件)`;
-          displayArea.innerHTML = '';
+        if (sortOrder === 'asc') posts.reverse();
 
-          if (posts.length === 0) {
-            displayArea.innerHTML = '<div class="status-msg">書き込みがありません。</div>';
-            return;
-          }
+        posts.forEach(post => {
+          // ★ 管理者アイコンの表示判定（サーバー側のisAdminフラグを使用）
+          const adminIcon = post.isAdmin 
+            ? '<img src="images/ykadmbbsicon.png" class="admin-icon">' 
+            : '';
 
-          // ★ ここが重要：選択されている並び順に合わせてデータを並び替える
-          let displayPosts = [...posts];
-          if (sortOrder === 'asc') {
-            displayPosts.reverse();
-          }
-
-          displayPosts.forEach(post => {
-            const adminIcon = post.name === 'ゆきだま' 
-              ? '<img src="images/ykadmbbsicon.png" class="admin-icon" style="height:1.2em; vertical-align:middle; margin-left:4px;">' 
-              : '';
-
-            const div = document.createElement('div');
-            div.className = 'post';
-            div.setAttribute('data-no', post.no);
-            
-            div.innerHTML = `
-              <div class="post-header">
-                <div class="post-no">No.${post.no} <span class="reply-btn" style="cursor:pointer; color:blue; font-size:0.8em;" onclick="insertAnchor('${post.no}')">[返信]</span></div>
-              </div>
-              <strong>${post.name}</strong>${adminIcon} [${post.date}]
-              <span class="post-body" style="display:block; margin-top:8px; white-space:pre-wrap;">${processMessage(post.message)}</span>
-            `;
-            displayArea.appendChild(div);
-          });
-        })
-        .catch(err => {
-          displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`;
+          const div = document.createElement('div');
+          div.className = 'post';
+          div.setAttribute('data-no', post.no);
+          div.innerHTML = `
+            <div class="post-header"><div class="post-no">No.${post.no} <span style="cursor:pointer; color:blue; font-size:0.8em;" onclick="insertAnchor('${post.no}')">[返信]</span></div></div>
+            <strong>${escapeHtml(post.name)}</strong>${adminIcon} <span style="font-size:11px; color:#666;">[${post.date}]</span>
+            <span class="post-body">${processMessage(post.message)}</span>
+          `;
+          displayArea.appendChild(div);
         });
+      })
+      .catch(err => { displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`; });
+  }
+
+  function processMessage(text) {
+    let html = escapeHtml(text);
+    html = html.replace(/(https?:\/\/[\w?=&.\/-;#~%-]+)/g, url => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
+    html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (m, p1) => `<span class="anchor-link" onclick="scrollToPost('${p1}')">>>${p1}</span>`);
+    return html;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function scrollToPost(no) {
+    const target = document.querySelector(`.post[data-no="${no}"]`);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.style.backgroundColor = "#fff9c4";
+      setTimeout(() => { target.style.backgroundColor = ""; }, 1500);
     }
+  }
 
-    /* メッセージ内の特殊処理（URLのリンク化やアンカー） */
-    function processMessage(text) {
-      // 1. 安全のためにHTMLタグを無効化（エスケープ）
-      let html = text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-      
-      // 2. URLをリンクにする
-      const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+)/g;
-      html = html.replace(urlRegex, url => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
-      
-      // 3. >>数字 をアンカーにする
-      html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
-        return `<span class="anchor-link" style="color:blue; cursor:pointer;" onclick="scrollToPost('${p1}')">>>${p1}</span>`;
-      });
-      
-      return html;
-    }
+  function insertAnchor(no) {
+    msgInput.value = ">>" + no + "\n" + msgInput.value;
+    msgInput.focus();
+    msgInput.dispatchEvent(new Event('input'));
+  }
 
-    /* サイドバーのリサイズ機能 */
-    const resizer = document.getElementById('resizer');
-    const sidebar = document.getElementById('sidebar');
-    let isResizing = false;
+  function submitToCloudflare() {
+    const status = document.getElementById('send-status');
+    const btn = document.getElementById('submit-btn');
+    const name = nameInput.value.trim();
+    const message = msgInput.value.trim();
 
-    resizer.addEventListener('mousedown', function () {
-      isResizing = true;
-      document.body.style.cursor = 'ew-resize';
-      document.body.style.userSelect = 'none'; 
-    });
+    if (!message) { status.style.color = "red"; status.innerText = "メッセージを入力してください。"; return; }
 
-    document.addEventListener('mousemove', function (e) {
-      if (!isResizing) return;
-      const newWidth = e.clientX;
-      if (newWidth > 100 && newWidth < 600) {
-        sidebar.style.width = newWidth + 'px';
-      }
-    });
+    btn.disabled = true;
+    status.style.color = "black"; status.innerText = "投稿中...";
 
-    document.addEventListener('mouseup', function () {
-      isResizing = false;
-      document.body.style.cursor = 'default';
-      document.body.style.userSelect = 'auto';
-    });
-
-    /* 返信ボタンの処理 */
-    function insertAnchor(no) {
-      const currentMsg = msgInput.value;
-      const anchor = '>>' + no + '\n';
-      
-      // 先頭にアンカーを追加し、その後に元のメッセージを繋げる
-      msgInput.value = anchor + currentMsg;
-      
-      msgInput.focus();
-      msgInput.setSelectionRange(msgInput.value.length, msgInput.value.length);
+    fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, message })
+    })
+    .then(async res => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'サーバーエラー');
+      status.style.color = "green"; status.innerText = "投稿しました！";
+      msgInput.value = "";
       msgInput.dispatchEvent(new Event('input'));
-    }
-
-    /* Cloudflare Workerに投稿を送信する関数 */
-    function submitToCloudflare() {
-      const name = document.getElementById('post-name').value;
-      const message = document.getElementById('post-message').value;
-      const status = document.getElementById('send-status');
-      const submitBtn = document.getElementById('submit-btn');
-
-      // メッセージが空なら中断
-      if (!message.trim()) {
-        status.style.color = "red";
-        status.innerText = "メッセージを入力してください。";
-        return;
-      }
-
-      // ★ 追加：文字数オーバーなら中断
-  if (name.length > 20) {
-    status.style.color = "red";
-    status.innerText = "名前は20文字以内にしてください。";
-    return;
-  }
-  if (message.length > 300) {
-    status.style.color = "red";
-    status.innerText = "メッセージは300文字以内にしてください。";
-    return;
+      setTimeout(() => { status.innerText = ""; }, 3000);
+      loadBBSLogs();
+    })
+    .catch(err => { status.style.color = "red"; status.innerText = "エラー: " + err.message; })
+    .finally(() => { btn.disabled = false; });
   }
 
-      // 二重投稿防止：ボタンを無効化
-      submitBtn.disabled = true;
-      status.style.color = "black";
-      status.innerText = "投稿中...";
+  // サイドバーリサイズ処理（既存）
+  const resizer = document.getElementById('resizer');
+  const sidebar = document.getElementById('sidebar');
+  let isResizing = false;
+  resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'ew-resize'; });
+  document.addEventListener('mousemove', (e) => { if (!isResizing) return; if (e.clientX > 100 && e.clientX < 600) sidebar.style.width = e.clientX + 'px'; });
+  document.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; });
 
-      const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
-
-      fetch(WORKER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, message: message })
-      })
-      .then(response => {
-        if (!response.ok) throw new Error('サーバーエラーが発生しました');
-        return response.json();
-      })
-      .then(data => {
-        status.style.color = "green";
-        status.innerText = "投稿しました！";
-        
-        // 入力欄を空にする
-        document.getElementById('post-message').value = "";
-        document.getElementById('post-message').dispatchEvent(new Event('input'));
-
-        // 3秒後にステータスを消す
-        setTimeout(() => { status.innerText = ""; }, 3000);
-
-        // ★ ログを再読み込みして即座に反映させる
-        loadBBSLogs();
-      })
-      .catch(err => {
-        status.style.color = "red";
-        status.innerText = "エラー: " + err.message;
-      })
-      .finally(() => {
-        // ボタンを元に戻す
-        submitBtn.disabled = false;
-      });
-    }
-
-    // ★ ページを開いた瞬間にログを読み込む処理（これを一番最後に書きます）
-    loadBBSLogs();
-
-  </script>
+  loadBBSLogs();
+</script>
 </body>
 </html>
