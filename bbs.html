@@ -448,6 +448,60 @@ function processMessage(text) {
       msgInput.setSelectionRange(msgInput.value.length, msgInput.value.length);
       msgInput.dispatchEvent(new Event('input'));
     }
+
+    /* Cloudflare Workerに投稿を送信する関数 */
+function submitToCloudflare() {
+  const name = document.getElementById('post-name').value;
+  const message = document.getElementById('post-message').value;
+  const status = document.getElementById('send-status');
+  const submitBtn = document.getElementById('submit-btn');
+
+  // メッセージが空なら中断
+  if (!message.trim()) {
+    status.style.color = "red";
+    status.innerText = "メッセージを入力してください。";
+    return;
+  }
+
+  // 二重投稿防止：ボタンを無効化
+  submitBtn.disabled = true;
+  status.style.color = "black";
+  status.innerText = "投稿中...";
+
+  const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
+
+  fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: name, message: message })
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('サーバーエラーが発生しました');
+    return response.json();
+  })
+  .then(data => {
+    status.style.color = "green";
+    status.innerText = "投稿しました！";
+    
+    // 入力欄を空にする
+    document.getElementById('post-message').value = "";
+    document.getElementById('post-message').dispatchEvent(new Event('input'));
+
+    // 3秒後にステータスを消す
+    setTimeout(() => { status.innerText = ""; }, 3000);
+
+    // ★ ログを再読み込みして即座に反映させる
+    loadBBSLogs();
+  })
+  .catch(err => {
+    status.style.color = "red";
+    status.innerText = "エラー: " + err.message;
+  })
+  .finally(() => {
+    // ボタンを元に戻す
+    submitBtn.disabled = false;
+  });
+}
   </script>
 </body>
 </html>
