@@ -343,69 +343,74 @@
     }
     
     // 初回読み込み
-    loadBBSLogs();
+    /* 掲示板のログをWorkerから取得して表示する関数 */
+function loadBBSLogs() {
+  const displayArea = document.getElementById('bbs-display-area');
+  const countDisplay = document.getElementById('post-count');
+  
+  // 読み込み中の表示
+  displayArea.innerHTML = '<div class="status-msg">最新のログを読み込み中...</div>';
 
-    async function submitToCloudflare() {
-      const status = document.getElementById('send-status');
-      const btn = document.getElementById('submit-btn');
-      const name = nameInput.value.trim() || "名無しさん";
-      const message = msgInput.value.trim();
+  // あなたのWorkerのURL（先ほど確認したもの）
+  const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
 
-      if (!message) { alert("内容を入力してください"); return; }
-      
-      btn.disabled = true;
-      status.style.color = "#666";
-      status.innerText = "送信中...";
+  fetch(WORKER_URL)
+    .then(response => {
+      if (!response.ok) throw new Error('通信エラーが発生しました');
+      return response.json(); // JSONとして受け取る
+    })
+    .then(posts => {
+      countDisplay.textContent = `(${posts.length}件)`;
+      displayArea.innerHTML = '';
 
-      try {
-        const response = await fetch('https://dry-silence-4f1f.y-bb0.workers.dev', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name, message: message })
-        });
-
-        if (response.ok) {
-          status.style.color = "green";
-          status.innerText = "投稿しました！反映にはしばらく時間がかかります";
-          msgInput.value = "";
-          msgCount.innerText = "0/300";
-          setTimeout(() => { status.innerText = ""; }, 5000);
-          
-          // ★ 再読み込み後に、順序に合わせて自動スクロール
-          loadBBSLogs().then(() => {
-            const sortOrder = document.getElementById('sort-order').value;
-            const mainArea = document.getElementById('main-area'); // スクロール領域
-            if (sortOrder === 'asc') {
-              // 古い順の場合は一番下（最新投稿）へスクロール
-              mainArea.scrollTo({ top: mainArea.scrollHeight, behavior: 'smooth' });
-            } else {
-              // 新しい順の場合は一番上へスクロール
-              mainArea.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-          });
-          
-        } else {
-          let errorMessage = `エラー (${response.status})`;
-          try {
-            const errorData = await response.text();
-            try {
-              const json = JSON.parse(errorData);
-              errorMessage = json.message || json.error || errorData;
-            } catch {
-              errorMessage = errorData;
-            }
-          } catch (e) { /* ignore */ }
-          
-          throw new Error(errorMessage);
-        }
-      } catch (e) {
-        status.style.color = "red";
-        const displayMsg = e.message.includes('Failed to fetch') ? "通信エラーが発生しました" : e.message;
-        status.innerHTML = `<img src="bbs_parts/error.png" alt="" style="vertical-align:middle; margin-right:5px; height:14px;"> 失敗: ${displayMsg}`;
-      } finally {
-        btn.disabled = false;
+      if (posts.length === 0) {
+        displayArea.innerHTML = '<div class="status-msg">書き込みがありません。</div>';
+        return;
       }
-    }
+
+      // JSONデータをループしてHTMLを生成
+      posts.forEach(post => {
+        // 管理者アイコンの判定（名前が「ゆきだま」ならアイコンを表示）
+        const adminIcon = post.name === 'ゆきだま' 
+          ? '<img src="images/ykadmbbsicon.png" class="admin-icon" style="height:1.2em; vertical-align:middle; margin-left:4px;">' 
+          : '';
+
+        const div = document.createElement('div');
+        div.className = 'post';
+        div.setAttribute('data-no', post.no);
+        
+        // メッセージ内の改行やリンクを処理して組み立て
+        div.innerHTML = `
+          <div class="post-header">
+            <div class="post-no">No.${post.no} <span class="reply-btn" style="cursor:pointer; color:blue; font-size:0.8em;" onclick="insertAnchor('${post.no}')">[返信]</span></div>
+          </div>
+          <strong>${post.name}</strong>${adminIcon} [${post.date}]
+          <span class="post-body" style="display:block; margin-top:8px; white-space:pre-wrap;">${processMessage(post.message)}</span>
+        `;
+        displayArea.appendChild(div);
+      });
+    })
+    .catch(err => {
+      displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`;
+    });
+}
+
+/* メッセージ内の特殊処理（URLのリンク化やアンカー） */
+function processMessage(text) {
+  // 1. 安全のためにHTMLタグを無効化（エスケープ）
+  let html = text.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  
+  // 2. URLをリンクにする
+  const urlRegex = /(https?:\/\/[\w?=&.\/-;#~%-]+)/g;
+  html = html.replace(urlRegex, url => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
+  
+  // 3. >>数字 をアンカーにする
+  html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (match, p1) => {
+    return `<span class="anchor-link" style="color:blue; cursor:pointer;" onclick="scrollToPost('${p1}')">>>${p1}</span>`;
+  });
+  
+  return html;
+}
 
     /* サイドバーのリサイズ機能 */
     const resizer = document.getElementById('resizer');
