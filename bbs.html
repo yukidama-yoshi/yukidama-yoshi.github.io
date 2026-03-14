@@ -189,7 +189,7 @@
     const ua = navigator.userAgent;
     if (ua.indexOf('iPhone') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0) {
       // ユーザーに確認を促す場合
-      if (confirm('そちらは主にパソコン向けの掲示板です。モバイル端末ではうまく表示できないかもしれません。モバイル版のページを表示しますか？')) {
+      if (confirm('こちらは主にパソコン向けのページです。モバイル端末ではうまく表示できないかもしれません。モバイル版のページを表示しますか？')) {
         location.href = 'bbs_mobile.html';
       }
     }
