@@ -49,6 +49,14 @@
       font-size: 16px; /* iOSのズーム防止 */
     }
 
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .char-over { color: red; font-weight: bold; }
+
     .submit-btn {
       width: 100%;
       padding: 12px;
@@ -59,12 +67,14 @@
       font-size: 16px;
       border-radius: 4px;
     }
+    .submit-btn:disabled { background: #ccc; }
 
     /* 掲示板ログ */
     .log-container {
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 8px;
+      min-height: 200px;
     }
     .log-header {
       padding: 10px;
@@ -106,9 +116,11 @@
       background: #f0f0f0;
       padding: 2px 8px;
       border-radius: 10px;
+      font-size: 11px;
     }
 
-    .anchor-link { color: blue; font-weight: bold; text-decoration: underline; }
+    .anchor-link { color: blue; font-weight: bold; text-decoration: underline; cursor: pointer; }
+    .status-msg { text-align: center; padding: 20px; font-size: 14px; }
     footer { text-align: center; padding: 20px; font-size: 11px; color: #999; }
   </style>
 </head>
@@ -118,17 +130,21 @@
   <h1>ゆきだまのホームページ 掲示板</h1>
   <div class="nav">
     <a href="index.html">トップ</a>
-    <a href="#" onclick="location.reload(); return false;">更新</a>
+    <a href="#" onclick="fetchLogs(); return false;">更新</a>
   </div>
 </header>
 
 <div class="container">
   <section class="post-form">
     <h2>掲示板に書く</h2>
-    <input type="text" id="m-name" placeholder="名前 (空欄で名無し)">
-    <textarea id="m-message" placeholder="内容を入力してください" rows="4"></textarea>
+    <input type="text" id="m-name" placeholder="名前 (空欄で名無し)" maxlength="20">
+    <div id="m-name-count" class="char-count">0/20</div>
+    
+    <textarea id="m-message" placeholder="内容を入力してください" rows="4" maxlength="300"></textarea>
+    <div id="m-msg-count" class="char-count">0/300</div>
+    
     <button class="submit-btn" onclick="submitMobile()" id="m-submit">投稿する</button>
-    <p id="m-status" style="font-size:12px; text-align:center; margin-top:8px;"></p>
+    <p id="m-status" style="font-size:12px; text-align:center; margin-top:8px; font-weight:bold;"></p>
   </section>
 
   <section class="log-container">
@@ -146,51 +162,85 @@
 <footer>&copy; 2026 ゆきだま</footer>
 
 <script>
+  const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
+  const nameInput = document.getElementById('m-name');
+  const msgInput = document.getElementById('m-message');
+
+  // 文字数カウント
+  nameInput.oninput = () => {
+    const len = nameInput.value.length;
+    document.getElementById('m-name-count').innerText = `${len}/20`;
+    document.getElementById('m-name-count').className = len > 20 ? "char-count char-over" : "char-count";
+  };
+  msgInput.oninput = () => {
+    const len = msgInput.value.length;
+    document.getElementById('m-msg-count').innerText = `${len}/300`;
+    document.getElementById('m-msg-count').className = len > 300 ? "char-count char-over" : "char-count";
+  };
+
   // ログ読み込み
   function fetchLogs() {
     const display = document.getElementById('m-display');
     const sort = document.getElementById('m-sort').value;
     
-    fetch('bbs_logs.html?t=' + Date.now())
-      .then(res => res.text())
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html.replace('CONTENTS_START', ''), 'text/html');
-        let posts = Array.from(doc.querySelectorAll('.post'));
-        
+    display.innerHTML = `
+      <div class="status-msg">
+        <img src="bbs_parts/loading.gif" alt="" style="height: 1.2em; vertical-align: middle; margin-right: 8px;">
+        読み込み中...
+      </div>`;
+    
+    fetch(WORKER_URL)
+      .then(res => res.json())
+      .then(posts => {
         document.getElementById('m-count').textContent = posts.length + "件の投稿";
         if (sort === 'asc') posts.reverse();
 
         display.innerHTML = '';
-        posts.forEach(p => {
-          const no = p.getAttribute('data-no');
-          const name = p.querySelector('strong') ? p.querySelector('strong').innerText : "名無しさん";
-          const isAdmin = p.querySelector('.admin-icon') ? '<span class="admin-label">管理人</span>' : '';
-          const body = p.querySelector('.post-body') ? p.querySelector('.post-body').innerHTML : "";
-          
-          // アンカー処理
-          const processedBody = body.replace(/(?:&gt;&gt;|>>)(\d+)/g, '<span class="anchor-link" onclick="jumpTo($1)">>>$1</span>');
+        if (posts.length === 0) {
+          display.innerHTML = '<div class="status-msg">書き込みがありません。</div>';
+          return;
+        }
 
+        posts.forEach(p => {
+          const isAdmin = p.name === 'ゆきだま' ? '<span class="admin-label">管理人</span>' : '';
+          
           const div = document.createElement('div');
           div.className = 'post';
-          div.id = 'p' + no;
+          div.id = 'p' + p.no;
           div.innerHTML = `
             <div class="post-info">
-              <span>No.${no} <span class="post-name">${name}</span>${isAdmin}</span>
-              <span class="reply-btn" onclick="setReply(${no})">返信</span>
+              <span>No.${p.no} <span class="post-name">${escapeHtml(p.name || "名無しさん")}</span>${isAdmin}</span>
+              <span class="reply-btn" onclick="setReply(${p.no})">返信</span>
             </div>
-            <div class="post-content">${processedBody}</div>
+            <div class="post-content">${processMessage(p.message)}</div>
+            <div style="font-size:10px; color:#999; margin-top:5px; text-align:right;">[${p.date}]</div>
           `;
           display.appendChild(div);
         });
+      })
+      .catch(err => {
+        display.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`;
       });
   }
 
+  function processMessage(text) {
+    let html = escapeHtml(text);
+    // URL
+    html = html.replace(/(https?:\/\/[\w?=&.\/-;#~%-]+)/g, url => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
+    // アンカー
+    html = html.replace(/(?:&gt;&gt;|>>)(\d+)/g, (m, p1) => `<span class="anchor-link" onclick="jumpTo(${p1})">>>${p1}</span>`);
+    return html;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
   function setReply(no) {
-    const msg = document.getElementById('m-message');
-    msg.value = ">>" + no + "\n" + msg.value;
+    msgInput.value = ">>" + no + "\n" + msgInput.value;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    msg.focus();
+    msgInput.focus();
+    msgInput.dispatchEvent(new Event('input'));
   }
 
   function jumpTo(no) {
@@ -199,22 +249,26 @@
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       el.style.backgroundColor = '#fff9c4';
       setTimeout(() => el.style.backgroundColor = 'transparent', 2000);
+    } else {
+      alert("No." + no + "は見つかりませんでした。");
     }
   }
 
   async function submitMobile() {
     const btn = document.getElementById('m-submit');
     const status = document.getElementById('m-status');
-    const name = document.getElementById('m-name').value.trim() || "名無しさん";
-    const message = document.getElementById('m-message').value.trim();
+    const name = nameInput.value.trim();
+    const message = msgInput.value.trim();
 
     if (!message) return alert("内容を入力してください");
+    if (name.length > 20 || message.length > 300) return alert("文字数制限を超えています");
 
     btn.disabled = true;
+    status.style.color = "black";
     status.innerText = "送信中...";
 
     try {
-      const res = await fetch('https://dry-silence-4f1f.y-bb0.workers.dev', {
+      const res = await fetch(WORKER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, message })
@@ -223,19 +277,22 @@
       if (res.ok) {
         status.style.color = "green";
         status.innerText = "投稿完了！";
-        document.getElementById('m-message').value = "";
-        setTimeout(() => { status.innerText = ""; fetchLogs(); }, 2000);
+        msgInput.value = "";
+        msgInput.dispatchEvent(new Event('input'));
+        setTimeout(() => { status.innerText = ""; fetchLogs(); }, 1500);
       } else {
-        throw new Error();
+        const data = await res.json();
+        throw new Error(data.error || "送信失敗");
       }
     } catch (e) {
       status.style.color = "red";
-      status.innerText = "送信失敗しました";
+      status.innerText = "エラー: " + e.message;
     } finally {
       btn.disabled = false;
     }
   }
 
+  // 初回読み込み
   fetchLogs();
 </script>
 </body>
