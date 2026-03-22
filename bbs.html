@@ -107,7 +107,7 @@
     document.getElementById('message-count').className = len > 300 ? "char-count char-over" : "char-count";
   });
 
-  function loadBBSLogs() {
+ function loadBBSLogs() {
     const displayArea = document.getElementById('bbs-display-area');
     const sortOrder = document.getElementById('sort-order').value;
     displayArea.innerHTML = `<div class="status-msg"><img src="bbs_parts/loading.gif" style="height:1.2em; vertical-align:middle; margin-right:8px;">ログを読み込み中...</div>`;
@@ -115,6 +115,14 @@
     fetch(WORKER_URL)
       .then(res => res.json())
       .then(posts => {
+        // --- ここから追加・修正 ---
+        // メンテナンス中などで「配列（リスト）」以外が返ってきた場合の処理
+        if (!Array.isArray(posts)) {
+          // Workersから届いたエラーメッセージをそのままエラーとして投げる
+          throw new Error(posts.error || "ただいまメンテナンス中です。");
+        }
+        // --- ここまで追加・修正 ---
+
         document.getElementById('post-count').textContent = `(${posts.length}件)`;
         displayArea.innerHTML = '';
         if (posts.length === 0) { displayArea.innerHTML = '<div class="status-msg">書き込みがありません。</div>'; return; }
@@ -122,7 +130,6 @@
         if (sortOrder === 'asc') posts.reverse();
 
         posts.forEach(post => {
-          // ★ 管理者アイコンの表示判定（サーバー側のisAdminフラグを使用）
           const adminIcon = post.isAdmin 
             ? '<img src="images/ykadmbbsicon.png" class="admin-icon">' 
             : '';
@@ -138,9 +145,11 @@
           displayArea.appendChild(div);
         });
       })
-      .catch(err => { displayArea.innerHTML = `<div class="status-msg" style="color:red;">読み込み失敗: ${err.message}</div>`; });
+      .catch(err => { 
+        // メンテナンス中の場合、ここにWorkersの設定したメッセージが表示されます
+        displayArea.innerHTML = `<div class="status-msg" style="color:red; font-weight:bold; line-height:1.6;">読み込み失敗: ${err.message}</div>`; 
+      });
   }
-
   function processMessage(text) {
     let html = escapeHtml(text);
     html = html.replace(/(https?:\/\/[\w?=&.\/-;#~%-]+)/g, url => `<a href="jump.html?url=${encodeURIComponent(url)}" target="_blank">${url}</a>`);
