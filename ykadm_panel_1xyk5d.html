@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>管理パネル</title>
+  <title>管理パネル - ゆきだまのホームページ A館</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -24,25 +24,11 @@
       min-height: 100vh;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 1.3rem;
-      margin-bottom: 6px;
-    }
-
-    hr {
-      width: 80%;
-      margin: 16px auto 24px;
-      border: none;
-      border-top: 1px solid #999;
-    }
+    h1 { text-align: center; font-size: 1.3rem; margin-bottom: 6px; }
+    hr { width: 80%; margin: 16px auto 24px; border: none; border-top: 1px solid #999; }
 
     /* ログイン */
-    #login-screen {
-      display: flex;
-      justify-content: center;
-      padding-top: 80px;
-    }
+    #login-screen { display: flex; justify-content: center; padding-top: 80px; }
 
     #login-box {
       background: rgba(255, 255, 255, 0.85);
@@ -53,55 +39,38 @@
       text-align: center;
     }
 
-    #login-box h2 {
-      font-size: 1rem;
-      margin-bottom: 16px;
-    }
+    #login-box h2 { font-size: 1rem; margin-bottom: 16px; }
 
     #login-box input {
-      width: 100%;
-      padding: 6px;
-      margin-bottom: 10px;
-      border: 1px solid #999;
-      font-family: inherit;
-      font-size: 13px;
+      width: 100%; padding: 6px; margin-bottom: 10px;
+      border: 1px solid #999; font-family: inherit; font-size: 13px;
     }
 
     #login-box button {
-      width: 100%;
-      padding: 8px;
-      background: #eee;
-      border: 1px solid #999;
-      font-family: inherit;
-      font-size: 13px;
-      cursor: pointer;
-      font-weight: bold;
+      width: 100%; padding: 8px; background: #eee;
+      border: 1px solid #999; font-family: inherit;
+      font-size: 13px; cursor: pointer; font-weight: bold;
     }
 
     #login-box button:hover { background: #ddd; }
-    #login-error { color: red; font-size: 12px; margin-top: 8px; }
+    #login-box button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #login-error { color: red; font-size: 12px; margin-top: 8px; min-height: 1.2em; }
 
-    /* 管理画面ヘッダー */
+    /* 管理画面 */
     #admin-screen { display: none; }
 
     .admin-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 16px;
     }
 
     .admin-header h2 { font-size: 1rem; }
-
     .header-btns { display: flex; gap: 8px; }
 
     .btn-small {
-      padding: 4px 10px;
-      background: #eee;
-      border: 1px solid #999;
-      font-family: inherit;
-      font-size: 12px;
-      cursor: pointer;
+      padding: 4px 10px; background: #eee;
+      border: 1px solid #999; font-family: inherit;
+      font-size: 12px; cursor: pointer;
     }
 
     .btn-small:hover { background: #ddd; }
@@ -109,50 +78,32 @@
     /* 投稿一覧 */
     #posts-container {
       background: rgba(255, 255, 255, 0.8);
-      border: 1px solid #999;
-      border-radius: 4px;
-      padding: 20px;
-      min-height: 200px;
+      border: 1px solid #999; border-radius: 4px;
+      padding: 20px; min-height: 200px;
     }
 
     .post-card {
-      margin-bottom: 18px;
-      padding-bottom: 14px;
+      margin-bottom: 18px; padding-bottom: 14px;
       border-bottom: 1px dotted #999;
     }
 
-    .post-card:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
+    .post-card:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
-    .post-meta {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
+    .post-meta { font-size: 12px; color: #666; margin-bottom: 4px; }
     .post-name { font-weight: bold; color: #000; }
 
     .post-message {
-      font-size: 13px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-all;
+      font-size: 13px; line-height: 1.6;
+      white-space: pre-wrap; word-break: break-all;
       margin: 4px 0 8px;
     }
 
-    /* 操作ボタン */
     .actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
     .btn-action {
-      padding: 3px 10px;
-      border: 1px solid #999;
-      font-family: inherit;
-      font-size: 12px;
-      cursor: pointer;
-      background: #eee;
+      padding: 3px 10px; border: 1px solid #999;
+      font-family: inherit; font-size: 12px;
+      cursor: pointer; background: #eee;
     }
 
     .btn-action:hover { background: #ddd; }
@@ -168,35 +119,22 @@
     .btn-banperm:hover { background: #fee; }
     .btn-unban:hover   { background: #eef; }
 
-    /* ステータスバー */
     #status-bar {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
+      position: fixed; bottom: 20px; left: 50%;
       transform: translateX(-50%);
-      background: #333;
-      color: #fff;
+      background: #333; color: #fff;
       padding: 6px 20px;
       font-family: "MS Gothic", "Osaka", monospace;
-      font-size: 13px;
-      border: 1px solid #666;
-      display: none;
-      white-space: nowrap;
+      font-size: 13px; border: 1px solid #666;
+      display: none; white-space: nowrap;
     }
 
     .status-msg { text-align: center; padding: 20px; font-size: 13px; color: #666; }
-
-    footer {
-      margin-top: 40px;
-      font-size: 12px;
-      text-align: center;
-      color: #666;
-    }
+    footer { margin-top: 40px; font-size: 12px; text-align: center; color: #666; }
   </style>
 </head>
 <body>
 <div class="main">
-
   <h1>管理パネル</h1>
   <hr>
 
@@ -205,7 +143,7 @@
     <div id="login-box">
       <h2>管理者ログイン</h2>
       <input type="password" id="key-input" placeholder="管理者キーを入力">
-      <button onclick="login()">ログイン</button>
+      <button id="login-btn" onclick="login()">ログイン</button>
       <div id="login-error"></div>
     </div>
   </div>
@@ -219,7 +157,6 @@
         <button class="btn-small" onclick="logout()">ログアウト</button>
       </div>
     </div>
-
     <div id="posts-container">
       <div class="status-msg">読み込み中...</div>
     </div>
@@ -231,21 +168,42 @@
 <div id="status-bar"></div>
 
 <script>
-  // ==========================================
-  // 【設定】WorkerのURLを入力してください
-  // ==========================================
   const WORKER_URL = "https://dry-silence-4f1f.y-bb0.workers.dev";
 
   let adminKey = "";
 
-  // --- ログイン ---
-  function login() {
+  // --- ログイン（Worker認証確認あり）---
+  async function login() {
     const input = document.getElementById("key-input").value.trim();
+    const errorEl = document.getElementById("login-error");
+    const btn = document.getElementById("login-btn");
+
     if (!input) return;
-    adminKey = input;
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("admin-screen").style.display = "block";
-    loadPosts();
+
+    errorEl.textContent = "";
+    btn.disabled = true;
+    btn.textContent = "確認中...";
+
+    try {
+      const res = await fetch(WORKER_URL + "/admin/auth", {
+        headers: { "X-Admin-Key": input }
+      });
+
+      if (res.ok) {
+        adminKey = input;
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("admin-screen").style.display = "block";
+        loadPosts();
+      } else {
+        errorEl.textContent = "管理者キーが違います";
+        document.getElementById("key-input").value = "";
+      }
+    } catch (e) {
+      errorEl.textContent = "通信エラー: " + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "ログイン";
+    }
   }
 
   document.getElementById("key-input").addEventListener("keydown", e => {
@@ -273,12 +231,6 @@
       const posts = await res.json();
 
       if (!Array.isArray(posts)) {
-        // 認証失敗の場合はログイン画面に戻す
-        if (res.status === 401) {
-          document.getElementById("login-error").textContent = "管理者キーが違います";
-          logout();
-          return;
-        }
         container.innerHTML = `<div class="status-msg" style="color:red">${escHtml(posts.error || "取得失敗")}</div>`;
         return;
       }
