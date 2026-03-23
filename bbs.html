@@ -96,7 +96,7 @@
   const msgInput = document.getElementById('post-message');
 
   nameInput.addEventListener('input', () => {
-    const len = nameInput.value.split('#')[0].length; // 合言葉を除いた長さで表示
+    const len = nameInput.value.split('#')[0].length; 
     document.getElementById('name-count').innerText = `${len}/20`;
     document.getElementById('name-count').className = len > 20 ? "char-count char-over" : "char-count";
   });
@@ -115,13 +115,9 @@
     fetch(WORKER_URL)
       .then(res => res.json())
       .then(posts => {
-        // --- ここから追加・修正 ---
-        // メンテナンス中などで「配列（リスト）」以外が返ってきた場合の処理
         if (!Array.isArray(posts)) {
-          // Workersから届いたエラーメッセージをそのままエラーとして投げる
           throw new Error(posts.error || "ただいまメンテナンス中です。");
         }
-        // --- ここまで追加・修正 ---
 
         document.getElementById('post-count').textContent = `(${posts.length}件)`;
         displayArea.innerHTML = '';
@@ -146,7 +142,6 @@
         });
       })
       .catch(err => { 
-        // メンテナンス中の場合、ここにWorkersの設定したメッセージが表示されます
         displayArea.innerHTML = `<div class="status-msg" style="color:red; font-weight:bold; line-height:1.6;">読み込み失敗: ${err.message}</div>`; 
       });
   }
@@ -201,7 +196,7 @@
       setTimeout(() => { status.innerText = ""; }, 3000);
       loadBBSLogs();
     })
-    .catch(err => { status.style.color = "red"; status.innerText = "エラー: " + err.message; })
+    .catch(err => { status.style.color = "red"; status.innerText = "エラーが発生しました。エラー内容： " + err.message; })
     .finally(() => { btn.disabled = false; });
   }
 
