@@ -97,54 +97,29 @@
       width: 80%;
     }
 
-    /* 掲示板プレビューエリアの調整 */
-    #recent-bbs {
-      margin-top: 20px;
-      text-align: left;
-      background: rgba(255, 255, 255, 0.5);
+    /* アクセスカウンターエリアのスタイル */
+    #counter-area {
+      margin: 20px auto;
       padding: 15px;
-      border: 1px solid #999;
-      border-radius: 4px;
-      font-size: 13px;
+      background: #000; /* 7セグが映えるように背景黒 */
+      border: 3px double #999;
+      display: inline-block;
+      line-height: 0;
     }
 
-    #recent-bbs h2 {
-      font-size: 16px;
-      margin-top: 0;
-      border-bottom: 1px solid #999;
-      padding-bottom: 5px;
-    }
-
-    #bbs-preview {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .recent-post {
-      border-bottom: 1px dotted #ccc;
-      padding: 10px 0;
-      white-space: pre-wrap; 
-      word-wrap: break-word;
-      line-height: 1.4;
-    }
-
-    .recent-post:last-child {
-      border-bottom: none;
-    }
-
-    .recent-post strong {
-      color: #000;
-      display: block;
-      margin-bottom: 3px;
-    }
-
-    .more-link {
-      display: block;
-      text-align: right;
-      margin-top: 10px;
+    .counter-label {
+      color: #fff;
       font-size: 12px;
-      color: blue;
-      text-decoration: underline;
+      display: block;
+      margin-bottom: 8px;
+      line-height: 1.2;
+      font-family: sans-serif;
+    }
+
+    .counter-digits img {
+      height: 30px; /* 画像の高さに合わせて調整してください */
+      width: auto;
+      margin: 0 1px;
     }
 
     footer {
@@ -171,11 +146,11 @@
         <p>ゆきだまのホームページへようこそ！</p>
         <p>こちらは、ゆきだまの情報を発信するために作成したホームページです。</p>
         
-        <section id="recent-bbs">
-          <h2>掲示板の最新投稿</h2>
-          <div id="bbs-preview">読み込み中...</div>
-          <a href="bbs.html" class="more-link">掲示板へ行く »</a>
-        </section>
+        <div id="counter-area">
+          <div id="counter-display" class="counter-digits">
+            Loading...
+          </div>
+        </div>
 
         <hr>
         <footer>
@@ -213,55 +188,34 @@
       document.body.style.userSelect = 'auto';
     });
 
-    /* 掲示板の最新3件を取得して表示するスクリプト */
-    function loadRecentBBS() {
-      const previewArea = document.getElementById('bbs-preview');
+    /* アクセスカウンター取得・表示スクリプト */
+    async function loadCounter() {
+      const displayArea = document.getElementById('counter-display');
       const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
+      const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/'; // 画像フォルダのパス
 
-      fetch(WORKER_URL)
-        .then(response => {
-          if (!response.ok) throw new Error('ログが見つかりません');
-          return response.json();
-        })
-        .then(posts => {
-          if (posts.length === 0) {
-            previewArea.innerText = "書き込みはまだありません。";
-            return;
-          }
+      try {
+        const response = await fetch(WORKER_URL);
+        const data = await response.json();
+        const countStr = String(data.count).padStart(6, '0'); // 6桁で0埋め
 
-          previewArea.innerHTML = '';
-          // 最新の3件を表示
-          for (let i = 0; i < Math.min(posts.length, 3); i++) {
-            const post = posts[i];
-            
-            // 管理者バッジの判定（ykadmbbsicon.png を使用）
-            const adminIcon = post.isAdmin 
-              ? '<img src="images/ykadmbbsicon.png" style="width:16px; height:16px; vertical-align:middle; margin-left:4px; border:1px solid #ccc;">' 
-              : '';
+        displayArea.innerHTML = ''; // 読み込み中テキストを消去
 
-            const div = document.createElement('div');
-            div.className = 'recent-post';
-            
-            // 安全のためにHTMLをエスケープ
-            const safeName = escapeHtml(post.name);
-            const safeBody = escapeHtml(post.message);
-
-            div.innerHTML = `<strong>${safeName}${adminIcon}</strong>${safeBody}`;
-            previewArea.appendChild(div);
-          }
-        })
-        .catch(err => {
-          previewArea.innerText = "読み込みに失敗しました。";
-        });
+        // 数字一文字ずつを画像に置き換えて配置
+        for (let char of countStr) {
+          const img = document.createElement('img');
+          img.src = `${IMAGE_PATH}${char}.png`;
+          img.alt = char;
+          displayArea.appendChild(img);
+        }
+      } catch (err) {
+        console.error('Counter Load Error:', err);
+        displayArea.innerText = "Error";
+        displayArea.style.color = "red";
+      }
     }
 
-    // HTMLエスケープ用関数
-    function escapeHtml(str) {
-      if (!str) return "";
-      return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
-
-    loadRecentBBS();
+    loadCounter();
   </script>
 </body>
 </html>
