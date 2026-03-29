@@ -3,23 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <title>掲示板 - ゆきだまのホームページ A館</title>
-    <b>掲示板は閉鎖しました。ご利用ありがとうございました。</b>
-  <br>
-<a href="index.html">トップへ戻る</a>
-<body>
-<p>Visitor: <span id="count-num">...</span></p>
-
-<script>
-  (async () => {
-    const url = 'https://dry-silence-4f1f.y-bb0.workers.dev/'; // スクリーンショットのURL
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      document.getElementById('count-num').innerText = data.count.toLocaleString();
-    } catch (e) {
-      document.getElementById('count-num').innerText = 'Error';
+  <style>
+    body {
+      font-family: "MS Gothic", "Osaka", monospace;
+      padding: 50px;
+      text-align: center;
+      background-color: #f0f0f0;
     }
-  })();
-</script>
+    .message-box {
+      background: white;
+      padding: 30px;
+      border: 1px solid #ccc;
+      display: inline-block;
+      box-shadow: 4px 4px 0 #ccc;
+    }
+    a { color: blue; }
+  </style>
+</head>
+<body>
+  <div class="message-box">
+    <b>掲示板は閉鎖しました。ご利用ありがとうございました。</b>
+    <br><br>
+    <a href="index.html">トップへ戻る</a>
+  </div>
 </body>
 </html>
