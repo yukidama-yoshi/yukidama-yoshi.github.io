@@ -97,29 +97,40 @@
       width: 80%;
     }
 
-    /* アクセスカウンターエリアのスタイル */
+    /* --- アクセスカウンターエリア（ギチギチ設定） --- */
     #counter-area {
       margin: 20px auto;
-      padding: 15px;
-      background: #000; /* 7セグが映えるように背景黒 */
+      padding: 10px;
+      background: #000; 
       border: 3px double #999;
       display: inline-block;
-      line-height: 0;
     }
 
     .counter-label {
-      color: #fff;
-      font-size: 12px;
+      color: #ccc;
+      font-size: 11px;
       display: block;
-      margin-bottom: 8px;
-      line-height: 1.2;
+      margin-bottom: 5px;
       font-family: sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .counter-digits {
+      display: flex;         /* 横並びを密着させる */
+      justify-content: center;
+      gap: 0;                /* 隙間をゼロに */
+      line-height: 0;        /* 行間由来の隙間を排除 */
     }
 
     .counter-digits img {
-      height: 30px; /* 画像の高さに合わせて調整してください */
+      height: 32px;          /* 表示したい高さ */
       width: auto;
-      margin: 0 1px;
+      display: block;        /* インライン要素特有の隙間を消す */
+      margin: 0;
+      padding: 0;
+      /* 自作ドット絵をボヤけさせない設定 */
+      image-rendering: pixelated; 
+      image-rendering: crisp-edges;
     }
 
     footer {
@@ -147,9 +158,9 @@
         <p>こちらは、ゆきだまの情報を発信するために作成したホームページです。</p>
         
         <div id="counter-area">
+          <span class="counter-label">VISITORS</span>
           <div id="counter-display" class="counter-digits">
-            Loading...
-          </div>
+            </div>
         </div>
 
         <hr>
@@ -188,30 +199,29 @@
       document.body.style.userSelect = 'auto';
     });
 
-    /* アクセスカウンター取得・表示スクリプト */
+    /* アクセスカウンター実装 */
     async function loadCounter() {
       const displayArea = document.getElementById('counter-display');
       const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
-      const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/'; // 画像フォルダのパス
+      const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/'; 
 
       try {
         const response = await fetch(WORKER_URL);
         const data = await response.json();
-        const countStr = String(data.count).padStart(6, '0'); // 6桁で0埋め
+        // 6桁0埋め
+        const countStr = String(data.count).padStart(6, '0');
 
-        displayArea.innerHTML = ''; // 読み込み中テキストを消去
+        displayArea.innerHTML = ''; 
 
-        // 数字一文字ずつを画像に置き換えて配置
         for (let char of countStr) {
           const img = document.createElement('img');
+          // 0.png, 1.png... を読み込む
           img.src = `${IMAGE_PATH}${char}.png`;
           img.alt = char;
           displayArea.appendChild(img);
         }
       } catch (err) {
-        console.error('Counter Load Error:', err);
-        displayArea.innerText = "Error";
-        displayArea.style.color = "red";
+        displayArea.innerHTML = '<span style="color:red; font-size:12px;">Error</span>';
       }
     }
 
