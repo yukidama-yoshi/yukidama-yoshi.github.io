@@ -97,40 +97,33 @@
       width: 80%;
     }
 
-    /* --- アクセスカウンターエリア（ギチギチ設定） --- */
+    /* --- パワープレイ・アクセスカウンター --- */
     #counter-area {
       margin: 20px auto;
-      padding: 10px;
+      padding: 8px;
       background: #000; 
       border: 3px double #999;
       display: inline-block;
-    }
-
-    .counter-label {
-      color: #ccc;
-      font-size: 11px;
-      display: block;
-      margin-bottom: 5px;
-      font-family: sans-serif;
-      letter-spacing: 1px;
+      line-height: 0; /* 行間を殺す */
     }
 
     .counter-digits {
-      display: flex;         /* 横並びを密着させる */
+      display: flex;
       justify-content: center;
-      gap: 0;                /* 隙間をゼロに */
-      line-height: 0;        /* 行間由来の隙間を排除 */
+      align-items: center;
+      /* 隙間をマイナスにして画像同士をめり込ませる */
+      gap: -4px; 
     }
 
     .counter-digits img {
-      height: 32px;          /* 表示したい高さ */
+      height: 35px; /* 画像の高さ */
       width: auto;
-      display: block;        /* インライン要素特有の隙間を消す */
-      margin: 0;
+      display: block;
+      /* 左右のマージンを削って「画像の余白」を相殺する */
+      margin: 0 -2px; 
       padding: 0;
-      /* 自作ドット絵をボヤけさせない設定 */
-      image-rendering: pixelated; 
-      image-rendering: crisp-edges;
+      /* ドット絵を鮮明に保つ */
+      image-rendering: pixelated;
     }
 
     footer {
@@ -158,7 +151,6 @@
         <p>こちらは、ゆきだまの情報を発信するために作成したホームページです。</p>
         
         <div id="counter-area">
-          <span class="counter-label">VISITORS</span>
           <div id="counter-display" class="counter-digits">
             </div>
         </div>
@@ -199,9 +191,10 @@
       document.body.style.userSelect = 'auto';
     });
 
-    /* アクセスカウンター実装 */
+    /* アクセスカウンター取得スクリプト */
     async function loadCounter() {
       const displayArea = document.getElementById('counter-display');
+      // 掲示板と同じWorker URLを使用
       const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
       const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/'; 
 
@@ -215,13 +208,12 @@
 
         for (let char of countStr) {
           const img = document.createElement('img');
-          // 0.png, 1.png... を読み込む
           img.src = `${IMAGE_PATH}${char}.png`;
           img.alt = char;
           displayArea.appendChild(img);
         }
       } catch (err) {
-        displayArea.innerHTML = '<span style="color:red; font-size:12px;">Error</span>';
+        displayArea.innerHTML = '<span style="color:#f00; font-size:10px;">ERR</span>';
       }
     }
 
