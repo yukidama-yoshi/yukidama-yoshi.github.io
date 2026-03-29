@@ -172,7 +172,7 @@
 </head>
 <body>
 
-  <div class="version-tag">Ver 1.5</div>
+  <div class="version-tag">Ver 1.6</div>
 
   <nav class="sidebar" id="sidebar"></nav>
   <div class="resizer" id="resizer"></div>
@@ -227,7 +227,7 @@
     });
     document.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; });
 
-    /* カウンター読み込み & Twitterリンク生成 */
+    /* カウンター読み込み & Twitterリンク生成 (管理者除外対応) */
     async function loadCounter() {
       const displayArea = document.getElementById('counter-display');
       const twitterLink = document.getElementById('twitter-share');
@@ -235,14 +235,23 @@
       const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/';
       const SITE_URL = window.location.href;
 
+      // URLに ?admin=1 をつけて一度アクセスすると、そのブラウザを管理者として記憶
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('admin') === '1') {
+        localStorage.setItem('is_admin_yukidama', 'true');
+        alert("管理者モードを有効にしました。以降カウントされません。");
+      }
+      const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
+
       try {
-        const response = await fetch(WORKER_URL);
+        // 管理者の場合は no-count=1 を付与してfetch
+        const fetchUrl = isAdmin ? `${WORKER_URL}?no-count=1` : WORKER_URL;
+        const response = await fetch(fetchUrl);
         const data = await response.json();
         const countStr = String(data.count).padStart(6, '0');
 
         // ツイート内容：本文 → URL → 空行 → メンション
         const tweetText = `「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\n${SITE_URL}\n\n@yukidama_yoshi`;
-        // intent/tweetのurlパラメータは空にして、textの中にURLを直接含める形に調整
         twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
         displayArea.innerHTML = ''; 
