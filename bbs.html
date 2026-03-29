@@ -6,4 +6,20 @@
     <b>掲示板は閉鎖しました。ご利用ありがとうございました。</b>
   <br>
 <a href="index.html">トップへ戻る</a>
+<body>
+<p>Visitor: <span id="count-num">...</span></p>
+
+<script>
+  (async () => {
+    const url = 'https://dry-silence-4f1f.y-bb0.workers.dev/'; // スクリーンショットのURL
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      document.getElementById('count-num').innerText = data.count.toLocaleString();
+    } catch (e) {
+      document.getElementById('count-num').innerText = 'Error';
+    }
+  })();
+</script>
+</body>
 </html>
