@@ -15,6 +15,22 @@
       height: 100vh;
       display: flex;
       overflow: hidden;
+      position: relative; /* バージョン表記の基準用 */
+    }
+
+    /* バージョン表記（右上固定） */
+    .version-tag {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 11px;
+      color: #666;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 2px 6px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      z-index: 100;
+      pointer-events: none; /* クリックの邪魔をしない */
     }
 
     .sidebar {
@@ -104,25 +120,22 @@
       background: #000; 
       border: 3px double #999;
       display: inline-block;
-      line-height: 0; /* 行間を殺す */
+      line-height: 0; 
     }
 
     .counter-digits {
       display: flex;
       justify-content: center;
       align-items: center;
-      /* 隙間をマイナスにして画像同士をめり込ませる */
       gap: -4px; 
     }
 
     .counter-digits img {
-      height: 35px; /* 画像の高さ */
+      height: 35px;
       width: auto;
       display: block;
-      /* 左右のマージンを削って「画像の余白」を相殺する */
       margin: 0 -2px; 
       padding: 0;
-      /* ドット絵を鮮明に保つ */
       image-rendering: pixelated;
     }
 
@@ -133,6 +146,8 @@
   </style>
 </head>
 <body>
+
+  <div class="version-tag">Ver 1.0</div>
 
   <nav class="sidebar" id="sidebar"></nav>
   <div class="resizer" id="resizer"></div>
@@ -194,14 +209,12 @@
     /* アクセスカウンター取得スクリプト */
     async function loadCounter() {
       const displayArea = document.getElementById('counter-display');
-      // 掲示板と同じWorker URLを使用
       const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
       const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/'; 
 
       try {
         const response = await fetch(WORKER_URL);
         const data = await response.json();
-        // 6桁0埋め
         const countStr = String(data.count).padStart(6, '0');
 
         displayArea.innerHTML = ''; 
