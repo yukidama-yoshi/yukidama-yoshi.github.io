@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>ゆきだまのホームページ A館</title>
+  
+  <link rel="stylesheet" href="css/common.css">
+
   <style>
+    /* index.html 固有のスタイルのみ記述 */
     body {
       margin: 0;
       padding: 0;
@@ -13,7 +17,7 @@
       background-size: 600px;
       color: #000000;
       height: 100vh;
-      display: flex;
+      display: flex; /* これがサイドバーとメインを横に並べる魔法 */
       overflow: hidden;
       position: relative;
     }
@@ -26,19 +30,18 @@
       font-size: 11px;
       color: #666;
       background: rgba(255, 255, 255, 0.5);
-      padding: 2px 6px;
       border: 1px solid #ccc;
       border-radius: 3px;
+      padding: 2px 6px;
       z-index: 100;
     }
 
-    <link rel="stylesheet" href="css/common.css">
-
-    
+    /* リサイズ用の境界線 */
     .resizer {
       width: 5px;
       cursor: ew-resize;
       background-color: #ccc;
+      flex-shrink: 0;
     }
 
     .main {
@@ -48,6 +51,7 @@
       background-color: rgba(255, 255, 255, 0.65);
     }
 
+    /* メインコンテンツのレイアウト */
     .content {
       display: flex;
       align-items: flex-start;
@@ -95,6 +99,7 @@
   <div class="version-tag">Ver 1.6</div>
 
   <nav class="sidebar" id="sidebar"></nav>
+  
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
@@ -108,8 +113,7 @@
         <h1>ゆきだまのホームページ A館</h1>
         <hr>
         <p>ゆきだまのホームページへようこそ！</p>
-      　<p>⚠ただいま工事中です。一部ページで不具合や表示崩れが発生しています⚠</p>
-
+        <p style="color: red; font-weight: bold;">⚠ただいま工事中です。一部ページで不具合や表示崩れが発生しています⚠</p>
         
         <hr>
         <footer>
@@ -122,19 +126,30 @@
   <script src="js/load-sidebar.js"></script>
 
   <script>
-    /* サイドバーリサイズ */
+    /* サイドバーリサイズ機能 */
     const resizer = document.getElementById('resizer');
     const sidebarEl = document.getElementById('sidebar');
     let isResizing = false;
 
-    resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'ew-resize'; });
+    resizer.addEventListener('mousedown', () => { 
+      isResizing = true; 
+      document.body.style.cursor = 'ew-resize'; 
+    });
+
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
-      if (e.clientX > 100 && e.clientX < 600) sidebarEl.style.width = e.clientX + 'px';
+      // 100px〜600pxの間でサイズ変更可能
+      if (e.clientX > 100 && e.clientX < 600) {
+        sidebarEl.style.width = e.clientX + 'px';
+      }
     });
-    document.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; });
 
-    /* 管理者モードの有効化判定のみ残す（URLに ?admin=1 をつけた時用） */
+    document.addEventListener('mouseup', () => { 
+      isResizing = false; 
+      document.body.style.cursor = 'default'; 
+    });
+
+    /* 管理者モード（URLに ?admin=1 をつけた時用） */
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('admin') === '1') {
       localStorage.setItem('is_admin_yukidama', 'true');
