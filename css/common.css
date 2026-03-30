@@ -1,0 +1,47 @@
+/* --- サイドバーの外枠（ぎゅうぎゅう防止） --- */
+.sidebar {
+  width: 200px;
+  min-width: 200px;
+  background-color: #ffffff;
+  border-right: 1px solid #ccc;
+  padding: 20px;
+  font-size: 14px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* --- サイドバーの中のリンク装飾 --- */
+.sidebar a {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  color: blue;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 6px 0;
+}
+
+/* --- 【重要】メニュー用の丸印（ロゴには出さない） --- */
+.sidebar a.menu-link:not(#sidebar-logo)::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #999;
+  margin-right: 8px;
+}
+
+/* --- ロゴの設定 --- */
+#sidebar-logo { display: block; margin-bottom: 20px; text-align: center; }
+#sidebar-logo img { width: 160px; height: auto; }
+
+/* --- リンク集の黒いポツポツを消す --- */
+ul {
+  list-style: none !important;
+  padding: 0;
+}
+
+/* --- その他共通パーツ --- */
+.center-layout { display: flex; flex-direction: column; align-items: center; text-align: center; }
+#sidebar-counter-display img { height: 24px; width: auto; image-rendering: pixelated; margin: 0 -1px; }
