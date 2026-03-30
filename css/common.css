@@ -59,37 +59,6 @@ body {
   margin-right: 8px;
 }
 
-/* イラストエリア（サイドバー内） */
-.sidebar-illust {
-  margin: 20px 0;
-  text-align: center;
-}
-.sidebar-illust img {
-  width: 100%;
-  height: auto;
-  border: 2px solid #000;
-  box-sizing: border-box;
-  display: block;
-}
-
-/* イラスト作者クレジット（改行・リンク設定） */
-.illust-credit {
-  font-size: 11px;
-  margin-top: 8px;
-  color: #000;
-  font-weight: bold;
-  line-height: 1.4;
-  text-align: left;
-  padding-left: 5px;
-}
-.illust-credit a {
-  color: #000 !important; /* 通常は黒 */
-  text-decoration: underline;
-}
-.illust-credit a:hover {
-  color: blue !important; /* マウスを乗せた時だけ青 */
-}
-
 /* カウンターエリア */
 .sidebar-counter {
   margin-top: auto; 
