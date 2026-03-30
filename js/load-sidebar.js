@@ -2,43 +2,50 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById('sidebar');
   const mainArea = document.querySelector('.main');
 
-  // 1. サイドバーの読み込みとスタイル定義
+  // サイドバー読み込み
   fetch('sidebar.html')
     .then(response => response.text())
     .then(data => {
       sidebar.innerHTML = data;
-      applyGlobalStyles(); // スタイル適用関数を呼び出し
       
-      // リンクの非同期遷移設定
+      // 1. ページ全体のスタイルを強制リセット
+      applyStrongStyle();
+      
+      // 2. ナビゲーション設定
       setupNavigation();
       loadSidebarCounter();
     });
 
-  // スタイルを一括定義・強制適用する関数
-  function applyGlobalStyles() {
-    // 既存のJS注入スタイルがあれば削除して重複を防ぐ
-    const oldStyle = document.getElementById('dynamic-sidebar-style');
-    if (oldStyle) oldStyle.remove();
+  // 【最優先】スタイルを注入する関数
+  function applyStrongStyle() {
+    const styleId = 'force-sidebar-style';
+    let style = document.getElementById(styleId);
+    if (!style) {
+      style = document.createElement('style');
+      style.id = styleId;
+      document.head.appendChild(style);
+    }
 
-    const style = document.createElement('style');
-    style.id = 'dynamic-sidebar-style';
+    // ここで「.main a」に対して極めて強いリセットをかけます
     style.textContent = `
-      /* 全ての ::before を一旦リセット（!importantで残留スタイルをねじ伏せる） */
-      ::before, .sidebar a::before, .main a::before { 
+      /* ページ内のすべての疑似要素を一旦無効化 */
+      .main a::before, .main a::after, .main li::before { 
         content: none !important; 
+        display: none !important; 
       }
 
-      /* サイドバーのリンク設定 */
+      /* サイドバーの基本設定 */
       .sidebar a {
         display: flex !important;
         align-items: center !important;
+        text-decoration: none !important;
         margin-bottom: 12px !important;
         color: blue !important;
-        text-decoration: none !important;
         font-weight: bold !important;
       }
 
-      /* サイドバー内の特定のクラスだけに丸を復活 */
+      /* サイドバーの中の menu-link だけに丸を復活 */
+      /* .sidebar を頭につけることで、メイン側への干渉を物理的に遮断します */
       .sidebar a.menu-link::before {
         content: "" !important;
         display: inline-block !important;
@@ -49,97 +56,69 @@ document.addEventListener("DOMContentLoaded", () => {
         margin-right: 8px !important;
       }
 
-      /* メインコンテンツ内のリンクは絶対に丸を出さない設定を上書き */
-      .main a::before, .main a.link::before {
-        content: none !important;
-      }
-
-      /* その他レイアウト */
-      .center-layout { margin: 0 auto !important; display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center; }
+      /* ロゴ・カウンター等の調整 */
       #sidebar-logo { display: block !important; margin-bottom: 20px; text-align: center; }
       #sidebar-logo img { width: 160px; height: auto; }
       #sidebar-counter-display img { height: 24px; width: auto; image-rendering: pixelated; margin: 0 -1px; }
       #sidebar-twitter-share { display: inline !important; font-weight: normal !important; color: #1da1f2 !important; }
+      .center-layout { margin: 0 auto !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; text-align: center !important; }
     `;
-    document.head.appendChild(style);
   }
 
-  // ナビゲーション設定
   function setupNavigation() {
     sidebar.querySelectorAll('a').forEach(link => {
       if (link.hostname === window.location.hostname && link.id !== 'sidebar-logo') {
-        link.addEventListener('click', (e) => {
+        link.onclick = (e) => {
           e.preventDefault();
           changePage(link.getAttribute('href'));
-        });
+        };
       }
     });
   }
 
-  // ページ書き換え関数（クリーンアップ機能付き）
   async function changePage(url) {
     try {
       const response = await fetch(url);
       const html = await response.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
+      const doc = new DOMParser().parseFromString(html, 'text/html');
       
-      const newMainContent = doc.querySelector('.main').innerHTML;
-      mainArea.innerHTML = newMainContent;
-
-      // URL更新
+      // メインコンテンツの入れ替え
+      mainArea.innerHTML = doc.querySelector('.main').innerHTML;
       window.history.pushState(null, '', url);
       mainArea.scrollTop = 0;
 
-      // 【最重要】遷移後に再度スタイルを適用し直して、
-      // 前のページから引き継がれた「オゾマシイ丸」を強制除菌する
-      applyGlobalStyles();
-
+      // 【トドメ】入れ替え直後にスタイルを再適用
+      applyStrongStyle();
+      
     } catch (err) {
       window.location.href = url;
     }
   }
 
-  window.addEventListener('popstate', () => {
-    changePage(window.location.pathname);
-  });
+  window.onpopstate = () => changePage(window.location.pathname);
 });
 
-/**
- * カウンター処理
- */
+// カウンター（以前と同じ）
 async function loadSidebarCounter() {
   const displayArea = document.getElementById('sidebar-counter-display');
   const twitterLink = document.getElementById('sidebar-twitter-share');
   if (!displayArea) return;
-
   const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
-  const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/';
-  const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
-  const isCounted = sessionStorage.getItem('has_counted_this_session');
-
   try {
-    const shouldSkip = isAdmin || isCounted;
-    const fetchUrl = shouldSkip ? `${WORKER_URL}?no-count=1` : WORKER_URL;
-    const response = await fetch(fetchUrl);
+    const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
+    const isCounted = sessionStorage.getItem('has_counted_this_session');
+    const response = await fetch((isAdmin || isCounted) ? `${WORKER_URL}?no-count=1` : WORKER_URL);
     const data = await response.json();
     const countStr = String(data.count).padStart(6, '0');
-
     if (twitterLink) {
-      const tweetText = `「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\n${window.location.origin}${window.location.pathname}\n\n@yukidama_yoshi`;
-      twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+      twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\n${window.location.origin}${window.location.pathname}\n\n@yukidama_yoshi`)}`;
     }
-
-    if (!shouldSkip) sessionStorage.setItem('has_counted_this_session', 'true');
-
+    if (!isAdmin && !isCounted) sessionStorage.setItem('has_counted_this_session', 'true');
     displayArea.innerHTML = ''; 
     for (let char of countStr) {
       const img = document.createElement('img');
-      img.src = `${IMAGE_PATH}${char}.png`;
-      img.alt = char;
+      img.src = `akusesu_kaunta_moji_sozai/${char}.png`;
       displayArea.appendChild(img);
     }
-  } catch (err) {
-    displayArea.innerHTML = '<span style="color:#f00; font-size:10px;">ERR</span>';
-  }
+  } catch (err) { displayArea.innerHTML = 'ERR'; }
 }
