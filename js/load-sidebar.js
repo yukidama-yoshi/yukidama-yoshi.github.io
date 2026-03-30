@@ -2,31 +2,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById('sidebar');
   const mainArea = document.querySelector('.main');
 
-  // 1. サイドバーの読み込み
   fetch('sidebar.html')
     .then(response => response.text())
     .then(data => {
       sidebar.innerHTML = data;
 
-      // 2. スタイルの一括定義（これが最強の優先順位になります）
       const style = document.createElement('style');
       style.textContent = `
-        /* すべての ::before を一旦リセット */
-        .sidebar a::before, .main a::before { content: none !important; }
-
-        /* サイドバーのリンク基本設定 */
-        .sidebar a {
-          display: flex !important;
-          align-items: center;
-          margin-bottom: 12px;
-          color: blue;
-          text-decoration: none;
-          font-weight: bold;
-          padding: 6px 0;
+        /* 1. すべての丸印を強制的に一度消去 */
+        .sidebar a::before, .main a::before, a::before { 
+          content: none !important; 
         }
 
-        /* menu-linkクラスがあるものだけに丸印を出す */
-        .menu-link::before {
+        /* 2. サイドバーのリンクを整列 */
+        .sidebar a {
+          display: flex !important;
+          align-items: center !important;
+          text-decoration: none !important;
+          margin-bottom: 12px !important;
+          color: blue !important;
+          font-weight: bold !important;
+        }
+
+        /* 3. 【重要】menu-linkクラスを持つものだけに丸を再付与 */
+        /* 優先度を最大にするため、タグ名とクラス名を繋げて記述します */
+        a.menu-link::before {
           content: "" !important;
           display: inline-block !important;
           width: 8px !important;
@@ -36,103 +36,61 @@ document.addEventListener("DOMContentLoaded", () => {
           margin-right: 8px !important;
         }
 
-        /* 中央揃え用のレイアウト（.center-layoutクラス用） */
-        .center-layout {
-          margin: 0 auto !important;
-          display: flex !important;
-          flex-direction: column !important;
-          align-items: center !important;
-          width: 100% !important;
-          text-align: center;
-        }
-
-        /* ロゴと報告リンクの除外設定 */
-        #sidebar-logo::before, #sidebar-twitter-share::before { content: none !important; }
-        #sidebar-twitter-share { display: inline !important; font-weight: normal !important; color: #1da1f2 !important; }
-        
-        /* カウンター画像 */
+        /* 4. レイアウト・カウンター・ロゴ設定 */
+        .center-layout { margin: 0 auto !important; display: flex !important; flex-direction: column !important; align-items: center !important; width: 100% !important; text-align: center; }
         #sidebar-counter-display img { height: 24px; width: auto; image-rendering: pixelated; margin: 0 -1px; }
+        #sidebar-twitter-share { display: inline !important; font-weight: normal !important; color: #1da1f2 !important; }
+        #sidebar-logo { display: block !important; margin-bottom: 20px; text-align: center; }
+        #sidebar-logo img { width: 160px; height: auto; }
       `;
       document.head.appendChild(style);
 
-      // 3. ロゴ表示の強制上書き
-      const logoLink = document.getElementById('sidebar-logo');
-      if (logoLink) {
-        Object.assign(logoLink.style, { display: 'block', padding: '0', marginBottom: '20px', textAlign: 'center' });
-        const logoImg = logoLink.querySelector('img');
-        if (logoImg) { logoImg.style.width = '160px'; logoImg.style.height = 'auto'; }
-      }
-
-      // 4. 非同期遷移（ページ内リンクの横取り）
+      // リンクの非同期遷移設定
       sidebar.querySelectorAll('a').forEach(link => {
         if (link.hostname === window.location.hostname && link.id !== 'sidebar-logo') {
-          link.addEventListener('click', (e) => {
+          link.addEventListener('click', e => {
             e.preventDefault();
-            const targetUrl = link.getAttribute('href');
-            changePage(targetUrl);
+            changePage(link.getAttribute('href'));
           });
         }
       });
-
-      // 5. カウンター実行
       loadSidebarCounter();
-    })
-    .catch(err => console.error("Sidebar loading error:", err));
+    });
 
-  // コンテンツ入れ替え関数
   async function changePage(url) {
     try {
       const response = await fetch(url);
       const html = await response.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const newMainContent = doc.querySelector('.main').innerHTML;
-
-      mainArea.innerHTML = newMainContent;
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      mainArea.innerHTML = doc.querySelector('.main').innerHTML;
       window.history.pushState(null, '', url);
       mainArea.scrollTop = 0;
-    } catch (err) {
-      window.location.href = url;
-    }
+    } catch (e) { window.location.href = url; }
   }
-
-  window.addEventListener('popstate', () => {
-    changePage(window.location.pathname);
-  });
 });
 
+// カウンター関数（以前のまま）
 async function loadSidebarCounter() {
   const displayArea = document.getElementById('sidebar-counter-display');
   const twitterLink = document.getElementById('sidebar-twitter-share');
   if (!displayArea) return;
-
-  const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
-  const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/';
-  const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
-  const isCounted = sessionStorage.getItem('has_counted_this_session');
-
   try {
-    const shouldSkip = isAdmin || isCounted;
-    const fetchUrl = shouldSkip ? `${WORKER_URL}?no-count=1` : WORKER_URL;
+    const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
+    const isCounted = sessionStorage.getItem('has_counted_this_session');
+    const fetchUrl = (isAdmin || isCounted) ? 'https://dry-silence-4f1f.y-bb0.workers.dev?no-count=1' : 'https://dry-silence-4f1f.y-bb0.workers.dev';
     const response = await fetch(fetchUrl);
     const data = await response.json();
     const countStr = String(data.count).padStart(6, '0');
-
     if (twitterLink) {
-      const tweetText = `「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\\n${window.location.origin}${window.location.pathname}\\n\\n@yukidama_yoshi`;
-      twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+      twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\n${window.location.origin}${window.location.pathname}\n\n@yukidama_yoshi`)}`;
     }
-
-    if (!shouldSkip) sessionStorage.setItem('has_counted_this_session', 'true');
-
+    if (!(isAdmin || isCounted)) sessionStorage.setItem('has_counted_this_session', 'true');
     displayArea.innerHTML = ''; 
     for (let char of countStr) {
       const img = document.createElement('img');
-      img.src = `${IMAGE_PATH}${char}.png`;
+      img.src = `akusesu_kaunta_moji_sozai/${char}.png`;
       img.alt = char;
       displayArea.appendChild(img);
     }
-  } catch (err) {
-    displayArea.innerHTML = '<span style="color:#f00; font-size:10px;">ERR</span>';
-  }
+  } catch (err) { displayArea.innerHTML = 'ERR'; }
 }
