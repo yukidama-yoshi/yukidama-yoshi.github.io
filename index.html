@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>ゆきだまのホームページ</title>
-  
-<link rel="stylesheet" href="css/common.css">
- 
+  <link rel="stylesheet" href="css/common.css">
 </head>
 <body>
 
@@ -16,24 +14,20 @@
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
-    <div class="content">
-      <div class="image-block">
-        <img src="images/topyk.png" alt="タイトル画像">
-        <p>イラスト：<a href="illustcreator.html">supica-0325cさん</a></p>
-        <p>イラストは、随時切り替わります！</p> 
-      </div>
-      <div class="text-block">
-        <h1>ゆきだまのホームページ A館</h1>
-        <hr>
-        <p>ゆきだまのホームページへようこそ！</p>
-        <p style="color: red; font-weight: bold;">⚠ただいま工事中です。一部ページで不具合や表示崩れが発生しています⚠</p>
-        
-        <hr>
-        <footer>
-          <p>© 2026 ゆきだま. All rights reserved.</p>
-        </footer>
-      </div>
-    </div>
+    <h1>ゆきだまのホームページ A館</h1>
+    
+    <p>ゆきだまのホームページへようこそ！</p>
+    
+    <p style="color: red; font-weight: bold;">
+      ⚠ただいま工事中です。一部ページで不具合や表示崩れが発生しています⚠
+    </p>
+
+    <hr>
+    <p>イラストはサイドバーに移設しました。随時切り替わります！</p>
+    
+    <footer>
+      <p>© 2026 ゆきだま. All rights reserved.</p>
+    </footer>
   </div>
 
   <script src="js/load-sidebar.js"></script>
@@ -51,7 +45,6 @@
 
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
-      // 100px〜600pxの間でサイズ変更可能
       if (e.clientX > 100 && e.clientX < 600) {
         sidebarEl.style.width = e.clientX + 'px';
       }
@@ -62,7 +55,7 @@
       document.body.style.cursor = 'default'; 
     });
 
-    /* 管理者モード（URLに ?admin=1 をつけた時用） */
+    /* 管理者モード */
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('admin') === '1') {
       localStorage.setItem('is_admin_yukidama', 'true');
