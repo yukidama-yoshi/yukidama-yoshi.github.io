@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById('sidebar');
-  const mainArea = document.querySelector('.main'); // index.htmlのメイン要素
+  const mainArea = document.querySelector('.main');
 
   // 1. サイドバーのHTMLを読み込む
   fetch('sidebar.html')
@@ -8,12 +8,57 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(data => {
       sidebar.innerHTML = data;
 
-      // 2. スタイルを一括適用（丸印消去、カウンター画像設定など）
+      // 2. スタイルを一括適用（ここで暴走を食い止める）
       const style = document.createElement('style');
       style.textContent = `
-        #sidebar-logo::before, #sidebar-twitter-share::before { content: none !important; }
-        #sidebar-counter-display img { height: 24px; width: auto; image-rendering: pixelated; margin: 0 -1px; }
-        #sidebar-twitter-share { display: inline !important; padding: 0 !important; color: #1da1f2 !important; }
+        /* すべてのリンクの丸印を一旦リセット */
+        .sidebar a::before, .main a::before { content: none !important; }
+
+        /* 「menu-link」クラスがついたメニュー項目だけ丸印を出す */
+        .menu-link {
+          display: flex !important;
+          align-items: center;
+          margin-bottom: 12px;
+          color: blue;
+          text-decoration: none;
+          font-weight: bold;
+          padding: 6px 0;
+        }
+        .menu-link::before {
+          content: "" !important;
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background-color: #999;
+          margin-right: 8px;
+        }
+
+        /* 中央揃え用のクラス（indexやprofileで使用） */
+        .center-layout {
+          margin: 0 auto !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          width: 100% !important;
+          text-align: center;
+        }
+
+        /* カウンター画像のドットをパキッとさせる */
+        #sidebar-counter-display img { 
+          height: 24px; 
+          width: auto; 
+          image-rendering: pixelated; 
+          margin: 0 -1px; 
+        }
+
+        /* キリ番報告リンクの微調整 */
+        #sidebar-twitter-share { 
+          display: inline !important; 
+          padding: 0 !important; 
+          color: #1da1f2 !important; 
+          font-weight: normal !important;
+        }
       `;
       document.head.appendChild(style);
 
@@ -26,57 +71,50 @@ document.addEventListener("DOMContentLoaded", () => {
         logoLink.style.display = 'block';
       }
 
-      // --- ★新機能：リンクのクリックを横取りして中身だけ入れ替える ---
+      // 4. 非同期遷移（中身だけ入れ替え）の設定
       sidebar.querySelectorAll('a').forEach(link => {
-        // 外部リンクやロゴ画像以外を対象にする
+        // 内部リンクかつロゴ以外を対象
         if (link.hostname === window.location.hostname && link.id !== 'sidebar-logo') {
           link.addEventListener('click', (e) => {
-            e.preventDefault(); // 通常のページ移動をキャンセル
-            const targetUrl = link.getAttribute('href');
-            changePage(targetUrl);
+            e.preventDefault();
+            changePage(link.getAttribute('href'));
           });
         }
       });
 
-      // 4. カウンターを動かす
+      // 5. カウンター起動
       loadSidebarCounter();
     })
-    .catch(err => console.error("サイドバー読み込みエラー:", err));
+    .catch(err => console.error("サイドバー読み込み失敗:", err));
 
-  // --- ★新機能：コンテンツだけを入れ替える関数 ---
+  // ページ書き換え関数
   async function changePage(url) {
     try {
       const response = await fetch(url);
       const html = await response.text();
-
-      // 読み込んだHTMLから <div class="main"> の中身だけを抜き出す
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       const newMainContent = doc.querySelector('.main').innerHTML;
 
-      // メインエリアの中身を差し替える
+      // 中身を入れ替え
       mainArea.innerHTML = newMainContent;
-
-      // URLバーを書き換える（戻るボタンも効くようになります）
+      // URLを更新
       window.history.pushState(null, '', url);
-
-      // ページの一番上へスクロール
+      // 上にスクロール
       mainArea.scrollTop = 0;
-
     } catch (err) {
-      console.error("ページ遷移エラー:", err);
-      window.location.href = url; // 失敗した時は普通の移動に切り替える
+      window.location.href = url; // 失敗時は普通に飛ぶ
     }
   }
 
-  // ブラウザの「戻る・進む」ボタンへの対応
+  // ブラウザの戻るボタン対応
   window.addEventListener('popstate', () => {
     changePage(window.location.pathname);
   });
 });
 
 /**
- * カウンター処理（ページを移動しても再実行されないので、数字が維持されます）
+ * カウンター処理
  */
 async function loadSidebarCounter() {
   const displayArea = document.getElementById('sidebar-counter-display');
@@ -91,7 +129,6 @@ async function loadSidebarCounter() {
   try {
     const shouldSkip = isAdmin || isCounted;
     const fetchUrl = shouldSkip ? `${WORKER_URL}?no-count=1` : WORKER_URL;
-
     const response = await fetch(fetchUrl);
     const data = await response.json();
     const countStr = String(data.count).padStart(6, '0');
@@ -101,9 +138,7 @@ async function loadSidebarCounter() {
       twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     }
 
-    if (!shouldSkip) {
-      sessionStorage.setItem('has_counted_this_session', 'true');
-    }
+    if (!shouldSkip) sessionStorage.setItem('has_counted_this_session', 'true');
 
     displayArea.innerHTML = ''; 
     for (let char of countStr) {
