@@ -11,23 +11,35 @@ body {
   overflow: hidden;
 }
 
-/* --- サイドバー（背景なし・枠線のみ） --- */
+/* --- 【修正】サイドバー（背景を完全透明に） --- */
 .sidebar {
   width: 200px;
   min-width: 100px;
-  background: transparent !important;
+  background: none !important; /* 背景色・画像を一切持たせない */
+  background-color: transparent !important; 
   border-right: 1px solid #ccc;
   padding: 20px;
   box-sizing: border-box;
   flex-shrink: 0;
   height: 100vh;
+  z-index: 10;
 }
 
-/* サイドバーのロゴ */
-#sidebar-logo { display: block; margin-bottom: 20px; text-align: center; }
-#sidebar-logo img { width: 160px; height: auto; border: none; }
+/* --- 【修正】サイドバーのロゴ（表示されない問題を解決） --- */
+#sidebar-logo {
+  display: block !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+#sidebar-logo img {
+  display: block !important;
+  width: 160px !important; /* サイズ固定 */
+  height: auto !important;
+  margin: 0 auto !important;
+}
 
-/* メニューの丸印（ロゴ以外に適用） */
+/* --- 【修正】サイドバーのリンク（文字サイズを小さく） --- */
 .sidebar a.menu-link {
   display: flex !important;
   align-items: center;
@@ -35,7 +47,10 @@ body {
   color: blue;
   text-decoration: none;
   font-weight: bold;
+  font-size: 14px !important; /* 16pxから14pxへサイズダウン */
 }
+
+/* メニューの丸印 */
 .sidebar a.menu-link:not(#sidebar-logo)::before {
   content: "";
   display: inline-block;
@@ -45,16 +60,21 @@ body {
   margin-right: 8px;
 }
 
-/* --- メインエリア --- */
+/* ロゴの丸印を強制非表示 */
+#sidebar-logo::before {
+  content: none !important;
+}
+
+/* --- メインエリア（半透明白） --- */
 .main {
   flex: 1;
   padding: 40px 20px;
   overflow-y: auto;
   background-color: rgba(255, 255, 255, 0.65);
-  position: relative; /* バージョン表記の基準点 */
+  position: relative;
 }
 
-/* バージョン表記（メインの右上に配置） */
+/* バージョン表記（メインの右上） */
 .version-tag {
   position: absolute;
   top: 10px; right: 15px;
@@ -65,7 +85,7 @@ body {
   z-index: 100;
 }
 
-/* index.html の横並びレイアウト */
+/* index.html 用レイアウト */
 .content {
   display: flex !important;
   align-items: flex-start;
@@ -76,7 +96,7 @@ body {
 .image-block img { width: 360px; height: auto; display: block; }
 .text-block { flex: 1; text-align: center; }
 
-/* リンク集の黒丸を消す */
-ul { list-style: none !important; padding: 0; margin: 0 auto; }
+/* その他 */
+ul { list-style: none !important; padding: 0; }
 .resizer { width: 5px; cursor: ew-resize; background-color: #ccc; }
 #sidebar-counter-display img { height: 24px; image-rendering: pixelated; margin: 0 -1px; }
