@@ -1,36 +1,38 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.getElementById('sidebar');
+async function loadSidebarCounter() {
+  const displayArea = document.getElementById('sidebar-counter-display');
+  if (!displayArea) return;
 
-  fetch('sidebar.html')
-    .then(response => response.text())
-    .then(data => {
-      // 1. sidebar.html の中身を流し込む
-      sidebar.innerHTML = data;
+  const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
+  const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/';
+  
+  // 管理者チェック
+  const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
+  
+  // ★追加：同一セッション（ページ移動）での重複カウント防止
+  const isCounted = sessionStorage.getItem('has_counted_this_session');
 
-      // 2. ロゴ画像 (id="sidebar-logo") 用のスタイル制御
-      const logoLink = document.getElementById('sidebar-logo');
-      if (logoLink) {
-        // リンク自体のレイアウト調整
-        Object.assign(logoLink.style, {
-          display: 'block',
-          padding: '0',
-          marginBottom: '20px',
-          textAlign: 'center'
-        });
+  try {
+    // 管理者、または既にこのセッションでカウント済みの場合は「no-count=1」を送る
+    const shouldSkip = isAdmin || isCounted;
+    const fetchUrl = shouldSkip ? `${WORKER_URL}?no-count=1` : WORKER_URL;
 
-        // ロゴ画像のサイズ調整
-        const logoImg = logoLink.querySelector('img');
-        if (logoImg) {
-          logoImg.style.width = '100%';
-          logoImg.style.height = 'auto';
-          logoImg.style.maxWidth = '180px'; // ここでロゴの最大幅を決められます
-        }
+    const response = await fetch(fetchUrl);
+    const data = await response.json();
+    const countStr = String(data.count).padStart(6, '0');
 
-        // index.html の CSS「.sidebar a::before (丸印)」をロゴだけ強制解除
-        const style = document.createElement('style');
-        style.textContent = `#sidebar-logo::before { content: none !important; }`;
-        document.head.appendChild(style);
-      }
-    })
-    .catch(err => console.error("サイドバーの読み込みに失敗しました:", err));
-});
+    // 初回カウント成功時にフラグを立てる
+    if (!shouldSkip) {
+      sessionStorage.setItem('has_counted_this_session', 'true');
+    }
+
+    displayArea.innerHTML = ''; 
+    for (let char of countStr) {
+      const img = document.createElement('img');
+      img.src = `${IMAGE_PATH}${char}.png`;
+      img.alt = char;
+      displayArea.appendChild(img);
+    }
+  } catch (err) {
+    displayArea.innerHTML = '<span style="color:#f00; font-size:10px;">ERR</span>';
+  }
+}
