@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>リンク - ゆきだまのホームページ</title>
+  
+  <link rel="stylesheet" href="css/common.css">
+
   <style>
+    /* links.html 固有のスタイル */
     body {
       margin: 0;
       padding: 0;
@@ -13,25 +17,18 @@
       background-size: 600px;
       color: #000000;
       height: 100vh;
-      display: flex;
+      display: flex; /* サイドバーとメインを横に並べる */
       overflow: hidden;
     }
 
-    /* links.html の <style> 内に追記 */
-ul {
-  list-style: none !important; /* 標準のリストの丸を消す */
-  padding: 0;
-}
-    
+    /* リサイズ用の境界線 */
     .resizer {
       width: 5px;
       cursor: ew-resize;
       background-color: #ccc;
       flex-shrink: 0;
     }
-    
-<link rel="stylesheet" href="css/common.css">
-    
+
     .main {
       flex: 1;
       padding: 40px 20px;
@@ -45,8 +42,9 @@ ul {
       margin-bottom: 20px;
     }
 
+    /* 共通CSS(common.css)でも設定していますが、念のためここでもリストの丸を消します */
     ul {
-      list-style: none;
+      list-style: none !important;
       padding: 0;
       margin: 0 auto;
       max-width: 600px;
@@ -104,7 +102,7 @@ ul {
     </div>
 
     <footer>
-      <p>© 2025 yukidama-yoshi. All rights reserved.</p>
+      <p>© 2026 yukidama-yoshi. All rights reserved.</p>
     </footer>
   </div>
 
