@@ -10,11 +10,11 @@ body {
   overflow: hidden;
 }
 
-/* --- サイドバー（不透明な白に修正） --- */
+/* --- サイドバー（不透明・白） --- */
 .sidebar {
   width: 200px;
   min-width: 100px;
-  background-color: #ffffff !important; /* 不透明な白 */
+  background-color: #ffffff !important;
   border-right: 1px solid #ccc;
   padding: 20px;
   box-sizing: border-box;
@@ -22,18 +22,9 @@ body {
   height: 100vh;
 }
 
-/* ロゴの表示設定 */
-#sidebar-logo { 
-  display: block !important; 
-  margin-bottom: 20px !important; 
-  text-align: center !important; 
-}
-#sidebar-logo img { 
-  width: 160px !important; 
-  height: auto !important; 
-}
+#sidebar-logo { display: block !important; margin-bottom: 20px !important; text-align: center !important; }
+#sidebar-logo img { width: 160px !important; height: auto !important; }
 
-/* リンクの文字サイズ（小さく調整） */
 .sidebar a.menu-link {
   display: flex !important;
   align-items: center;
@@ -41,10 +32,9 @@ body {
   color: blue;
   text-decoration: none;
   font-weight: bold;
-  font-size: 14px !important; /* 文字を小さく */
+  font-size: 14px !important;
 }
 
-/* メニューの丸印（ロゴ以外） */
 .sidebar a.menu-link:not(#sidebar-logo)::before {
   content: "";
   display: inline-block;
@@ -55,13 +45,29 @@ body {
 }
 #sidebar-logo::before { content: none !important; }
 
-/* --- メインエリア --- */
+/* --- メインエリア（共通設定） --- */
 .main {
   flex: 1;
-  padding: 40px 20px;
+  padding: 40px; /* 余白を確保 */
   overflow-y: auto;
-  background-color: rgba(255, 255, 255, 0.65); /* メインは半透明 */
+  background-color: rgba(255, 255, 255, 0.65);
   position: relative;
+  text-align: left; /* 左揃えを標準に */
+}
+
+/* 共通の見出し・リスト設定 */
+h1 { font-size: 24px; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+ul { list-style: none !important; padding: 0; margin-bottom: 30px; }
+li { margin-bottom: 15px; font-size: 16px; }
+a { color: blue; text-decoration: none; font-weight: bold; }
+a:hover { text-decoration: underline; }
+
+.friend-code {
+  margin-top: 30px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 5px;
+  display: inline-block;
 }
 
 .version-tag {
@@ -73,9 +79,12 @@ body {
   padding: 2px 6px;
 }
 
-.content { display: flex !important; align-items: flex-start; gap: 32px; max-width: 1000px; margin: 0 auto; }
+/* index.html固有の横並び（必要な時だけ使う） */
+.content { display: flex !important; align-items: flex-start; gap: 32px; max-width: 1000px; }
 .image-block img { width: 360px; height: auto; }
 .text-block { flex: 1; text-align: center; }
-ul { list-style: none !important; padding: 0; }
+
 .resizer { width: 5px; cursor: ew-resize; background-color: #ccc; }
 #sidebar-counter-display img { height: 24px; image-rendering: pixelated; margin: 0 -1px; }
+
+footer { margin-top: 60px; font-size: 12px; text-align: center; }
