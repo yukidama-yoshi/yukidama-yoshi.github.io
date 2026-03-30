@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(data => {
       sidebar.innerHTML = data;
 
-      // 2. 共通のスタイル調整（ロゴの丸印消去、カウンター画像の設定など）
+      // 2. スタイル調整（ロゴの丸印消去、カウンター画像の設定など）
       const style = document.createElement('style');
       style.textContent = `
         /* ロゴの横にある「点（丸印）」を強制的に消す */
@@ -20,6 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
           image-rendering: pixelated; 
           margin: 0 -1px; 
         }
+
+        /* サイドバー内のリンク共通設定 */
+        .sidebar a {
+          display: flex;
+          align-items: center;
+          color: blue;
+          text-decoration: none;
+          font-weight: bold;
+        }
       `;
       document.head.appendChild(style);
 
@@ -29,12 +38,12 @@ document.addEventListener("DOMContentLoaded", () => {
         Object.assign(logoLink.style, {
           display: 'block',
           padding: '0',
-          marginBottom: '15px',
+          marginBottom: '20px',
           textAlign: 'center'
         });
         const logoImg = logoLink.querySelector('img');
         if (logoImg) {
-          logoImg.style.width = '160px'; // ロゴの横幅（お好みで調整）
+          logoImg.style.width = '160px'; 
           logoImg.style.height = 'auto';
         }
         logoLink.style.display = 'block'; // 準備ができたら表示
@@ -51,15 +60,16 @@ document.addEventListener("DOMContentLoaded", () => {
  */
 async function loadSidebarCounter() {
   const displayArea = document.getElementById('sidebar-counter-display');
+  const twitterLink = document.getElementById('sidebar-twitter-share');
   if (!displayArea) return;
 
   const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
-  const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/'; // 数字画像が入っているフォルダ
+  const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/';
   
-  // 管理者チェック（URLに ?admin=1 をつけたことがあるブラウザか）
+  // 管理者チェック（localStorageを参照）
   const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
   
-  // 同一セッション（タブを閉じない間のページ移動）での重複カウント防止
+  // 同一セッション（ページ移動）での重複カウント防止
   const isCounted = sessionStorage.getItem('has_counted_this_session');
 
   try {
@@ -70,19 +80,25 @@ async function loadSidebarCounter() {
     const response = await fetch(fetchUrl);
     const data = await response.json();
     
-    // 数字を6桁に揃える（例：000123）
+    // 数字を6桁に揃える
     const countStr = String(data.count).padStart(6, '0');
 
-    // 初回カウント成功時に「カウント済みフラグ」を立てる
+    // キリ番報告リンクの生成
+    if (twitterLink) {
+      const tweetText = `「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\n${window.location.origin}${window.location.pathname}\n\n@yukidama_yoshi`;
+      twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+    }
+
+    // 初回カウント成功時にフラグを立てる
     if (!shouldSkip) {
       sessionStorage.setItem('has_counted_this_session', 'true');
     }
 
-    // 数字を1文字ずつ画像に置き換えて表示
+    // 数字を画像で表示
     displayArea.innerHTML = ''; 
     for (let char of countStr) {
       const img = document.createElement('img');
-      img.src = `${IMAGE_PATH}${char}.png`; // 0.png, 1.png... を読み込む
+      img.src = `${IMAGE_PATH}${char}.png`;
       img.alt = char;
       displayArea.appendChild(img);
     }
