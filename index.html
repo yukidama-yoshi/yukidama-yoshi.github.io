@@ -112,58 +112,6 @@
       width: 80%;
     }
 
-    /* --- カウンター & Twitter報告エリア --- */
-    .counter-container {
-      margin: 20px auto;
-      text-align: center;
-    }
-
-    .counter-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    #counter-area {
-      margin: 0 8px;
-      padding: 6px;
-      background: #000; 
-      border: 2px inset #ccc;
-      display: inline-block;
-      line-height: 0; 
-    }
-
-    .counter-digits {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: -4px; 
-    }
-
-    .counter-digits img {
-      height: 32px;
-      width: auto;
-      display: block;
-      margin: 0 -2px; 
-      padding: 0;
-      image-rendering: pixelated;
-    }
-
-    .kiriban-note {
-      font-size: 12px;
-      color: #444;
-      line-height: 1.6;
-    }
-
-    .kiriban-note a {
-      color: #1da1f2;
-      text-decoration: underline;
-      font-weight: bold;
-    }
-
     footer {
       margin-top: 40px;
       font-size: 12px;
@@ -189,21 +137,6 @@
         <hr>
         <p>ゆきだまのホームページへようこそ！</p>
         
-        <div class="counter-container">
-          <div class="counter-wrapper">
-            あなたは 
-            <div id="counter-area">
-              <div id="counter-display" class="counter-digits"></div>
-            </div>
-            人目のお客様です！
-          </div>
-          
-          <p class="kiriban-note">
-            キリ番・ゾロ目を踏んだ方は、<br>
-            各自<a id="twitter-share" href="#" target="_blank" rel="noopener">Twitter（X）に報告</a>してくれると嬉しいです。
-          </p>
-        </div>
-
         <hr>
         <footer>
           <p>© 2026 ゆきだま. All rights reserved.</p>
@@ -217,56 +150,22 @@
   <script>
     /* サイドバーリサイズ */
     const resizer = document.getElementById('resizer');
-    const sidebar = document.getElementById('sidebar');
+    const sidebarEl = document.getElementById('sidebar');
     let isResizing = false;
 
     resizer.addEventListener('mousedown', () => { isResizing = true; document.body.style.cursor = 'ew-resize'; });
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
-      if (e.clientX > 100 && e.clientX < 600) sidebar.style.width = e.clientX + 'px';
+      if (e.clientX > 100 && e.clientX < 600) sidebarEl.style.width = e.clientX + 'px';
     });
     document.addEventListener('mouseup', () => { isResizing = false; document.body.style.cursor = 'default'; });
 
-    /* カウンター読み込み & Twitterリンク生成 (管理者除外対応) */
-    async function loadCounter() {
-      const displayArea = document.getElementById('counter-display');
-      const twitterLink = document.getElementById('twitter-share');
-      const WORKER_URL = 'https://dry-silence-4f1f.y-bb0.workers.dev';
-      const IMAGE_PATH = 'akusesu_kaunta_moji_sozai/';
-      const SITE_URL = window.location.href;
-
-      // URLに ?admin=1 をつけて一度アクセスすると、そのブラウザを管理者として記憶
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('admin') === '1') {
-        localStorage.setItem('is_admin_yukidama', 'true');
-        alert("管理者モードを有効にしました。以降カウントされません。");
-      }
-      const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
-
-      try {
-        // 管理者の場合は no-count=1 を付与してfetch
-        const fetchUrl = isAdmin ? `${WORKER_URL}?no-count=1` : WORKER_URL;
-        const response = await fetch(fetchUrl);
-        const data = await response.json();
-        const countStr = String(data.count).padStart(6, '0');
-
-        // ツイート内容：本文 → URL → 空行 → メンション
-        const tweetText = `「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\n${SITE_URL}\n\n@yukidama_yoshi`;
-        twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-
-        displayArea.innerHTML = ''; 
-        for (let char of countStr) {
-          const img = document.createElement('img');
-          img.src = `${IMAGE_PATH}${char}.png`;
-          img.alt = char;
-          displayArea.appendChild(img);
-        }
-      } catch (err) {
-        displayArea.innerHTML = '<span style="color:#f00; font-size:10px;">ERR</span>';
-      }
+    /* 管理者モードの有効化判定のみ残す（URLに ?admin=1 をつけた時用） */
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('admin') === '1') {
+      localStorage.setItem('is_admin_yukidama', 'true');
+      alert("管理者モードを有効にしました。以降カウントされません。");
     }
-
-    loadCounter();
   </script>
 </body>
 </html>
