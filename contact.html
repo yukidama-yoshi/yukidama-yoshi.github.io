@@ -3,99 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>連絡先 - ゆきだまのホームページ</title>
-  <style>
-    /* A館のスタイルをベースに移植 */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "MS Gothic", "Osaka", monospace;
-      background-image: url("images/pg.png");
-      background-repeat: repeat;
-      background-size: 600px;
-      color: #000000;
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .sidebar {
-      width: 200px;
-      min-width: 100px;
-      background-color: #ffffff;
-      border-right: 1px solid #ccc;
-      padding: 20px;
-      font-size: 14px;
-      box-sizing: border-box;
-      flex-shrink: 0;
-    }
-
-    /* 共通サイドバー用のスタイル維持 */
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-      padding: 6px 0;
-      color: blue;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .sidebar a::before {
-      content: "";
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #999;
-      margin-right: 8px;
-    }
-
-    .resizer {
-      width: 5px;
-      cursor: ew-resize;
-      background-color: #ccc;
-    }
-
-    .main {
-      flex: 1;
-      padding: 40px 20px;
-      overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.65);
-      text-align: center; /* 連絡先は中央揃えを維持 */
-    }
-
-    /* 連絡先コンテンツ用のスタイル */
-    .contact-container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      font-size: 32px;
-      margin: 0 0 20px;
-    }
-
-    hr {
-      margin: 20px auto;
-      width: 80%;
-    }
-
-    p {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-
-    a {
-      color: blue;
-      font-weight: bold;
-      text-decoration: none;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 12px;
-    }
-  </style>
+  <link rel="stylesheet" href="css/common.css">
 </head>
 <body>
 
@@ -108,11 +16,11 @@
       <h1>連絡先</h1>
       <hr>
       <p>このホームページに関するご意見・ご感想などは、</p>
-      <p><a href="https://twitter.com/yukidama_yoshi" target="_blank">Twitter</a>にてどうぞ。</p>
-      <p>※返信は保証されません</p>
+      <p><a href="https://twitter.com/yukidama_yoshi" target="_blank" rel="noopener noreferrer">Twitter（X）</a>にてどうぞ。</p>
+      <p class="notice">※返信は保証されません</p>
       <hr>
       <footer>
-        <p>© 2025 yukidama-yoshi. All rights reserved.</p>
+        <p>© 2026 yukidama-yoshi. All rights reserved.</p>
       </footer>
     </div>
   </div>
@@ -120,6 +28,7 @@
   <script src="js/load-sidebar.js"></script>
 
   <script>
+    /* サイドバーリサイズ機能（すべてのページ共通の処理） */
     const resizer = document.getElementById('resizer');
     const sidebar = document.getElementById('sidebar');
     let isResizing = false;
