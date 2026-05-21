@@ -145,18 +145,18 @@ footer {
    ========================================================================== */
 .contact-container {
   max-width: 600px;
-  margin: 0 auto;
-  text-align: center; /* 連絡先の中身だけは中央揃えにする */
+  margin: 0; /* 左寄せにするため中央寄せの auto から 0 に変更 */
+  text-align: left; /* 左揃えに統一 */
 }
 
 .contact-container hr {
-  margin: 20px auto;
-  width: 80%;
+  margin: 20px 0; /* 線も左寄せにするため 0 に変更 */
+  width: 100%;    /* 横幅いっぱいに綺麗に伸ばす */
   border: 0;
-  border-top: 1px solid #ccc; /* 綺麗な1本線にする */
+  border-top: 1px solid #ccc;
 }
 
 .contact-container p.notice {
   font-size: 14px;
-  color: #555; /* 「返信は保証されません」を少し控えめな色に */
+  color: #555;
 }
