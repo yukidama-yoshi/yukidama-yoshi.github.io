@@ -139,3 +139,24 @@ footer {
   font-size: 12px;
   text-align: center;
 }
+
+/* ==========================================================================
+   追加：連絡先（contact.html）専用スタイル
+   ========================================================================== */
+.contact-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center; /* 連絡先の中身だけは中央揃えにする */
+}
+
+.contact-container hr {
+  margin: 20px auto;
+  width: 80%;
+  border: 0;
+  border-top: 1px solid #ccc; /* 綺麗な1本線にする */
+}
+
+.contact-container p.notice {
+  font-size: 14px;
+  color: #555; /* 「返信は保証されません」を少し控えめな色に */
+}
