@@ -2,103 +2,39 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>プロフィール</title>
+  <title>プロフィール - ゆきだまのホームページ</title>
+  <link rel="stylesheet" href="css/common.css">
   <style>
+    /* プロフィールページ専用の背景画像と文字色の調整 */
     body {
+      background-image: url("images/Profile.png") !important;
+      background-size: 300px !important;
+      color: #333333 !important;
+    }
+
+    /* プロフィールページのレイアウト（読みやすい左寄せ） */
+    .profile-container {
+      max-width: 800px;
       margin: 0;
-      padding: 0;
-      font-family: "MS Gothic", "Osaka", monospace;
-      background-image: url("images/Profile.png");
-      background-repeat: repeat;
-      background-size: 300px;
-      color: #333333;
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
     }
 
-    .sidebar {
-      width: 200px;
-      min-width: 100px;
-      background-color: #ffffff;
-      border-right: 1px solid #ccc;
-      padding: 20px;
-      font-size: 14px;
-      box-sizing: border-box;
-      flex-shrink: 0;
+    .profile-details {
+      margin-top: 20px;
     }
 
-    /* 共通化してもデザインが崩れないように設定を維持 */
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      margin-bottom: 12px;
-      padding: 6px 0;
-      color: blue;
-      text-decoration: none;
+    .profile-details dt {
       font-weight: bold;
+      font-size: 18px;
+      color: blue;
+      margin-top: 15px;
+      border-left: 4px solid blue;
+      padding-left: 8px;
     }
 
-    .sidebar a::before {
-      content: "";
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #999;
-      margin-right: 8px;
-    }
-
-    .resizer {
-      width: 5px;
-      cursor: ew-resize;
-      background-color: #ccc;
-    }
-
-    .main {
-      flex: 1;
-      padding: 40px 20px;
-      overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.65);
-    }
-
-    .content {
-      display: flex;
-      align-items: flex-start;
-      gap: 32px;
-    }
-
-    .image-block img {
-      width: 360px;
-      height: auto;
-      margin-left: 60px;
-      display: block;
-    }
-
-    .image-block p {
-      font-size: 14px;
-      margin: 4px 0 0;
-      text-align: center;
-    }
-
-    .text-block {
-      flex: 1;
-      text-align: center;
-    }
-
-    .text-block h1 {
-      font-size: 32px;
-      margin: 0 0 8px;
-    }
-
-    .text-block hr {
-      margin: 20px auto;
-      width: 80%;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 12px;
+    .profile-details dd {
+      margin: 5px 0 15px 12px;
+      font-size: 16px;
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -109,9 +45,23 @@
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
-    <div class="content">
-      <div class="text-block">
+    <div class="profile-container">
+      <h1>プロフィール</h1>
+      
+      <div class="profile-details">
+        <dl>
+          <dt>名前</dt>
+          <dd>ゆきだま</dd>
+
+          <dt>自己紹介</dt>
+          <dd>ゆきだまと申します。日々レトロゲームに奮闘しています。<br>最近はスーファミやファミコン、Wiiなどで遊んでます。ツイッターも見てね。</dd>
+
+        </dl>
       </div>
+
+      <footer>
+        <p>© 2026 yukidama-yoshi. All rights reserved.</p>
+      </footer>
     </div>
   </div>
 
@@ -142,6 +92,5 @@
       document.body.style.userSelect = 'auto';
     });
   </script>
-
 </body>
 </html>
