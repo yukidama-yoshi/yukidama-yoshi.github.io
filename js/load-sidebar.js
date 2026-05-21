@@ -1,56 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById('sidebar');
-  const mainArea = document.querySelector('.main');
 
-  // サイドバーの読み込み
+  // 1. サイドバー（外部HTML）を読み込んで挿入する
   fetch('sidebar.html')
-    .then(response => response.text())
+    .then(response => {
+      if (!response.ok) throw new Error('サイドバーの読み込みに失敗しました');
+      return response.text();
+    })
     .then(data => {
       sidebar.innerHTML = data;
-      setupNavigation();
-      loadSidebarCounter(); // カウンター開始
-    });
-
-  function setupNavigation() {
-    sidebar.querySelectorAll('a').forEach(link => {
-      const href = link.getAttribute('href');
-
-      // Twitterリンク、または外部サイト（httpから始まる）はJSで処理せず、そのまま飛ばす
-      if (link.id === 'sidebar-twitter-share' || (href && href.startsWith('http'))) {
-        link.setAttribute('target', '_blank'); // 別タブで開く設定
-        link.setAttribute('rel', 'noopener noreferrer');
-        return; // ここで処理を終了（下のpreventDefaultをさせない）
-      }
-
-      // 内部リンク（自分のサイト内）だけ、ページの中身を入れ替える
-      if (link.hostname === window.location.hostname && link.id !== 'sidebar-logo') {
-        link.onclick = (e) => {
-          e.preventDefault();
-          changePage(href);
-        };
-      }
-    });
-  }
-
-  async function changePage(url) {
-    if (!url || url === '#') return;
-    try {
-      const response = await fetch(url);
-      const html = await response.text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const newContent = doc.querySelector('.main').innerHTML;
-      mainArea.innerHTML = newContent;
-      window.history.pushState(null, '', url);
-      mainArea.scrollTop = 0;
-    } catch (e) {
-      window.location.href = url; // 失敗したら普通に飛ばす
-    }
-  }
-
-  window.onpopstate = () => changePage(window.location.pathname);
+      
+      // サイドバーが挿入された後に、カウンターとリンクの設定を行う
+      loadSidebarCounter();
+    })
+    .catch(err => console.error(err));
 });
 
-// カウンターとTwitterリンク作成処理
+// カウンターの読み込みとTwitterリンクの動的生成
 async function loadSidebarCounter() {
   const displayArea = document.getElementById('sidebar-counter-display');
   const twitterLink = document.getElementById('sidebar-twitter-share');
@@ -63,26 +29,37 @@ async function loadSidebarCounter() {
     const isAdmin = localStorage.getItem('is_admin_yukidama') === 'true';
     const isCounted = sessionStorage.getItem('has_counted_this_session');
     
+    // 管理者または同一セッションならカウントしないURLを生成
     const fetchUrl = (isAdmin || isCounted) ? `${WORKER_URL}?no-count=1` : WORKER_URL;
     const response = await fetch(fetchUrl);
     const data = await response.json();
     const countStr = String(data.count).padStart(6, '0');
 
-    // Twitterリンクの中身をここで作成
+    // Twitter（X）シェア用のリンクURLを設定（ターゲットは外部なので別タブにする設定も追加）
     if (twitterLink) {
-      const tweetText = `「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\n${window.location.origin}${window.location.pathname}\n\n@yukidama_yoshi`;
+      // どのページにいてもトップページのドメイン（または現在のURL）を共有できるように調整
+      const shareUrl = window.location.origin + window.location.pathname;
+      const tweetText = `「ゆきだまのホームページ」でキリ番（${countStr}）を踏んだよ！\n${shareUrl}\n\n@yukidama_yoshi`;
+      
       twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+      twitterLink.setAttribute('target', '_blank');
+      twitterLink.setAttribute('rel', 'noopener noreferrer');
     }
 
-    if (!isAdmin && !isCounted) sessionStorage.setItem('has_counted_this_session', 'true');
+    if (!isAdmin && !isCounted) {
+      sessionStorage.setItem('has_counted_this_session', 'true');
+    }
 
+    // カウンター画像の描画
     displayArea.innerHTML = ''; 
     for (let char of countStr) {
       const img = document.createElement('img');
       img.src = `${IMAGE_PATH}${char}.png`;
+      img.alt = char; // アクセシビリティのためにaltを追加
       displayArea.appendChild(img);
     }
   } catch (err) {
     displayArea.innerHTML = 'ERR';
+    console.error('Counter Error:', err);
   }
 }
