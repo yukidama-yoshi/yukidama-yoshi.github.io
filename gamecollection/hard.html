@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ゆきだまのホームページ - 入手済みハード一覧</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+
+  <nav class="sidebar" id="sidebar"></nav>
+  
+  <div class="resizer" id="resizer"></div>
+
+  <div class="main">
+    <h1>ゲームコレクション部屋 - 入手済みハード一覧</h1>
+    
+    <p>
+      [ <a href="soft.html">入手済みソフト一覧へ</a> ] ｜ 
+      [ <a href="index.html">ゲームコレクション部屋トップへ</a> ]
+    </p>
+
+    <hr>
+
+    <table id="hard-table" border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%; font-size: 14px;">
+      <thead>
+        <tr style="background-color: #e0e0e0; text-align: left;">
+          <th style="cursor: pointer;">機種名 ▲▼</th>
+          <th style="width: 30%; cursor: pointer;">入手日 ▲▼</th>
+        </tr>
+      </thead>
+      <tbody id="hard-tbody">
+        </tbody>
+    </table>
+
+    <hr>
+    <p><a href="../index.html">トップページへ戻る</a></p>
+
+    <footer>
+      <p>© 2026 ゆきだま. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="../js/load-sidebar.js"></script>
+
+  <script>
+    /* サイドバーリサイズ機能（共通） */
+    const resizer = document.getElementById('resizer');
+    const sidebarEl = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', () => { 
+      isResizing = true; 
+      document.body.style.cursor = 'ew-resize'; 
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      if (e.clientX > 100 && e.clientX < 600) {
+        sidebarEl.style.width = e.clientX + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', () => { 
+      isResizing = false; 
+      document.body.style.cursor = 'default'; 
+    });
+
+    /* hardwares.csv の読み込み処理 */
+    fetch('hardwares.csv')
+      .then(response => {
+        if (!response.ok) throw new Error('CSVの読み込みに失敗しました');
+        return response.text();
+      })
+      .then(text => {
+        const lines = text.trim().split('\n');
+        const tbody = document.getElementById('hard-tbody');
+        
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i]) continue;
+          
+          const cols = lines[i].split(',');
+          if (cols.length < 2) continue;
+
+          const tr = document.createElement('tr');
+          
+          // 1列目：機種名
+          const tdTitle = document.createElement('td');
+          tdTitle.textContent = cols[0].trim();
+          tr.appendChild(tdTitle);
+          
+          // 2列目：入手日
+          const tdDate = document.createElement('td');
+          tdDate.textContent = cols[1].trim();
+          tr.appendChild(tdDate);
+
+          tbody.appendChild(tr);
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        document.getElementById('hard-tbody').innerHTML = '<tr><td colspan="2">データの読み込みに失敗しました。</td></tr>';
+      });
+
+    /* 機種名と入手日のソート機能 */
+    document.querySelectorAll('#hard-table th').forEach((th, colIdx) => {
+      let asc = true;
+      th.addEventListener('click', () => {
+        const table = th.closest('table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        
+        rows.sort((rowA, rowB) => {
+          const cellA = rowA.children[colIdx].textContent.trim();
+          const cellB = rowB.children[colIdx].textContent.trim();
+          return asc ? cellA.localeCompare(cellB, 'ja') : cellB.localeCompare(cellA, 'ja');
+        });
+        
+        rows.forEach(row => tbody.appendChild(row));
+        asc = !asc;
+      });
+    });
+  </script>
+</body>
+</html>
