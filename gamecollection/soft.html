@@ -66,7 +66,6 @@
         const lines = text.trim().split('\n');
         const container = document.getElementById('soft-container');
         
-        // ハードごとにデータをグループ化するオブジェクト
         const hardwareGroups = {};
 
         for (let i = 1; i < lines.length; i++) {
@@ -79,22 +78,18 @@
           const title = cols[1].trim();
           const date = cols[2].trim();
 
-          // まだそのハードのグループがなければ初期化
           if (!hardwareGroups[hwName]) {
             hardwareGroups[hwName] = [];
           }
           hardwareGroups[hwName].push({ title, date });
         }
 
-        // グループ化したデータを元に、ハードごとのHTML（見出し＋表）を生成
         for (const hwName in hardwareGroups) {
-          // 見出し（▼ハード名）を作成
           const h3 = document.createElement('h3');
           h3.textContent = `▼${hwName}`;
           h3.style.marginTop = '30px';
           container.appendChild(h3);
 
-          // エクセル風のテーブルを作成
           const table = document.createElement('table');
           table.className = 'soft-table';
           table.setAttribute('border', '1');
@@ -105,7 +100,6 @@
           table.style.fontSize = '14px';
           table.style.marginBottom = '20px';
 
-          // 表の見出し（ヘッダー）
           table.innerHTML = `
             <thead>
               <tr style="background-color: #e0e0e0; text-align: left;">
@@ -118,7 +112,6 @@
 
           const tbody = table.querySelector('tbody');
 
-          // そのハードに属するソフトを1行ずつ追加
           hardwareGroups[hwName].forEach(soft => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -129,8 +122,6 @@
           });
 
           container.appendChild(table);
-
-          // この作成したテーブルに対して個別にソート機能を設定
           setupTableSort(table);
         }
       })
@@ -139,7 +130,6 @@
         document.getElementById('soft-container').innerHTML = '<p>データの読み込みに失敗しました。</p>';
       });
 
-    /* 各テーブル専用のソート（並び替え）関数 */
     function setupTableSort(table) {
       table.querySelectorAll('th').forEach((th, colIdx) => {
         let asc = true;
