@@ -16,11 +16,40 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(data => {
       sidebar.innerHTML = data;
+
+      // 【新機能】ゲーム部屋にいる場合、サイドバー内のロゴとリンクのパスを「../」付きに自動修正する
+      if (isGameCollection) {
+        fixSidebarPathsForGameCollection(sidebar);
+      }
+
       // カウンター起動関数にゲーム部屋かどうかの情報を渡す
       loadSidebarCounter(isGameCollection);
     })
     .catch(err => console.error(err));
 });
+
+// ゲーム部屋用にサイドバー内の画像やリンクを修正する関数
+function fixSidebarPathsForGameCollection(sidebarElement) {
+  // 1. ロゴなどの画像（imgタグ）のパスの頭に「../」を付ける
+  const images = sidebarElement.querySelectorAll('img');
+  images.forEach(img => {
+    const src = img.getAttribute('src');
+    // すでに「../」がついていなくて、かつ外部URL（http〜）でなければ頭に付ける
+    if (src && !src.startsWith('../') && !src.startsWith('http')) {
+      img.src = '../' + src;
+    }
+  });
+
+  // 2. ページ移動リンク（aタグ）のリンク先の頭に「../」を付ける
+  const links = sidebarElement.querySelectorAll('a');
+  links.forEach(a => {
+    const href = a.getAttribute('href');
+    // 外部URLや、javascript:、# などの特殊なリンク以外、かつすでに「../」がなければ頭に付ける
+    if (href && !href.startsWith('../') && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('javascript:')) {
+      a.href = '../' + href;
+    }
+  });
+}
 
 // カウンターとTwitterリンク処理
 async function loadSidebarCounter(isGameCollection = false) {
