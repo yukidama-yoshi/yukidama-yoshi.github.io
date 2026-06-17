@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ゆきだまのホームページ - 入手済み攻略本・ガイドブック一覧</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    /* プルダウンメニューの配置用スタイル */
+    .sort-container {
+      margin-bottom: 15px;
+    }
+    .sort-select {
+      padding: 4px 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar" id="sidebar"></nav>
+  
+  <div class="resizer" id="resizer"></div>
+
+  <div class="main">
+    <h1>ゲームコレクション - 入手済み攻略本・ガイドブック一覧</h1>
+    
+    <p>
+      [ <a href="soft.html">入手済みソフト一覧へ</a> ] ｜ 
+      [ <a href="hard.html">入手済みハード一覧へ</a> ] ｜ 
+      [ <a href="index.html">ゲームコレクショントップへ</a> ]
+    </p>
+
+    <hr>
+
+    <div class="sort-container">
+      <select id="sort-menu" class="sort-select">
+        <option value="default">[並び替え]</option>
+        <option value="date">[入手日順]</option>
+      </select>
+    </div>
+
+    <table id="book-table" border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%; font-size: 14px;">
+      <thead>
+        <tr style="background-color: #e0e0e0; text-align: left;">
+          <th>タイトル</th>
+          <th>出版社 / 著者</th>
+          <th style="width: 25%;">入手日</th>
+        </tr>
+      </thead>
+      <tbody id="book-tbody">
+      </tbody>
+    </table>
+
+    <hr>
+    <p><a href="../index.html">トップページへ戻る</a></p>
+
+    <footer>
+      <p>© 2026 ゆきだま. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="../js/load-sidebar.js"></script>
+
+  <script>
+    /* サイドバーリサイズ機能（共通） */
+    const resizer = document.getElementById('resizer');
+    const sidebarEl = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', () => { 
+      isResizing = true; 
+      document.body.style.cursor = 'ew-resize'; 
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      if (e.clientX > 100 && e.clientX < 600) {
+        sidebarEl.style.width = e.clientX + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', () => { 
+      isResizing = false; 
+      document.body.style.cursor = 'default'; 
+    });
+
+    // 並び替えの基準となる元のデータを一時保存する配列
+    let originalData = [];
+
+    /* books.csv の読み込み処理 */
+    fetch('books.csv')
+      .then(response => {
+        if (!response.ok) throw new Error('CSVの読み込みに失敗しました');
+        return response.text();
+      })
+      .then(text => {
+        const lines = text.trim().split('\n');
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue; // 空行は飛ばす
+          
+          const cols = line.split(',');
+          if (cols.length < 3) continue;
+
+          const title = cols[0].trim();
+          const publisher = cols[1].trim();
+          const date = cols[2].trim();
+
+          // 英語表記のヘッダー行（title, publisher, date）を確実にスキップする
+          if (title.toLowerCase() === 'title' || publisher.toLowerCase() === 'publisher') {
+            continue;
+          }
+
+          // データをオブジェクト形式にして配列にストックする
+          originalData.push({ title, publisher, date });
+        }
+
+        // 初期表示（元のCSV順）
+        renderTable(originalData);
+        // プルダウンのイベントを設定
+        setupSortEvent();
+      })
+      .catch(error => {
+        console.error(error);
+        document.getElementById('book-tbody').innerHTML = '<tr><td colspan="3">データの読み込みに失敗しました。</td></tr>';
+      });
+
+    /* 表を描画する関数 */
+    function renderTable(dataArray) {
+      const tbody = document.getElementById('book-tbody');
+      tbody.innerHTML = ''; // 一度テーブルを空にする
+
+      dataArray.forEach(item => {
+        const tr = document.createElement('tr');
+        
+        const tdTitle = document.createElement('td');
+        tdTitle.textContent = item.title;
+        tr.appendChild(tdTitle);
+
+        const tdPublisher = document.createElement('td');
+        tdPublisher.textContent = item.publisher;
+        tr.appendChild(tdPublisher);
+        
+        const tdDate = document.createElement('td');
+        tdDate.textContent = item.date;
+        tr.appendChild(tdDate);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* プルダウン切り替え時のソート処理 */
+    function setupSortEvent() {
+      const sortMenu = document.getElementById('sort-menu');
+
+      sortMenu.addEventListener('change', (e) => {
+        const selectedValue = e.target.value;
+
+        // 元のデータを壊さないようにコピーを作成してソートする
+        let sortedData = [...originalData];
+
+        if (selectedValue === 'default') {
+          // [並び替え] の場合は特に何もせず元のデータのまま表示
+          renderTable(originalData);
+          return;
+        }
+
+        sortedData.sort((a, b) => {
+          // 「不明」データは常に一番下に送る
+          if (a.date === '不明' && b.date !== '不明') return 1;
+          if (a.date !== '不明' && b.date === '不明') return -1;
+          if (a.date === '不明' && b.date === '不明') return 0;
+
+          if (selectedValue === 'date') {
+            // 入手日順（古い順）
+            return a.date.localeCompare(b.date, 'ja');
+          }
+          return 0;
+        });
+
+        // ソート結果を画面に反映
+        renderTable(sortedData);
+      });
+    }
+  </script>
+</body>
+</html>
