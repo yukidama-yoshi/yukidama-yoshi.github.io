@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ゆきだまのホームページ - 入手済み攻略本・ガイドブック一覧</title>
+  <title>ゆきだまのホームページ - 入手済み攻略本・関連グッズ一覧</title>
   <link rel="stylesheet" href="../css/common.css">
   <style>
     /* プルダウンメニューの配置用スタイル */
@@ -23,7 +23,7 @@
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
-    <h1>ゲームコレクション - 入手済み攻略本・ガイドブック一覧</h1>
+    <h1>ゲームコレクション - 入手済み攻略本・関連グッズ一覧</h1>
     
     <p>
       [ <a href="soft.html">入手済みソフト一覧へ</a> ] ｜ 
@@ -40,18 +40,7 @@
       </select>
     </div>
 
-    <table id="book-table" border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%; font-size: 14px;">
-      <thead>
-        <tr style="background-color: #e0e0e0; text-align: left;">
-          <th>タイトル</th>
-          <th>出版社 / 著者</th>
-          <th style="width: 20%;">入手日</th>
-          <th style="width: 20%;">ISBN</th>
-        </tr>
-      </thead>
-      <tbody id="book-tbody">
-      </tbody>
-    </table>
+    <div id="book-container"></div>
 
     <hr>
     <p><a href="../index.html">トップページへ戻る</a></p>
@@ -86,8 +75,8 @@
       document.body.style.cursor = 'default'; 
     });
 
-    // 並び替えの基準となる元のデータを一時保存する配列
-    let originalData = [];
+    // カテゴリごとにグループ分けした元のデータを保存するオブジェクト
+    let originalGroups = {};
 
     /* books.csv の読み込み処理 */
     fetch('books.csv')
@@ -103,60 +92,97 @@
           if (!line) continue; // 空行は飛ばす
           
           const cols = line.split(',');
-          if (cols.length < 3) continue; // 最低限タイトル、出版社、日付があるか確認
+          if (cols.length < 4) continue; // 列数が足りない場合はスキップ
 
-          const title = cols[0].trim();
-          const publisher = cols[1].trim();
-          const date = cols[2].trim();
-          // 4列目（ISBN）があれば取得、なければ空文字にする
-          const isbn = cols[3] ? cols[3].trim() : '';
+          const category = cols[0].trim();
+          const title = cols[1].trim();
+          const publisher = cols[2].trim();
+          const date = cols[3].trim();
+          const isbn = cols[4] ? cols[4].trim() : '';
 
           // 英語表記のヘッダー行を確実にスキップする
-          if (title.toLowerCase() === 'title' || publisher.toLowerCase() === 'publisher') {
+          if (category.toLowerCase() === 'category' || title.toLowerCase() === 'title') {
             continue;
           }
 
-          // データをオブジェクト形式にして配列にストックする
-          originalData.push({ title, publisher, date, isbn });
+          // カテゴリ名ごとに配列を作ってデータをストックする
+          if (!originalGroups[category]) {
+            originalGroups[category] = [];
+          }
+          originalGroups[category].push({ title, publisher, date, isbn });
         }
 
-        // 初期表示（元のCSV順）
-        renderTable(originalData);
+        // 初期表示
+        renderAllTables(originalGroups);
         // プルダウンのイベントを設定
         setupSortEvent();
       })
       .catch(error => {
         console.error(error);
-        document.getElementById('book-tbody').innerHTML = '<tr><td colspan="4">データの読み込みに失敗しました。</td></tr>';
+        document.getElementById('book-container').innerHTML = '<p>データの読み込みに失敗しました。</p>';
       });
 
-    /* 表を描画する関数 */
-    function renderTable(dataArray) {
-      const tbody = document.getElementById('book-tbody');
-      tbody.innerHTML = ''; // 一度テーブルを空にする
+    /* すべてのカテゴリの表を描画する関数 */
+    function renderAllTables(groupsData) {
+      const container = document.getElementById('book-container');
+      container.innerHTML = ''; // 一度全体をクリア
 
-      dataArray.forEach(item => {
-        const tr = document.createElement('tr');
+      for (const category in groupsData) {
+        // 各カテゴリの見出し（▼カテゴリ名）
+        const h3 = document.createElement('h3');
+        h3.textContent = `▼${category}`;
+        h3.style.marginTop = '30px';
+        container.appendChild(h3);
+
+        // テーブルの作成
+        const table = document.createElement('table');
+        table.setAttribute('border', '1');
+        table.setAttribute('cellspacing', '0');
+        table.setAttribute('cellpadding', '5');
+        table.style.borderCollapse = 'collapse';
+        table.style.width = '100%';
+        table.style.fontSize = '14px';
+        table.style.marginBottom = '20px';
+
+        table.innerHTML = `
+          <thead>
+            <tr style="background-color: #e0e0e0; text-align: left;">
+              <th>タイトル</th>
+              <th>出版社 / メーカー</th>
+              <th style="width: 20%;">入手日</th>
+              <th style="width: 20%;">ISBN</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        `;
+
+        const tbody = table.querySelector('tbody');
         
-        const tdTitle = document.createElement('td');
-        tdTitle.textContent = item.title;
-        tr.appendChild(tdTitle);
+        // ストックされている本・グッズ一覧を1行ずつ追加
+        groupsData[category].forEach(item => {
+          const tr = document.createElement('tr');
+          
+          const tdTitle = document.createElement('td');
+          tdTitle.textContent = item.title;
+          tr.appendChild(tdTitle);
 
-        const tdPublisher = document.createElement('td');
-        tdPublisher.textContent = item.publisher;
-        tr.appendChild(tdPublisher);
-        
-        const tdDate = document.createElement('td');
-        tdDate.textContent = item.date;
-        tr.appendChild(tdDate);
+          const tdPublisher = document.createElement('td');
+          tdPublisher.textContent = item.publisher;
+          tr.appendChild(tdPublisher);
+          
+          const tdDate = document.createElement('td');
+          tdDate.textContent = item.date;
+          tr.appendChild(tdDate);
 
-        // ISBN用のセルを追加
-        const tdIsbn = document.createElement('td');
-        tdIsbn.textContent = item.isbn;
-        tr.appendChild(tdIsbn);
+          const tdIsbn = document.createElement('td');
+          tdIsbn.textContent = item.isbn;
+          tr.appendChild(tdIsbn);
 
-        tbody.appendChild(tr);
-      });
+          tbody.appendChild(tr);
+        });
+
+        container.appendChild(table);
+      }
     }
 
     /* プルダウン切り替え時のソート処理 */
@@ -166,30 +192,31 @@
       sortMenu.addEventListener('change', (e) => {
         const selectedValue = e.target.value;
 
-        // 元のデータを壊さないようにコピーを作成してソートする
-        let sortedData = [...originalData];
-
         if (selectedValue === 'default') {
-          // [並び替え] の場合は特に何もせず元のデータのまま表示
-          renderTable(originalData);
+          renderAllTables(originalGroups);
           return;
         }
 
-        sortedData.sort((a, b) => {
-          // 「不明」データは常に一番下に送る
-          if (a.date === '不明' && b.date !== '不明') return 1;
-          if (a.date !== '不明' && b.date === '不明') return -1;
-          if (a.date === '不明' && b.date === '不明') return 0;
+        let sortedGroups = {};
 
-          if (selectedValue === 'date') {
-            // 入手日順（古い順）
-            return a.date.localeCompare(b.date, 'ja');
-          }
-          return 0;
-        });
+        for (const category in originalGroups) {
+          let items = [...originalGroups[category]];
 
-        // ソート結果を画面に反映
-        renderTable(sortedData);
+          items.sort((a, b) => {
+            if (a.date === '不明' && b.date !== '不明') return 1;
+            if (a.date !== '不明' && b.date === '不明') return -1;
+            if (a.date === '不明' && b.date === '不明') return 0;
+
+            if (selectedValue === 'date') {
+              return a.date.localeCompare(b.date, 'ja');
+            }
+            return 0;
+          });
+
+          sortedGroups[category] = items;
+        }
+
+        renderAllTables(sortedGroups);
       });
     }
   </script>
