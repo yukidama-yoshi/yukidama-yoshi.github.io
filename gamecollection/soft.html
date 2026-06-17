@@ -197,8 +197,8 @@
               // 入手日順（古い順）
               return a.date.localeCompare(b.date, 'ja');
             } else if (selectedValue === 'kana') {
-              // タイトルのあいうえお順
-              return a.title.localeCompare(b.title, 'ja');
+              // 【修正箇所】タイトルのあいうえお順（日本語の五十音順・数値順オプションを強制指定）
+              return a.title.localeCompare(b.title, 'ja', { sensitivity: 'base', numeric: true });
             }
             return 0;
           });
