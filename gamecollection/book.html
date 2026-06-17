@@ -146,15 +146,21 @@
         table.style.width = '100%';
         table.style.fontSize = '14px';
         table.style.marginBottom = '20px';
+        
+        // ★文字数に関わらず列の幅(%)を完全に固定するスタイル
+        table.style.tableLayout = 'fixed';
 
-        // 本系カテゴリのみISBNの列見出しを作る
+        // ★本系カテゴリなら4列目を「ISBN」、それ以外なら「備考」にする
+        const lastHeaderName = isBookCategory ? 'ISBN' : '備考';
+
+        // ★各列の横幅（合計100%）をここで均等に指定してガタつきを防ぐ
         table.innerHTML = `
           <thead>
             <tr style="background-color: #e0e0e0; text-align: left;">
-              <th>タイトル</th>
-              <th>出版社 / メーカー</th>
+              <th style="width: 40%;">タイトル</th>
+              <th style="width: 20%;">出版社 / メーカー</th>
               <th style="width: 20%;">入手日</th>
-              ${isBookCategory ? '<th style="width: 20%;">ISBN</th>' : ''}
+              <th style="width: 20%;">${lastHeaderName}</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -178,12 +184,10 @@
           tdDate.textContent = item.date;
           tr.appendChild(tdDate);
 
-          // 本系カテゴリのみISBNのセルを追加する
-          if (isBookCategory) {
-            const tdIsbn = document.createElement('td');
-            tdIsbn.textContent = item.isbn;
-            tr.appendChild(tdIsbn);
-          }
+          // ★条件分岐をなくし、すべての表で必ず4列目を作って追加する
+          const tdLast = document.createElement('td');
+          tdLast.textContent = item.isbn ? item.isbn : ''; // データが無ければ自動的に空欄になります
+          tr.appendChild(tdLast);
 
           tbody.appendChild(tr);
         });
