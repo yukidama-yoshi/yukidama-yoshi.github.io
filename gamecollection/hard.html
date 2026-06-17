@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <title>ゆきだまのホームページ - 入手済みハード一覧</title>
   <link rel="stylesheet" href="../css/common.css">
+  <style>
+    /* プルダウンメニューの配置用スタイル */
+    .sort-container {
+      margin-bottom: 15px;
+    }
+    .sort-select {
+      padding: 4px 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
@@ -21,11 +32,19 @@
 
     <hr>
 
+    <div class="sort-container">
+      <select id="sort-menu" class="sort-select">
+        <option value="default">[並び替え]</option>
+        <option value="date">[入手日順]</option>
+        <option value="kana">[あいうえお順]</option>
+      </select>
+    </div>
+
     <table id="hard-table" border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%; font-size: 14px;">
       <thead>
         <tr style="background-color: #e0e0e0; text-align: left;">
-          <th style="cursor: pointer;">機種名 ▲▼</th>
-          <th style="width: 30%; cursor: pointer;">入手日 ▲▼</th>
+          <th>機種名</th>
+          <th style="width: 30%;">入手日</th>
         </tr>
       </thead>
       <tbody id="hard-tbody">
@@ -65,6 +84,9 @@
       document.body.style.cursor = 'default'; 
     });
 
+    // 並び替えの基準となる元のデータを一時保存する配列
+    let originalData = [];
+
     /* hardwares.csv の読み込み処理 */
     fetch('hardwares.csv')
       .then(response => {
@@ -73,7 +95,6 @@
       })
       .then(text => {
         const lines = text.trim().split('\n');
-        const tbody = document.getElementById('hard-tbody');
         
         for (let i = 1; i < lines.length; i++) {
           if (!lines[i]) continue;
@@ -81,44 +102,79 @@
           const cols = lines[i].split(',');
           if (cols.length < 2) continue;
 
-          const tr = document.createElement('tr');
-          
-          // 1列目：機種名
-          const tdTitle = document.createElement('td');
-          tdTitle.textContent = cols[0].trim();
-          tr.appendChild(tdTitle);
-          
-          // 2列目：入手日
-          const tdDate = document.createElement('td');
-          tdDate.textContent = cols[1].trim();
-          tr.appendChild(tdDate);
-
-          tbody.appendChild(tr);
+          // データをオブジェクト形式にして配列にストックする
+          originalData.push({
+            title: cols[0].trim(),
+            date: cols[1].trim()
+          });
         }
+
+        // 初期表示（元のCSV順）
+        renderTable(originalData);
+        // プルダウンのイベントを設定
+        setupSortEvent();
       })
       .catch(error => {
         console.error(error);
         document.getElementById('hard-tbody').innerHTML = '<tr><td colspan="2">データの読み込みに失敗しました。</td></tr>';
       });
 
-    /* 機種名と入手日のソート機能 */
-    document.querySelectorAll('#hard-table th').forEach((th, colIdx) => {
-      let asc = true;
-      th.addEventListener('click', () => {
-        const table = th.closest('table');
-        const tbody = table.querySelector('tbody');
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+    /* 表を描画する関数 */
+    function renderTable(dataArray) {
+      const tbody = document.getElementById('hard-tbody');
+      tbody.innerHTML = ''; // 一度テーブルを空にする
+
+      dataArray.forEach(item => {
+        const tr = document.createElement('tr');
         
-        rows.sort((rowA, rowB) => {
-          const cellA = rowA.children[colIdx].textContent.trim();
-          const cellB = rowB.children[colIdx].textContent.trim();
-          return asc ? cellA.localeCompare(cellB, 'ja') : cellB.localeCompare(cellA, 'ja');
-        });
+        const tdTitle = document.createElement('td');
+        tdTitle.textContent = item.title;
+        tr.appendChild(tdTitle);
         
-        rows.forEach(row => tbody.appendChild(row));
-        asc = !asc;
+        const tdDate = document.createElement('td');
+        tdDate.textContent = item.date;
+        tr.appendChild(tdDate);
+
+        tbody.appendChild(tr);
       });
-    });
+    }
+
+    /* プルダウン切り替え時のソート処理 */
+    function setupSortEvent() {
+      const sortMenu = document.getElementById('sort-menu');
+
+      sortMenu.addEventListener('change', (e) => {
+        const selectedValue = e.target.value;
+
+        // 元のデータを壊さないようにコピーを作成してソートする
+        let sortedData = [...originalData];
+
+        if (selectedValue === 'default') {
+          // [並び替え] の場合は特に何もせず元のデータのまま表示
+          renderTable(originalData);
+          return;
+        }
+
+        sortedData.sort((a, b) => {
+          // 「不明」データはどちらのソートでも常に一番下に送る
+          if (a.date === '不明' && b.date !== '不明') return 1;
+          if (a.date !== '不明' && b.date === '不明') return -1;
+          if (a.date === '不明' && b.date === '不明') return 0;
+
+          if (selectedValue === 'date') {
+            // 入手日順（古い順）
+            return a.date.localeCompare(b.date, 'ja');
+          } else if (selectedValue === 'kana') {
+            // 機種名のあいうえお順
+            return a.title.localeCompare(b.title, 'ja');
+          }
+          return 0;
+        });
+
+        // ソート結果を画面に反映
+        renderTable(sortedData);
+      });
+    }
   </script>
 </body>
 </html>
