@@ -36,7 +36,6 @@
       <select id="sort-menu" class="sort-select">
         <option value="default">[並び替え]</option>
         <option value="date">[入手日順]</option>
-        <option value="kana">[あいうえお順]</option>
       </select>
     </div>
 
@@ -186,15 +185,13 @@
           return;
         }
 
-        // 元のデータを壊さないように、新しくソート済みのオブジェクトを作る
         let sortedGroups = {};
 
         for (const hwName in originalGroups) {
-          // 各ハードごとのソフト配列をコピーしてソート
           let softs = [...originalGroups[hwName]];
 
           softs.sort((a, b) => {
-            // 「不明」データはどちらのソートでも常に一番下に送る
+            // 「不明」データは常に一番下に送る
             if (a.date === '不明' && b.date !== '不明') return 1;
             if (a.date !== '不明' && b.date === '不明') return -1;
             if (a.date === '不明' && b.date === '不明') return 0;
@@ -202,10 +199,6 @@
             if (selectedValue === 'date') {
               // 入手日順（古い順）
               return a.date.localeCompare(b.date, 'ja');
-            } else if (selectedValue === 'kana') {
-              // 【修正】濁点・半濁音・小文字の判定を狂わせる sensitivity オプションを削除
-              // numeric: true のみ残して、タイトル末尾の「3」などの数字が正しく並ぶようにしています
-              return a.title.localeCompare(b.title, 'ja', { numeric: true });
             }
             return 0;
           });
