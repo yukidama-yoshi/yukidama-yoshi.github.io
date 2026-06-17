@@ -87,15 +87,21 @@
       .then(text => {
         const lines = text.trim().split('\n');
         
-        for (let i = 1; i < lines.length; i++) {
-          if (!lines[i]) continue;
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue; // 空行は飛ばす
           
-          const cols = lines[i].split(',');
+          const cols = line.split(',');
           if (cols.length < 3) continue;
 
           const hwName = cols[0].trim();
           const title = cols[1].trim();
           const date = cols[2].trim();
+
+          // 【修正箇所】英語表記のヘッダー行（hardware, title, date）を確実にスキップする
+          if (hwName.toLowerCase() === 'hardware' || title.toLowerCase() === 'title') {
+            continue;
+          }
 
           // ハード名ごとに配列を作ってデータをストックする
           if (!originalGroups[hwName]) {
@@ -197,7 +203,7 @@
               // 入手日順（古い順）
               return a.date.localeCompare(b.date, 'ja');
             } else if (selectedValue === 'kana') {
-              // 【修正箇所】タイトルのあいうえお順（日本語の五十音順・数値順オプションを強制指定）
+              // タイトルのあいうえお順（日本語の五十音順・数値順オプション）
               return a.title.localeCompare(b.title, 'ja', { sensitivity: 'base', numeric: true });
             }
             return 0;
