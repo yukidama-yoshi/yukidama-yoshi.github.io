@@ -134,6 +134,9 @@
         h3.style.marginTop = '30px';
         container.appendChild(h3);
 
+        // カテゴリ名に「攻略本」「ガイドブック」「書籍」「本」が含まれるか判定
+        const isBookCategory = /攻略本|ガイドブック|書籍|本/.test(category);
+
         // テーブルの作成
         const table = document.createElement('table');
         table.setAttribute('border', '1');
@@ -144,13 +147,14 @@
         table.style.fontSize = '14px';
         table.style.marginBottom = '20px';
 
+        // 本系カテゴリのみISBNの列見出しを作る
         table.innerHTML = `
           <thead>
             <tr style="background-color: #e0e0e0; text-align: left;">
               <th>タイトル</th>
               <th>出版社 / メーカー</th>
               <th style="width: 20%;">入手日</th>
-              <th style="width: 20%;">ISBN</th>
+              ${isBookCategory ? '<th style="width: 20%;">ISBN</th>' : ''}
             </tr>
           </thead>
           <tbody></tbody>
@@ -174,9 +178,12 @@
           tdDate.textContent = item.date;
           tr.appendChild(tdDate);
 
-          const tdIsbn = document.createElement('td');
-          tdIsbn.textContent = item.isbn;
-          tr.appendChild(tdIsbn);
+          // 本系カテゴリのみISBNのセルを追加する
+          if (isBookCategory) {
+            const tdIsbn = document.createElement('td');
+            tdIsbn.textContent = item.isbn;
+            tr.appendChild(tdIsbn);
+          }
 
           tbody.appendChild(tr);
         });
