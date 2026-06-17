@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <title>ゆきだまのホームページ - 入手済みソフト一覧</title>
   <link rel="stylesheet" href="../css/common.css">
+  <style>
+    /* プルダウンメニューの配置用スタイル */
+    .sort-container {
+      margin-bottom: 15px;
+    }
+    .sort-select {
+      padding: 4px 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
@@ -20,6 +31,14 @@
     </p>
 
     <hr>
+
+    <div class="sort-container">
+      <select id="sort-menu" class="sort-select">
+        <option value="default">[並び替え]▼</option>
+        <option value="date">[入手日順]</option>
+        <option value="kana">[あいうえお順]</option>
+      </select>
+    </div>
 
     <div id="soft-container"></div>
 
@@ -56,7 +75,10 @@
       document.body.style.cursor = 'default'; 
     });
 
-    /* softwares.csv を読み込んでハードごとに仕分ける処理 */
+    // ハードごとにグループ分けした元のデータを保存するオブジェクト
+    let originalGroups = {};
+
+    /* softwares.csv の読み込み処理 */
     fetch('softwares.csv')
       .then(response => {
         if (!response.ok) throw new Error('CSVの読み込みに失敗しました');
@@ -64,10 +86,7 @@
       })
       .then(text => {
         const lines = text.trim().split('\n');
-        const container = document.getElementById('soft-container');
         
-        const hardwareGroups = {};
-
         for (let i = 1; i < lines.length; i++) {
           if (!lines[i]) continue;
           
@@ -78,74 +97,117 @@
           const title = cols[1].trim();
           const date = cols[2].trim();
 
-          if (!hardwareGroups[hwName]) {
-            hardwareGroups[hwName] = [];
+          // ハード名ごとに配列を作ってデータをストックする
+          if (!originalGroups[hwName]) {
+            originalGroups[hwName] = [];
           }
-          hardwareGroups[hwName].push({ title, date });
+          originalGroups[hwName].push({ title, date });
         }
 
-        for (const hwName in hardwareGroups) {
-          const h3 = document.createElement('h3');
-          h3.textContent = `▼${hwName}`;
-          h3.style.marginTop = '30px';
-          container.appendChild(h3);
-
-          const table = document.createElement('table');
-          table.className = 'soft-table';
-          table.setAttribute('border', '1');
-          table.setAttribute('cellspacing', '0');
-          table.setAttribute('cellpadding', '5');
-          table.style.borderCollapse = 'collapse';
-          table.style.width = '100%';
-          table.style.fontSize = '14px';
-          table.style.marginBottom = '20px';
-
-          table.innerHTML = `
-            <thead>
-              <tr style="background-color: #e0e0e0; text-align: left;">
-                <th style="cursor: pointer;">タイトル ▲▼</th>
-                <th style="width: 25%; cursor: pointer;">入手日 ▲▼</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          `;
-
-          const tbody = table.querySelector('tbody');
-
-          hardwareGroups[hwName].forEach(soft => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${soft.title}</td>
-              <td>${soft.date}</td>
-            `;
-            tbody.appendChild(tr);
-          });
-
-          container.appendChild(table);
-          setupTableSort(table);
-        }
+        // 初期表示（元のCSV順）
+        renderAllTables(originalGroups);
+        // プルダウンのイベントを設定
+        setupSortEvent();
       })
       .catch(error => {
         console.error(error);
         document.getElementById('soft-container').innerHTML = '<p>データの読み込みに失敗しました。</p>';
       });
 
-    function setupTableSort(table) {
-      table.querySelectorAll('th').forEach((th, colIdx) => {
-        let asc = true;
-        th.addEventListener('click', () => {
-          const tbody = table.querySelector('tbody');
-          const rows = Array.from(tbody.querySelectorAll('tr'));
+    /* すべてのハードの表を描画する関数 */
+    function renderAllTables(groupsData) {
+      const container = document.getElementById('soft-container');
+      container.innerHTML = ''; // 一度全体をクリア
+
+      for (const hwName in groupsData) {
+        // 各ハードの見出し（▼機種名）
+        const h3 = document.createElement('h3');
+        h3.textContent = `▼${hwName}`;
+        h3.style.marginTop = '30px';
+        container.appendChild(h3);
+
+        // テーブルの作成
+        const table = document.createElement('table');
+        table.setAttribute('border', '1');
+        table.setAttribute('cellspacing', '0');
+        table.setAttribute('cellpadding', '5');
+        table.style.borderCollapse = 'collapse';
+        table.style.width = '100%';
+        table.style.fontSize = '14px';
+        table.style.marginBottom = '20px';
+
+        table.innerHTML = `
+          <thead>
+            <tr style="background-color: #e0e0e0; text-align: left;">
+              <th>タイトル</th>
+              <th style="width: 25%;">入手日</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        `;
+
+        const tbody = table.querySelector('tbody');
+        
+        // ストックされているソフト一覧を1行ずつ追加
+        groupsData[hwName].forEach(soft => {
+          const tr = document.createElement('tr');
           
-          rows.sort((rowA, rowB) => {
-            const cellA = rowA.children[colIdx].textContent.trim();
-            const cellB = rowB.children[colIdx].textContent.trim();
-            return asc ? cellA.localeCompare(cellB, 'ja') : cellB.localeCompare(cellA, 'ja');
-          });
+          const tdTitle = document.createElement('td');
+          tdTitle.textContent = soft.title;
+          tr.appendChild(tdTitle);
           
-          rows.forEach(row => tbody.appendChild(row));
-          asc = !asc;
+          const tdDate = document.createElement('td');
+          tdDate.textContent = soft.date;
+          tr.appendChild(tdDate);
+
+          tbody.appendChild(tr);
         });
+
+        container.appendChild(table);
+      }
+    }
+
+    /* プルダウン切り替え時のソート処理 */
+    function setupSortEvent() {
+      const sortMenu = document.getElementById('sort-menu');
+
+      sortMenu.addEventListener('change', (e) => {
+        const selectedValue = e.target.value;
+
+        if (selectedValue === 'default') {
+          // [並び替え] の場合は元のデータ構造のまま再描画
+          renderAllTables(originalGroups);
+          return;
+        }
+
+        // 元のデータを壊さないように、新しくソート済みのオブジェクトを作る
+        let sortedGroups = {};
+
+        for (const hwName in originalGroups) {
+          // 各ハードごとのソフト配列をコピーしてソート
+          let softs = [...originalGroups[hwName]];
+
+          softs.sort((a, b) => {
+            // 「不明」データはどちらのソートでも常に一番下に送る
+            if (a.date === '不明' && b.date !== '不明') return 1;
+            if (a.date !== '不明' && b.date === '不明') return -1;
+            if (a.date === '不明' && b.date === '不明') return 0;
+
+            if (selectedValue === 'date') {
+              // 入手日順（古い順）
+              return a.date.localeCompare(b.date, 'ja');
+            } else if (selectedValue === 'kana') {
+              // タイトルのあいうえお順
+              return a.title.localeCompare(b.title, 'ja');
+            }
+            return 0;
+          });
+
+          sortedGroups[hwName] = softs;
+        }
+
+        // ソートが完了したデータを画面に反映
+        renderAllTables(sortedGroups);
       });
     }
   </script>
