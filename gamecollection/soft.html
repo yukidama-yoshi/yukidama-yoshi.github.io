@@ -98,7 +98,7 @@
           const title = cols[1].trim();
           const date = cols[2].trim();
 
-          // 【修正箇所】英語表記のヘッダー行（hardware, title, date）を確実にスキップする
+          // 英語表記のヘッダー行（hardware, title, date）を確実にスキップする
           if (hwName.toLowerCase() === 'hardware' || title.toLowerCase() === 'title') {
             continue;
           }
@@ -203,8 +203,9 @@
               // 入手日順（古い順）
               return a.date.localeCompare(b.date, 'ja');
             } else if (selectedValue === 'kana') {
-              // タイトルのあいうえお順（日本語の五十音順・数値順オプション）
-              return a.title.localeCompare(b.title, 'ja', { sensitivity: 'base', numeric: true });
+              // 【修正】濁点・半濁音・小文字の判定を狂わせる sensitivity オプションを削除
+              // numeric: true のみ残して、タイトル末尾の「3」などの数字が正しく並ぶようにしています
+              return a.title.localeCompare(b.title, 'ja', { numeric: true });
             }
             return 0;
           });
