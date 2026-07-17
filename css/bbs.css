@@ -1,0 +1,63 @@
+/* 掲示板 */
+
+.bbs-form {
+  border: 1px solid #ccc;
+  background: rgba(255,255,255,0.8);
+  padding: 15px;
+  max-width: 600px;
+}
+
+
+.bbs-form h2 {
+  font-size: 18px;
+  margin-top: 0;
+}
+
+
+.bbs-form input {
+  width: 250px;
+}
+
+
+.bbs-form textarea {
+  width: 100%;
+  max-width: 550px;
+  height: 120px;
+}
+
+
+.bbs-form button {
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+
+
+#posts {
+  max-width: 700px;
+}
+
+
+.post {
+  border-bottom: 1px dotted #999;
+  padding: 15px 0;
+}
+
+
+.post-header {
+  font-size: 14px;
+  color: #555;
+}
+
+
+.post-message {
+  margin: 10px 0;
+  white-space: pre-wrap;
+}
+
+
+.reply {
+  margin-left: 30px;
+  border-left: 1px dotted #999;
+  padding-left: 15px;
+}
