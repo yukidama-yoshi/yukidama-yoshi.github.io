@@ -1,309 +1,365 @@
 // Cloudflare Worker API
 const API_URL = "https://kziban-api.y-bb0.workers.dev/api/posts";
 
-
-// 返信対象
+// 現在返信中の投稿ID
 let replyTarget = null;
+let replyTargetName = "";
 
 
-// 投稿一覧読み込み
+// ==========================
+// 投稿一覧取得
+// ==========================
 async function loadPosts() {
 
-  const postsArea = document.getElementById("posts");
+    const postsArea = document.getElementById("posts");
 
-  try {
+    try {
 
-    const response = await fetch(API_URL);
+        const response = await fetch(API_URL);
 
-    const posts = await response.json();
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
 
+        const posts = await response.json();
 
-    if (posts.length === 0) {
+        postsArea.innerHTML = "";
 
-      postsArea.innerHTML = "まだ投稿はありません。";
-      return;
+        if (posts.length === 0) {
+
+            postsArea.textContent = "まだ投稿はありません。";
+
+            return;
+
+        }
+
+        // 親投稿のみ表示
+        posts
+            .filter(post => post.parent_id === null)
+            .forEach(post => {
+
+                postsArea.appendChild(
+                    createPostElement(post, posts, 0)
+                );
+
+            });
 
     }
 
+    catch (error) {
 
-    postsArea.innerHTML = "";
+        console.error(error);
 
+        postsArea.textContent =
+            "投稿の取得に失敗しました。";
 
-    // 親投稿のみ表示
-    posts
-      .filter(post => post.parent_id === null)
-      .forEach(post => {
-
-        postsArea.appendChild(
-          createPostElement(post, posts, 0)
-        );
-
-      });
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    postsArea.innerHTML =
-      "投稿の読み込みに失敗しました。";
-
-  }
+    }
 
 }
 
 
 
-// 投稿HTML作成（返信ツリー）
+// ==========================
+// 投稿1件作成
+// ==========================
 function createPostElement(post, posts, depth) {
 
+    const div = document.createElement("div");
+    div.className = "post";
 
-  const div = document.createElement("div");
+    if (depth > 0) {
 
-  div.className = "post";
+        div.classList.add("reply");
 
+    }
 
-  if (depth > 0) {
+    // ヘッダー
+    const header = document.createElement("div");
+    header.className = "post-header";
 
-    div.classList.add("reply");
+    header.textContent =
+        `${post.name} さん　${new Date(post.created_at).toLocaleString("ja-JP")}`;
 
-  }
+    // 本文
+    const message = document.createElement("div");
+    message.className = "post-message";
 
+    // ★ここが重要
+    // innerHTMLではなくtextContentを使うので
+    // 余計なスペースは絶対入りません
+    message.textContent = post.message;
 
+    // ボタンエリア
+    const actions = document.createElement("div");
+    actions.className = "post-actions";
 
-  const date =
-    new Date(post.created_at)
-      .toLocaleString("ja-JP");
+    // 返信ボタン
+    const replyButton =
+        document.createElement("button");
 
+    replyButton.type = "button";
+    replyButton.textContent = "返信";
 
+    replyButton.addEventListener("click", () => {
 
-  div.innerHTML = `
-
-    <div class="post-header">
-
-      ${escapeHTML(post.name)}
-      さん　
-
-      ${date}
-
-    </div>
-
-
-    <div class="post-message">
-
-      ${escapeHTML(post.message)}
-
-    </div>
-
-
-    <button onclick="setReply(${post.id})">
-
-      返信
-
-    </button>
-
-  `;
-
-
-
-  // 子投稿を追加
-
-  posts
-
-    .filter(child => child.parent_id === post.id)
-
-    .forEach(child => {
-
-
-      div.appendChild(
-
-        createPostElement(
-          child,
-          posts,
-          depth + 1
-        )
-
-      );
-
+        setReply(
+            post.id,
+            post.name
+        );
 
     });
 
+    actions.appendChild(replyButton);
 
+    div.appendChild(header);
+    div.appendChild(message);
+    div.appendChild(actions);
 
-  return div;
+    // 子返信
+    posts
+        .filter(child => child.parent_id === post.id)
+        .forEach(child => {
+
+            div.appendChild(
+                createPostElement(
+                    child,
+                    posts,
+                    depth + 1
+                )
+            );
+
+        });
+
+    return div;
 
 }
 
 
 
-// 返信先設定
-function setReply(id) {
+// ==========================
+// 返信開始
+// ==========================
+function setReply(id, name) {
 
+    replyTarget = id;
+    replyTargetName = name;
 
-  replyTarget = id;
+    const box =
+        document.getElementById("reply-box");
 
+    const text =
+        document.getElementById("reply-target-text");
 
-  alert(
-    "投稿ID " + id + " に返信します"
-  );
+    if (box && text) {
 
+        box.style.display = "";
 
-}
-
-
-
-// 投稿送信
-async function sendPost() {
-
-
-  const name =
-    document.getElementById("name")
-      .value
-      .trim();
-
-
-
-  const message =
-    document.getElementById("message")
-      .value
-      .trim();
-
-
-
-  if (!name || !message) {
-
-    alert(
-      "名前と本文を入力してください。"
-    );
-
-    return;
-
-  }
-
-
-
-  try {
-
-
-    const response = await fetch(
-
-      API_URL,
-
-      {
-
-        method: "POST",
-
-
-        headers: {
-
-          "Content-Type":
-            "application/json"
-
-        },
-
-
-        body: JSON.stringify({
-
-          name: name,
-
-          message: message,
-
-          parent_id: replyTarget
-
-        })
-
-      }
-
-    );
-
-
-
-    const result =
-      await response.json();
-
-
-
-    if (result.success) {
-
-
-      document.getElementById("message")
-        .value = "";
-
-
-
-      replyTarget = null;
-
-
-
-      loadPosts();
-
-
-    } else {
-
-
-      alert(
-        "投稿に失敗しました。"
-      );
-
+        text.textContent =
+            `>>${id} ${name}`;
 
     }
 
+    const button =
+        document.getElementById("post-button");
+
+    if (button) {
+
+        button.textContent = "返信する";
+
+    }
+
+    document
+        .getElementById("message")
+        .focus();
+
+}
 
 
-  } catch(error) {
+
+// ==========================
+// 返信解除
+// ==========================
+function cancelReply() {
+
+    replyTarget = null;
+    replyTargetName = "";
+
+    const box =
+        document.getElementById("reply-box");
+
+    if (box) {
+
+        box.style.display = "none";
+
+    }
+
+    const button =
+        document.getElementById("post-button");
+
+    if (button) {
+
+        button.textContent = "投稿する";
+
+    }
+
+}
+// ==========================
+// 投稿送信
+// ==========================
+async function sendPost() {
+
+    const name =
+        document
+            .getElementById("name")
+            .value
+            .trim();
+
+    const message =
+        document
+            .getElementById("message")
+            .value
+            .trim();
+
+    if (!name) {
+
+        alert("名前を入力してください。");
+
+        return;
+
+    }
+
+    if (!message) {
+
+        alert("本文を入力してください。");
+
+        return;
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        name: name,
+
+                        message: message,
+
+                        parent_id: replyTarget
+
+                    })
+
+                }
+            );
+
+        const result =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.error ??
+                "投稿に失敗しました。"
+            );
+
+        }
+
+        // 本文だけクリア
+        document
+            .getElementById("message")
+            .value = "";
+
+        cancelReply();
+
+        await loadPosts();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+
+}
 
 
-    console.error(error);
 
+// ==========================
+// イベント登録
+// ==========================
 
-    alert(
-      "通信エラーです。"
+document
+    .getElementById("post-button")
+    .addEventListener(
+        "click",
+        sendPost
     );
 
 
-  }
 
+const cancelReplyButton =
+    document.getElementById("cancel-reply");
 
-}
+if (cancelReplyButton) {
 
-
-
-// HTMLエスケープ
-function escapeHTML(text) {
-
-
-  return text
-
-    .replace(/&/g, "&amp;")
-
-    .replace(/</g, "&lt;")
-
-    .replace(/>/g, "&gt;")
-
-    .replace(/"/g, "&quot;")
-
-    .replace(/'/g, "&#039;");
-
+    cancelReplyButton.addEventListener(
+        "click",
+        cancelReply
+    );
 
 }
 
 
 
-// 投稿ボタン
-document
+// Ctrl+Enter投稿
+const messageBox =
+    document.getElementById("message");
 
-  .getElementById("post-button")
+if (messageBox) {
 
-  .addEventListener(
+    messageBox.addEventListener(
+        "keydown",
+        event => {
 
-    "click",
+            if (
+                event.ctrlKey &&
+                event.key === "Enter"
+            ) {
 
-    sendPost
+                event.preventDefault();
 
-  );
+                sendPost();
+
+            }
+
+        }
+    );
+
+}
 
 
 
-// 初期読み込み
+// ==========================
+// 初期化
+// ==========================
 
-loadPosts();
+window.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadPosts();
+
+    }
+);
