@@ -1,5 +1,8 @@
 name: Generate files.json
 
+permissions:
+  contents: write   # ← これが無いと push が必ず失敗する
+
 on:
   push:
     branches:
@@ -19,7 +22,7 @@ jobs:
           const fs = require('fs');
           const path = require('path');
 
-          const ROOT = "files";   // ← 必要なら変更
+          const ROOT = "files";   // ← フォルダ名。必要なら変更。
 
           function walk(dir) {
             let results = [];
