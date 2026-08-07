@@ -15,19 +15,24 @@ jobs:
 
       - name: Generate files.json
         run: |
+          # files フォルダが無ければ作る（エラー防止）
+          mkdir -p files
+
           echo "[" > files.json
 
-          # files フォルダ内のファイルを列挙
+          # files 内のファイルを列挙
           find files -type f | while read -r FILE; do
-            SIZE=$(stat --format=%s "$FILE")   # Ubuntu で確実に動く
+            # stat の互換処理（GNU / busybox どちらでも動く）
+            SIZE=$(stat -c%s "$FILE" 2>/dev/null || stat -f%z "$FILE")
+
             NAME=$(basename "$FILE")
             PATH="$FILE"
 
             echo "  {\"name\": \"${NAME}\", \"path\": \"${PATH}\", \"size\": ${SIZE}}," >> files.json
           done
 
-          # 最後のカンマを削除
-          sed -i '$ s/,$//' files.json
+          # 最後のカンマを削除（空ファイルでも安全）
+          sed -i '$ s/,$//' files.json || true
 
           echo "]" >> files.json
 
