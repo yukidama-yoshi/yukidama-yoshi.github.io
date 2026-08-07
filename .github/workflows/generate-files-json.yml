@@ -1,0 +1,34 @@
+name: Generate files.json
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Generate files.json
+        run: |
+          echo "[" > files.json
+          find files -type f | while read FILE; do
+            SIZE=$(stat -c%s "$FILE")
+            NAME=$(basename "$FILE")
+            PATH="$FILE"
+            echo "  {\"name\": \"${NAME}\", \"path\": \"${PATH}\", \"size\": ${SIZE}}," >> files.json
+          done
+          sed -i '$ s/,$//' files.json
+          echo "]" >> files.json
+
+      - name: Commit files.json
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add files.json
+          git commit -m "Update files.json" || echo "No changes"
+          git push
