@@ -14,16 +14,19 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Generate files.json
+        shell: bash
         run: |
-          # files フォルダが無ければ作る（エラー防止）
           mkdir -p files
 
           echo "[" > files.json
 
-          # files 内のファイルを列挙
           find files -type f | while read -r FILE; do
-            # stat の互換処理（GNU / busybox どちらでも動く）
-            SIZE=$(stat -c%s "$FILE" 2>/dev/null || stat -f%z "$FILE")
+            # GNU stat or BSD stat のどちらでも動く
+            if stat --version >/dev/null 2>&1; then
+              SIZE=$(stat --format=%s "$FILE")
+            else
+              SIZE=$(stat -f%z "$FILE")
+            fi
 
             NAME=$(basename "$FILE")
             PATH="$FILE"
@@ -31,7 +34,6 @@ jobs:
             echo "  {\"name\": \"${NAME}\", \"path\": \"${PATH}\", \"size\": ${SIZE}}," >> files.json
           done
 
-          # 最後のカンマを削除（空ファイルでも安全）
           sed -i '$ s/,$//' files.json || true
 
           echo "]" >> files.json
