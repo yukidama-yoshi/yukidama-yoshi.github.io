@@ -16,13 +16,19 @@ jobs:
       - name: Generate files.json
         run: |
           echo "[" > files.json
-          find files -type f | while read FILE; do
-            SIZE=$(stat -c%s "$FILE")
+
+          # files フォルダ内のファイルを列挙
+          find files -type f | while read -r FILE; do
+            SIZE=$(stat --format=%s "$FILE")   # Ubuntu で確実に動く
             NAME=$(basename "$FILE")
             PATH="$FILE"
+
             echo "  {\"name\": \"${NAME}\", \"path\": \"${PATH}\", \"size\": ${SIZE}}," >> files.json
           done
+
+          # 最後のカンマを削除
           sed -i '$ s/,$//' files.json
+
           echo "]" >> files.json
 
       - name: Commit files.json
