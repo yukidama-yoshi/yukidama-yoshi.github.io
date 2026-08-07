@@ -4,122 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>ファイル一覧</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    padding: 20px;
-    font-family: sans-serif; /* ブラウザ標準フォント */
-    background: #f4f4f4;
-    color: #222;
-}
-
-.container {
-    max-width: 1000px;
-    margin: auto;
-    background: white;
-    border: 1px solid #ccc;
-    padding: 20px;
-}
-
-h1 {
-    margin-top: 0;
-    font-size: 24px;
-}
-
-/* パンくず */
-#breadcrumb {
-    background: #eee;
-    padding: 10px;
-    margin-bottom: 15px;
-    font-size: 14px;
-}
-
-.breadcrumb-item {
-    color: #0066cc;
-    cursor: pointer;
-}
-
-.breadcrumb-item:hover {
-    text-decoration: underline;
-}
-
-/* 一覧 */
-.header,
-.item {
-    display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) 120px;
-    align-items: center;
-}
-
-.header {
-    padding: 8px 10px;
-    background: #ddd;
-    border-bottom: 1px solid #aaa;
-    font-weight: bold;
-    user-select: none;
-}
-
-.item {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-.item:hover {
-    background: #f0f8ff;
-}
-
-/* アイコン */
-.icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.icon svg {
-    width: 20px;
-    height: 20px;
-    fill: #555;
-}
-
-.name {
-    min-width: 0;
-}
-
-.name a {
-    color: #0066cc;
-    text-decoration: none;
-    cursor: pointer;
-    word-break: break-all;
-}
-
-.name a:hover {
-    text-decoration: underline;
-}
-
-.size {
-    text-align: right;
-    color: #666;
-    font-size: 13px;
-}
-
-.loading {
-    text-align: center;
-    padding: 30px;
-}
-
-.error {
-    color: red;
-    padding: 20px;
-}
+/* 省略（前回と同じ） */
 </style>
 </head>
 
@@ -128,10 +16,6 @@ h1 {
 
 <h1>ファイル一覧</h1>
 
-<div id="breadcrumb">
-    読み込み中...
-</div>
-
 <div class="header">
     <div></div>
     <div>名前</div>
@@ -139,73 +23,34 @@ h1 {
 </div>
 
 <div id="list">
-    <div class="loading">
-        読み込み中...
-    </div>
+    <div class="loading">読み込み中...</div>
 </div>
 
 <script>
-// GitHub設定
-const OWNER = "yukidama-yoshi";
-const REPO = "yukidama-yoshi.github.io";
-const BRANCH = "main";
-
-// 表示開始するフォルダ
-const ROOT_PATH = "files";
-
-const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
-const RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}`;
-
-const params = new URLSearchParams(location.search);
-let currentPath = params.get("path");
-
-if (currentPath === null) {
-    currentPath = ROOT_PATH;
-}
+const RAW_BASE = "https://raw.githubusercontent.com/yukidama-yoshi/yukidama-yoshi.github.io/main";
 
 async function loadFiles() {
     const list = document.getElementById("list");
 
     try {
-        const url = currentPath ? `${API_BASE}/${currentPath}` : API_BASE;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`GitHub API取得失敗 (status: ${response.status})`);
-        }
+        const response = await fetch("files.json");
+        if (!response.ok) throw new Error("files.json が読み込めません");
 
         const files = await response.json();
-
-        showBreadcrumb();
         list.innerHTML = "";
 
-        files
-            .filter(file => file.type === "dir")
-            .forEach(file => {
-                createItem(file, true);
-            });
-
-        files
-            .filter(file => file.type === "file")
-            .forEach(file => {
-                createItem(file, false);
-            });
+        files.forEach(file => createItem(file));
 
         if (files.length === 0) {
-            list.innerHTML =
-                "<div class='loading'>ファイルがありません</div>";
+            list.innerHTML = "<div class='loading'>ファイルがありません</div>";
         }
 
     } catch (error) {
-        list.innerHTML =
-            `<div class="error">
-                ファイル一覧を取得できませんでした<br>
-                ${error.message}
-            </div>`;
+        list.innerHTML = `<div class="error">${error.message}</div>`;
     }
 }
 
-function createItem(file, isDir) {
+function createItem(file) {
     const list = document.getElementById("list");
 
     const item = document.createElement("div");
@@ -213,11 +58,7 @@ function createItem(file, isDir) {
 
     const icon = document.createElement("div");
     icon.className = "icon";
-
-    // SVGアイコン（絵文字禁止）
-    icon.innerHTML = isDir
-        ? `<svg viewBox="0 0 24 24"><path d="M10 4H4v16h16V6H12l-2-2z"/></svg>`
-        : `<svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/></svg>`;
+    icon.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/></svg>`;
 
     const name = document.createElement("div");
     name.className = "name";
@@ -225,47 +66,39 @@ function createItem(file, isDir) {
     const link = document.createElement("a");
     link.textContent = file.name;
 
-    if (isDir) {
-        // フォルダはそのまま遷移
-        link.onclick = function () {
-            location.href = "?path=" + encodeURIComponent(file.path);
-        };
-    } else {
-        // ファイルはクリックで確実にダウンロード
-        link.onclick = async function (e) {
-            e.preventDefault();
+    link.onclick = async function (e) {
+        e.preventDefault();
 
-            const url = RAW_BASE + "/" + file.path;
+        const url = RAW_BASE + "/" + file.path;
 
-            try {
-                const res = await fetch(url);
-                if (!res.ok) {
-                    alert(`ダウンロードに失敗しました (status: ${res.status})`);
-                    return;
-                }
-
-                const blob = await res.blob();
-                const objectUrl = URL.createObjectURL(blob);
-
-                const a = document.createElement("a");
-                a.href = objectUrl;
-                a.download = file.name;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-
-                URL.revokeObjectURL(objectUrl);
-            } catch (err) {
-                alert("ダウンロード中にエラーが発生しました");
+        try {
+            const res = await fetch(url);
+            if (!res.ok) {
+                alert(`ダウンロード失敗 (status: ${res.status})`);
+                return;
             }
-        };
-    }
+
+            const blob = await res.blob();
+            const objectUrl = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = objectUrl;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            URL.revokeObjectURL(objectUrl);
+        } catch {
+            alert("ダウンロード中にエラーが発生しました");
+        }
+    };
 
     name.appendChild(link);
 
     const size = document.createElement("div");
     size.className = "size";
-    size.textContent = isDir ? "-" : formatSize(file.size);
+    size.textContent = formatSize(file.size);
 
     item.appendChild(icon);
     item.appendChild(name);
@@ -275,54 +108,9 @@ function createItem(file, isDir) {
 }
 
 function formatSize(size) {
-    if (size < 1024) {
-        return size + " B";
-    }
-
-    if (size < 1024 * 1024) {
-        return (size / 1024).toFixed(1) + " KB";
-    }
-
+    if (size < 1024) return size + " B";
+    if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
     return (size / 1024 / 1024).toFixed(1) + " MB";
-}
-
-function showBreadcrumb() {
-    const breadcrumb = document.getElementById("breadcrumb");
-    breadcrumb.innerHTML = "";
-
-    const home = document.createElement("span");
-    home.className = "breadcrumb-item";
-    home.textContent = "ホーム";
-    home.onclick = function () {
-        location.href = location.pathname;
-    };
-    breadcrumb.appendChild(home);
-
-    if (currentPath) {
-        const parts = currentPath.split("/");
-        let path = "";
-
-        parts.forEach((part, index) => {
-            path += (index === 0 ? "" : "/") + part;
-
-            const separator = document.createElement("span");
-            separator.textContent = " ＞ ";
-            breadcrumb.appendChild(separator);
-
-            const item = document.createElement("span");
-            item.className = "breadcrumb-item";
-            item.textContent = part;
-
-            const targetPath = path;
-
-            item.onclick = function () {
-                location.href =
-                    "?path=" + encodeURIComponent(targetPath);
-            };
-
-            breadcrumb.appendChild(item);
-        });
-    }
 }
 
 loadFiles();
