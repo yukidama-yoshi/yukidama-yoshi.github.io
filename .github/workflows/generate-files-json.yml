@@ -21,13 +21,7 @@ jobs:
           echo "[" > files.json
 
           find files -type f | while read -r FILE; do
-            # GNU stat or BSD stat のどちらでも動く
-            if stat --version >/dev/null 2>&1; then
-              SIZE=$(stat --format=%s "$FILE")
-            else
-              SIZE=$(stat -f%z "$FILE")
-            fi
-
+            SIZE=$(wc -c < "$FILE")   # ← stat を使わずにサイズ取得（絶対に動く）
             NAME=$(basename "$FILE")
             PATH="$FILE"
 
