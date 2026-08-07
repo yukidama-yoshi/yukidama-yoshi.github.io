@@ -1,135 +1,39 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ダウンロード</title>
-
 <style>
-body{
-    font-family:sans-serif;
-    max-width:900px;
-    margin:auto;
-    padding:20px;
-    background:#f4f4f4;
+body{font-family:system-ui,sans-serif;background:#f6f8fa;margin:0}
+main{max-width:900px;margin:24px auto;background:#fff;border:1px solid #d0d7de;border-radius:8px}
+h1{margin:0;padding:16px;border-bottom:1px solid #d0d7de}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 14px;border-bottom:1px solid #d8dee4}
+tr:hover{background:#f6f8fa}a{text-decoration:none;color:#0969da}
+.icon{width:18px;height:18px;vertical-align:middle;margin-right:8px}
+.small{color:#656d76}
+#error{padding:16px;color:#cf222e}
+</style></head><body><main><h1>ダウンロード</h1>
+<div id="error" hidden></div>
+<table><thead><tr><th>名前</th><th>サイズ</th></tr></thead><tbody id="list"></tbody></table>
+</main><script>
+const USER="yukidama-yoshi";
+const REPO="yukidama-yoshi.github.io";
+const ROOT="files";
+const path=location.pathname.replace(/^\//,"");
+let folder=ROOT;
+if(path.startsWith(ROOT+"/")) folder=path;
+const api=`https://api.github.com/repos/${USER}/${REPO}/contents/${folder}`;
+const folderSvg='<svg class="icon" viewBox="0 0 24 24"><path fill="#d29922" d="M2 6a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/></svg>';
+const fileSvg='<svg class="icon" viewBox="0 0 24 24"><path fill="#57606a" d="M6 2h8l4 4v16H6z"/><path fill="#fff" d="M14 2v4h4"/></svg>';
+fetch(api).then(r=>r.json()).then(items=>{
+items=items.filter(i=>i.name.toLowerCase()!=="index.html");
+items.sort((a,b)=>a.type===b.type?a.name.localeCompare(b.name):a.type==="dir"?-1:1);
+const tb=document.getElementById("list");
+for(const i of items){
+const tr=document.createElement("tr");
+let size=i.type==="dir"?"-":(i.size>1048576?(i.size/1048576).toFixed(2)+" MB":i.size>1024?(i.size/1024).toFixed(1)+" KB":i.size+" B");
+let link=i.type==="dir"?`${i.path}/`:i.download_url;
+let icon=i.type==="dir"?folderSvg:fileSvg;
+tr.innerHTML=`<td>${icon}<a href="${link}">${i.name}${i.type==="dir"?"/":""}</a></td><td class="small">${size}</td>`;
+tb.appendChild(tr);
 }
-
-h1{
-    border-bottom:2px solid #0078d7;
-    padding-bottom:10px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-}
-
-th,td{
-    padding:10px;
-    border-bottom:1px solid #ddd;
-}
-
-th{
-    background:#0078d7;
-    color:white;
-}
-
-a{
-    color:#0078d7;
-    text-decoration:none;
-}
-
-a:hover{
-    text-decoration:underline;
-}
-
-.loading{
-    margin-top:20px;
-    color:#666;
-}
-
-.error{
-    color:red;
-    margin-top:20px;
-}
-</style>
-</head>
-<body>
-
-<h1>ダウンロード</h1>
-
-<div id="status" class="loading">
-読み込み中...
-</div>
-
-<table id="table" style="display:none;">
-<thead>
-<tr>
-<th>ファイル名</th>
-<th>サイズ</th>
-<th>ダウンロード</th>
-</tr>
-</thead>
-<tbody id="files"></tbody>
-</table>
-
-<script>
-
-//============================
-// ここだけ変更
-//============================
-const USER = "yukidama-yoshi";
-const REPO = "yukidama-yoshi.github.io";
-const FOLDER = "files";
-//============================
-
-const api =
-`https://api.github.com/repos/${USER}/${REPO}/contents/${FOLDER}`;
-
-fetch(api)
-.then(r=>{
-    if(!r.ok) throw new Error("取得失敗");
-    return r.json();
-})
-.then(files=>{
-
-    const tbody=document.getElementById("files");
-
-    files.forEach(file=>{
-
-        if(file.type!=="file") return;
-
-        const tr=document.createElement("tr");
-
-        const size =
-            file.size>1024*1024 ?
-            (file.size/1024/1024).toFixed(2)+" MB" :
-            file.size>1024 ?
-            (file.size/1024).toFixed(1)+" KB" :
-            file.size+" B";
-
-        tr.innerHTML=`
-<td>${file.name}</td>
-<td>${size}</td>
-<td><a href="${file.download_url}" download>ダウンロード</a></td>
-`;
-
-        tbody.appendChild(tr);
-
-    });
-
-    document.getElementById("status").style.display="none";
-    document.getElementById("table").style.display="table";
-
-})
-.catch(e=>{
-    document.getElementById("status").className="error";
-    document.getElementById("status").textContent=
-        "ファイル一覧を取得できませんでした。";
-});
-
-</script>
-
-</body>
-</html>
+}).catch(e=>{let d=document.getElementById("error");d.hidden=false;d.textContent="一覧を取得できませんでした。設定を確認してください。";});
+</script></body></html>
