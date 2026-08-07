@@ -4,10 +4,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ファイル一覧</title>
 
 <style>
-/* 省略（前回と同じ） */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: sans-serif;
+    background: #f4f4f4;
+    color: #222;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+}
+
+h1 {
+    margin-top: 0;
+    font-size: 24px;
+}
+
+/* パンくず */
+#breadcrumb {
+    background: #eee;
+    padding: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.breadcrumb-item {
+    color: #0066cc;
+    cursor: pointer;
+}
+
+.breadcrumb-item:hover {
+    text-decoration: underline;
+}
+
+/* 一覧 */
+.header,
+.item {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 120px;
+    align-items: center;
+}
+
+.header {
+    padding: 8px 10px;
+    background: #ddd;
+    border-bottom: 1px solid #aaa;
+    font-weight: bold;
+    user-select: none;
+}
+
+.item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.item:hover {
+    background: #f0f8ff;
+}
+
+/* アイコン */
+.icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #555;
+}
+
+.name {
+    min-width: 0;
+}
+
+.name a {
+    color: #0066cc;
+    text-decoration: none;
+    cursor: pointer;
+    word-break: break-all;
+}
+
+.name a:hover {
+    text-decoration: underline;
+}
+
+.size {
+    text-align: right;
+    color: #666;
+    font-size: 13px;
+}
+
+.loading {
+    text-align: center;
+    padding: 30px;
+}
+
+.error {
+    color: red;
+    padding: 20px;
+}
 </style>
 </head>
 
@@ -15,6 +127,8 @@
 <div class="container">
 
 <h1>ファイル一覧</h1>
+
+<div id="breadcrumb">ホーム</div>
 
 <div class="header">
     <div></div>
@@ -27,14 +141,16 @@
 </div>
 
 <script>
+// GitHub Pages の raw ファイル URL
 const RAW_BASE = "https://raw.githubusercontent.com/yukidama-yoshi/yukidama-yoshi.github.io/main";
 
+// files.json を読み込む
 async function loadFiles() {
     const list = document.getElementById("list");
 
     try {
         const response = await fetch("files.json");
-        if (!response.ok) throw new Error("files.json が読み込めません");
+        if (!response.ok) throw new Error("files.json を読み込めません");
 
         const files = await response.json();
         list.innerHTML = "";
@@ -50,6 +166,7 @@ async function loadFiles() {
     }
 }
 
+// ファイル行を作成
 function createItem(file) {
     const list = document.getElementById("list");
 
@@ -66,6 +183,7 @@ function createItem(file) {
     const link = document.createElement("a");
     link.textContent = file.name;
 
+    // クリックで強制ダウンロード
     link.onclick = async function (e) {
         e.preventDefault();
 
@@ -107,6 +225,7 @@ function createItem(file) {
     list.appendChild(item);
 }
 
+// サイズ表示
 function formatSize(size) {
     if (size < 1024) return size + " B";
     if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
