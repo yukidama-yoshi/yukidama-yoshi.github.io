@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ダウンロード</title>
+
+<style>
+body{
+    font-family:sans-serif;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+    background:#f4f4f4;
+}
+
+h1{
+    border-bottom:2px solid #0078d7;
+    padding-bottom:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+}
+
+th,td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+
+th{
+    background:#0078d7;
+    color:white;
+}
+
+a{
+    color:#0078d7;
+    text-decoration:none;
+}
+
+a:hover{
+    text-decoration:underline;
+}
+
+.loading{
+    margin-top:20px;
+    color:#666;
+}
+
+.error{
+    color:red;
+    margin-top:20px;
+}
+</style>
+</head>
+<body>
+
+<h1>ダウンロード</h1>
+
+<div id="status" class="loading">
+読み込み中...
+</div>
+
+<table id="table" style="display:none;">
+<thead>
+<tr>
+<th>ファイル名</th>
+<th>サイズ</th>
+<th>ダウンロード</th>
+</tr>
+</thead>
+<tbody id="files"></tbody>
+</table>
+
+<script>
+
+//============================
+// ここだけ変更
+//============================
+const USER = "yukidama-yoshi";
+const REPO = "yukidama-yoshi.github.io";
+const FOLDER = "download";
+//============================
+
+const api =
+`https://api.github.com/repos/${USER}/${REPO}/contents/${FOLDER}`;
+
+fetch(api)
+.then(r=>{
+    if(!r.ok) throw new Error("取得失敗");
+    return r.json();
+})
+.then(files=>{
+
+    const tbody=document.getElementById("files");
+
+    files.forEach(file=>{
+
+        if(file.type!=="file") return;
+
+        const tr=document.createElement("tr");
+
+        const size =
+            file.size>1024*1024 ?
+            (file.size/1024/1024).toFixed(2)+" MB" :
+            file.size>1024 ?
+            (file.size/1024).toFixed(1)+" KB" :
+            file.size+" B";
+
+        tr.innerHTML=`
+<td>${file.name}</td>
+<td>${size}</td>
+<td><a href="${file.download_url}" download>ダウンロード</a></td>
+`;
+
+        tbody.appendChild(tr);
+
+    });
+
+    document.getElementById("status").style.display="none";
+    document.getElementById("table").style.display="table";
+
+})
+.catch(e=>{
+    document.getElementById("status").className="error";
+    document.getElementById("status").textContent=
+        "ファイル一覧を取得できませんでした。";
+});
+
+</script>
+
+</body>
+</html>
