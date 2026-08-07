@@ -8,91 +8,57 @@
 
 <title>ファイル一覧</title>
 
-
 <style>
 
 * {
     box-sizing: border-box;
 }
 
-
 body {
-
     margin: 0;
     padding: 20px;
-
     font-family:
         "MS Gothic",
         "Noto Sans JP",
         sans-serif;
-
     background: #f4f4f4;
     color: #222;
-
 }
-
-
 
 .container {
-
     max-width: 1000px;
-
     margin: auto;
-
     background: white;
-
     border: 1px solid #ccc;
-
     padding: 20px;
-
 }
-
-
 
 h1 {
-
     margin-top: 0;
-
     font-size: 24px;
-
 }
-
 
 
 /* パンくず */
 
 #breadcrumb {
-
     background: #eee;
-
     padding: 10px;
-
     margin-bottom: 15px;
-
     font-size: 14px;
-
 }
-
-
 
 .breadcrumb-item {
-
     color: #0066cc;
-
     cursor: pointer;
-
 }
-
 
 .breadcrumb-item:hover {
-
     text-decoration: underline;
-
 }
 
 
-
-/* 一覧ヘッダー */
+/* 一覧 */
 
 .header,
 .item {
@@ -100,14 +66,13 @@ h1 {
     display: grid;
 
     grid-template-columns:
-        40px
+        50px
         minmax(0, 1fr)
         120px;
 
     align-items: center;
 
 }
-
 
 
 .header {
@@ -126,8 +91,6 @@ h1 {
 
 
 
-/* ファイル一覧 */
-
 .item {
 
     padding: 10px;
@@ -135,7 +98,6 @@ h1 {
     border-bottom: 1px solid #ddd;
 
 }
-
 
 
 .item:hover {
@@ -146,11 +108,15 @@ h1 {
 
 
 
+/* アイコン */
+
 .icon {
 
-    width: 35px;
+    width: 40px;
 
-    font-size: 20px;
+    font-size: 12px;
+
+    color: #555;
 
 }
 
@@ -175,7 +141,6 @@ h1 {
     word-break: break-all;
 
 }
-
 
 
 .name a:hover {
@@ -217,9 +182,7 @@ h1 {
 }
 
 
-
 </style>
-
 
 </head>
 
@@ -234,35 +197,30 @@ h1 {
 
 
 <div id="breadcrumb">
-
 読み込み中...
-
 </div>
 
 
 
 <div class="header">
 
-    <div></div>
+<div></div>
 
-    <div>名前</div>
+<div>名前</div>
 
-    <div>サイズ</div>
-
-</div>
-
-
-
-<div id="list" class="list">
-
-    <div class="loading">
-
-        読み込み中...
-
-    </div>
+<div>サイズ</div>
 
 </div>
 
+
+
+<div id="list">
+
+<div class="loading">
+読み込み中...
+</div>
+
+</div>
 <script>
 
 
@@ -270,32 +228,45 @@ h1 {
 
 const OWNER = "yukidama-yoshi";
 const REPO = "yukidama-yoshi.github.io";
-const BRANCH = "files";
+const BRANCH = "main";
+
+
+// 表示開始するフォルダ
+// 例: "files"
+// リポジトリ直下なら ""
+
+const ROOT_PATH = "files";
 
 
 
 const API_BASE =
     `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
 
+
 const RAW_BASE =
     `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}`;
 
 
 
-// 現在のパス
-
 const params =
     new URLSearchParams(location.search);
 
 
+
 let currentPath =
-    params.get("path") || "";
+    params.get("path");
+
+
+
+if(currentPath === null){
+
+    currentPath = ROOT_PATH;
+
+}
 
 
 
 
-
-// ファイル取得
 
 async function loadFiles(){
 
@@ -305,7 +276,7 @@ async function loadFiles(){
 
 
 
-    try {
+    try{
 
 
         const url =
@@ -343,25 +314,21 @@ async function loadFiles(){
 
 
 
-        // フォルダを先に表示
-
         files
         .filter(file => file.type === "dir")
         .forEach(file => {
 
-            createItem(file, true);
+            createItem(file,true);
 
         });
 
 
 
-        // ファイル表示
-
         files
         .filter(file => file.type === "file")
         .forEach(file => {
 
-            createItem(file, false);
+            createItem(file,false);
 
         });
 
@@ -376,7 +343,7 @@ async function loadFiles(){
 
 
 
-    } catch(error){
+    }catch(error){
 
 
         list.innerHTML =
@@ -385,7 +352,6 @@ async function loadFiles(){
         ファイル一覧を取得できませんでした<br>
         ${error.message}
         </div>`;
-
 
     }
 
@@ -398,9 +364,7 @@ async function loadFiles(){
 
 
 
-// 一覧1行作成
-
-function createItem(file, isDir){
+function createItem(file,isDir){
 
 
     const list =
@@ -427,7 +391,7 @@ function createItem(file, isDir){
 
 
     icon.textContent =
-        isDir ? "📁" : "📄";
+        isDir ? "DIR" : "FILE";
 
 
 
@@ -462,38 +426,29 @@ function createItem(file, isDir){
 
 
             location.href =
-
-            "?path=" +
-
-            encodeURIComponent(file.path);
+                "?path=" +
+                encodeURIComponent(file.path);
 
 
         };
 
 
 
-    } else {
-
+    }else{
 
 
         link.href =
-
-        RAW_BASE +
-
-        "/" +
-
-        file.path;
+            RAW_BASE +
+            "/" +
+            file.path;
 
 
-
-        // 直接ダウンロード
 
         link.download =
             file.name;
 
 
     }
-
 
 
 
@@ -515,14 +470,9 @@ function createItem(file, isDir){
 
 
     size.textContent =
-
         isDir
-
         ? "-"
-
         : formatSize(file.size);
-
-
 
 
 
@@ -536,9 +486,7 @@ function createItem(file, isDir){
 
 
 
-
     list.appendChild(item);
-
 
 
 }
@@ -548,7 +496,6 @@ function createItem(file, isDir){
 
 
 
-// サイズ変換
 
 function formatSize(size){
 
@@ -563,33 +510,24 @@ function formatSize(size){
 
     if(size < 1024 * 1024){
 
-        return
-
-        (size / 1024).toFixed(1)
-
+        return (size / 1024).toFixed(1)
         + " KB";
 
     }
 
 
 
-    return
-
-    (size / 1024 / 1024).toFixed(1)
-
+    return (size / 1024 / 1024).toFixed(1)
     + " MB";
 
 
 }
-
-// パンくず表示
 
 function showBreadcrumb(){
 
 
     const breadcrumb =
         document.getElementById("breadcrumb");
-
 
 
     breadcrumb.innerHTML = "";
@@ -625,9 +563,7 @@ function showBreadcrumb(){
 
 
 
-
     if(currentPath){
-
 
 
         const parts =
@@ -639,16 +575,12 @@ function showBreadcrumb(){
 
 
 
-        parts.forEach((part, index)=>{
+        parts.forEach((part,index)=>{
 
 
             path +=
-
-            (index === 0 ? "" : "/")
-
-            + part;
-
-
+                (index === 0 ? "" : "/")
+                + part;
 
 
 
@@ -660,8 +592,8 @@ function showBreadcrumb(){
                 " ＞ ";
 
 
-            breadcrumb.appendChild(separator);
 
+            breadcrumb.appendChild(separator);
 
 
 
@@ -682,30 +614,20 @@ function showBreadcrumb(){
 
 
 
-
-
-            const target =
+            const targetPath =
                 path;
-
-
 
 
 
             item.onclick = function(){
 
 
-
                 location.href =
-
-                "?path=" +
-
-                encodeURIComponent(target);
-
+                    "?path=" +
+                    encodeURIComponent(targetPath);
 
 
             };
-
-
 
 
 
@@ -725,16 +647,13 @@ function showBreadcrumb(){
 
 
 
-
-
-// 起動
-
 loadFiles();
-
 
 
 </script>
 
+
+</div>
 
 </body>
 
