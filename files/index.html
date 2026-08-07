@@ -171,7 +171,7 @@ async function loadFiles() {
         const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error("GitHub API取得失敗");
+            throw new Error(`GitHub API取得失敗 (status: ${response.status})`);
         }
 
         const files = await response.json();
@@ -231,18 +231,33 @@ function createItem(file, isDir) {
             location.href = "?path=" + encodeURIComponent(file.path);
         };
     } else {
-        // ファイルはクリックで直接ダウンロード
-        link.onclick = function (e) {
+        // ファイルはクリックで確実にダウンロード
+        link.onclick = async function (e) {
             e.preventDefault();
 
             const url = RAW_BASE + "/" + file.path;
 
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = file.name;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
+            try {
+                const res = await fetch(url);
+                if (!res.ok) {
+                    alert(`ダウンロードに失敗しました (status: ${res.status})`);
+                    return;
+                }
+
+                const blob = await res.blob();
+                const objectUrl = URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+                a.href = objectUrl;
+                a.download = file.name;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                URL.revokeObjectURL(objectUrl);
+            } catch (err) {
+                alert("ダウンロード中にエラーが発生しました");
+            }
         };
     }
 
