@@ -24,35 +24,35 @@
       ゆきだまのホームページ掲示板です。<br>
       ご自由に投稿してください。
     </p>
-<div id="reply-box" style="display:none; margin-bottom:15px; padding:10px; border:1px solid #999; background:#ffffe0;">
-  <strong>返信先：</strong>
-  <span id="reply-target-text"></span>
 
-  <button id="cancel-reply" style="margin-left:15px;">
-    返信をやめる
-  </button>
-</div>
 
+    <!-- 返信先表示 -->
+    <div id="reply-box" style="display:none;">
+      <strong>返信先：</strong>
+      <span id="reply-target-text"></span>
+
+      <button id="cancel-reply" type="button">
+        返信をやめる
+      </button>
+    </div>
+
+
+    <!-- 投稿フォーム -->
     <div class="bbs-form">
 
       <h2>投稿</h2>
 
-      <label>
-        名前：
+      <div class="form-item">
+        <label for="name">名前：</label>
         <input type="text" id="name">
-      </label>
+      </div>
 
-      <br><br>
-
-      <label>
-        本文：
-        <br>
+      <div class="form-item">
+        <label for="message">本文：</label>
         <textarea id="message"></textarea>
-      </label>
+      </div>
 
-      <br>
-
-      <button id="post-button">
+      <button id="post-button" type="button">
         投稿する
       </button>
 
@@ -76,60 +76,60 @@
   </div>
 
 
-<script src="js/load-sidebar.js"></script>
+  <script src="js/load-sidebar.js"></script>
 
-<script src="js/bbs.js"></script>
-
-
-<script>
-/* サイドバーリサイズ機能 */
-
-const resizer = document.getElementById('resizer');
-const sidebarEl = document.getElementById('sidebar');
-
-let isResizing = false;
-
-resizer.addEventListener('mousedown', () => {
-  isResizing = true;
-  document.body.style.cursor = 'ew-resize';
-});
+  <script src="js/bbs.js"></script>
 
 
-document.addEventListener('mousemove', (e) => {
+  <script>
+    /* サイドバーリサイズ機能 */
 
-  if (!isResizing) return;
+    const resizer = document.getElementById('resizer');
+    const sidebarEl = document.getElementById('sidebar');
 
-  if (e.clientX > 100 && e.clientX < 600) {
-    sidebarEl.style.width = e.clientX + 'px';
-  }
+    let isResizing = false;
 
-});
-
-
-document.addEventListener('mouseup', () => {
-
-  isResizing = false;
-  document.body.style.cursor = 'default';
-
-});
+    resizer.addEventListener('mousedown', () => {
+      isResizing = true;
+      document.body.style.cursor = 'ew-resize';
+    });
 
 
-/* 管理者モード */
+    document.addEventListener('mousemove', (e) => {
 
-const urlParams = new URLSearchParams(window.location.search);
+      if (!isResizing) return;
 
-if (urlParams.get('admin') === '1') {
+      if (e.clientX > 100 && e.clientX < 600) {
+        sidebarEl.style.width = e.clientX + 'px';
+      }
 
-  localStorage.setItem(
-    'is_admin_yukidama',
-    'true'
-  );
+    });
 
-  alert("管理者モードを有効にしました。");
 
-}
+    document.addEventListener('mouseup', () => {
 
-</script>
+      isResizing = false;
+      document.body.style.cursor = 'default';
+
+    });
+
+
+    /* 管理者モード */
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('admin') === '1') {
+
+      localStorage.setItem(
+        'is_admin_yukidama',
+        'true'
+      );
+
+      alert("管理者モードを有効にしました。");
+
+    }
+
+  </script>
 
 </body>
 </html>
