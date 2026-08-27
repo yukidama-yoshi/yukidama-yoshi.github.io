@@ -7,118 +7,367 @@
 
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/bbs.css">
+
+  <style>
+
+    /* =========================================
+       認証確認中
+       ========================================= */
+
+    #page-content {
+      display: none;
+    }
+
+
+    #loading {
+      padding: 40px;
+      text-align: left;
+    }
+
+
+    /* =========================================
+       管理画面
+       ========================================= */
+
+    .admin-panel {
+      max-width: 800px;
+    }
+
+
+    .admin-box {
+      border: 1px solid #ccc;
+      background: rgba(255,255,255,0.8);
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+
+    .admin-box h2 {
+      font-size: 18px;
+      margin-top: 0;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+
+    /* =========================================
+       統計
+       ========================================= */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(2, minmax(200px, 1fr));
+
+      gap: 10px;
+    }
+
+
+    .stat-item {
+      border: 1px solid #ccc;
+      background: #fff;
+      padding: 10px;
+    }
+
+
+    .stat-label {
+      font-size: 13px;
+      color: #555;
+    }
+
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: bold;
+      margin-top: 3px;
+    }
+
+
+    .stat-unit {
+      font-size: 13px;
+      font-weight: normal;
+    }
+
+
+    /* =========================================
+       ボタン
+       ========================================= */
+
+    .admin-button {
+      cursor: pointer;
+      padding: 5px 12px;
+      font-family:
+        "MS Gothic",
+        "Osaka",
+        monospace;
+    }
+
+
+    .admin-button:disabled {
+      cursor: default;
+    }
+
+
+    #stats-message {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #555;
+    }
+
+
+    /* =========================================
+       スマホなど
+       ========================================= */
+
+    @media (max-width: 600px) {
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+  </style>
+
 </head>
+
 
 <body>
 
-  <div class="version-tag">Ver 1.6</div>
 
-  <nav class="sidebar" id="sidebar"></nav>
-
-  <div class="resizer" id="resizer"></div>
-
-  <div class="main">
-
-    <h1>管理者パネル</h1>
+  <div class="version-tag">
+    Ver 1.6
+  </div>
 
 
-    <!-- =========================================
-         ログイン画面
-         ========================================= -->
-
-    <div id="login-area">
-
-      <p>
-        掲示板の管理者用ページです。
-      </p>
+  <nav
+    class="sidebar"
+    id="sidebar"
+  ></nav>
 
 
-      <div class="bbs-form">
+  <div
+    class="resizer"
+    id="resizer"
+  ></div>
 
-        <h2>管理者ログイン</h2>
+
+  <!-- =========================================
+       認証確認中
+       ========================================= -->
+
+  <div id="loading">
+
+    管理者認証を確認しています...
+
+  </div>
 
 
-        <div class="admin-login-field">
 
-          <label for="username">
-            ユーザー名：
-          </label>
+  <!-- =========================================
+       ページ本体
+       ========================================= -->
 
-          <input
-            type="text"
-            id="username"
-            autocomplete="username"
-          >
+  <div
+    class="main"
+    id="page-content"
+  >
+
+    <h1>
+      管理者パネル
+    </h1>
+
+
+    <div class="admin-panel">
+
+
+      <!-- =====================================
+           統計情報
+           ===================================== -->
+
+      <div class="admin-box">
+
+        <h2>
+          掲示板統計
+        </h2>
+
+
+        <div class="stats-grid">
+
+
+          <div class="stat-item">
+
+            <div class="stat-label">
+              総投稿数
+            </div>
+
+            <div
+              class="stat-value"
+              id="total-posts"
+            >
+              -
+            </div>
+
+          </div>
+
+
+          <div class="stat-item">
+
+            <div class="stat-label">
+              親投稿数
+            </div>
+
+            <div
+              class="stat-value"
+              id="parent-posts"
+            >
+              -
+            </div>
+
+          </div>
+
+
+          <div class="stat-item">
+
+            <div class="stat-label">
+              返信数
+            </div>
+
+            <div
+              class="stat-value"
+              id="replies"
+            >
+              -
+            </div>
+
+          </div>
+
+
+          <div class="stat-item">
+
+            <div class="stat-label">
+              総文字数
+            </div>
+
+            <div
+              class="stat-value"
+              id="total-characters"
+            >
+              -
+              <span class="stat-unit">
+                文字
+              </span>
+            </div>
+
+          </div>
+
+
+          <div class="stat-item">
+
+            <div class="stat-label">
+              平均文字数
+            </div>
+
+            <div
+              class="stat-value"
+              id="average-characters"
+            >
+              -
+              <span class="stat-unit">
+                文字
+              </span>
+            </div>
+
+          </div>
+
+
+          <div class="stat-item">
+
+            <div class="stat-label">
+              今日の投稿数
+            </div>
+
+            <div
+              class="stat-value"
+              id="today-posts"
+            >
+              -
+            </div>
+
+          </div>
+
+
+          <div class="stat-item">
+
+            <div class="stat-label">
+              今月の投稿数
+            </div>
+
+            <div
+              class="stat-value"
+              id="month-posts"
+            >
+              -
+            </div>
+
+          </div>
+
 
         </div>
 
 
-        <br>
+        <div style="margin-top:15px;">
 
-
-        <div class="admin-login-field">
-
-          <label for="password">
-            パスワード：
-          </label>
-
-          <input
-            type="password"
-            id="password"
-            autocomplete="current-password"
+          <button
+            id="reload-stats"
+            class="admin-button"
           >
+            統計を更新
+          </button>
 
         </div>
 
 
-        <br>
-
-
-        <button id="login-button">
-          ログイン
-        </button>
-
-
-        <p
-          id="login-message"
+        <div
+          id="stats-message"
           style="display:none;"
-        ></p>
+        ></div>
+
 
       </div>
 
-    </div>
 
 
+      <!-- =====================================
+           管理メニュー
+           ===================================== -->
 
-    <!-- =========================================
-         管理画面
-         ========================================= -->
+      <div class="admin-box">
 
-    <div
-      id="admin-area"
-      style="display:none;"
-    >
-
-      <p>
-        管理者としてログインしています。
-      </p>
-
-
-      <div class="bbs-form">
-
-        <h2>管理者メニュー</h2>
+        <h2>
+          管理メニュー
+        </h2>
 
 
         <p>
-          現在は認証機能のみ実装されています。
+          現在は統計情報のみ利用できます。
         </p>
 
 
-        <button id="logout-button">
+        <p>
+          投稿管理・削除機能は後から追加します。
+        </p>
+
+
+        <button
+          id="logout-button"
+          class="admin-button"
+        >
           ログアウト
         </button>
 
       </div>
+
 
     </div>
 
@@ -137,7 +386,8 @@
     <footer>
 
       <p>
-        © 2026 ゆきだま. All rights reserved.
+        © 2026 ゆきだま.
+        All rights reserved.
       </p>
 
     </footer>
@@ -150,6 +400,7 @@
 
 
   <script>
+
     /* =====================================================
        設定
        ===================================================== */
@@ -160,36 +411,6 @@
 
     const SESSION_KEY =
       "kziban_admin_session";
-
-
-
-    /* =====================================================
-       要素取得
-       ===================================================== */
-
-    const loginArea =
-      document.getElementById("login-area");
-
-    const adminArea =
-      document.getElementById("admin-area");
-
-
-    const usernameInput =
-      document.getElementById("username");
-
-    const passwordInput =
-      document.getElementById("password");
-
-
-    const loginButton =
-      document.getElementById("login-button");
-
-    const logoutButton =
-      document.getElementById("logout-button");
-
-
-    const loginMessage =
-      document.getElementById("login-message");
 
 
 
@@ -208,39 +429,7 @@
 
 
     /* =====================================================
-       ログイン画面表示
-       ===================================================== */
-
-    function showLogin() {
-
-      loginArea.style.display =
-        "block";
-
-      adminArea.style.display =
-        "none";
-
-    }
-
-
-
-    /* =====================================================
-       管理画面表示
-       ===================================================== */
-
-    function showAdmin() {
-
-      loginArea.style.display =
-        "none";
-
-      adminArea.style.display =
-        "block";
-
-    }
-
-
-
-    /* =====================================================
-       セッション確認
+       認証確認
        ===================================================== */
 
     async function checkSession() {
@@ -251,9 +440,9 @@
 
       if (!session) {
 
-        showLogin();
+        showLoginRequired();
 
-        return;
+        return false;
 
       }
 
@@ -281,9 +470,9 @@
             SESSION_KEY
           );
 
-          showLogin();
+          showLoginRequired();
 
-          return;
+          return false;
 
         }
 
@@ -293,27 +482,44 @@
 
 
         if (
-          result.authenticated === true
+          result.authenticated !== true
         ) {
-
-          showAdmin();
-
-        } else {
 
           sessionStorage.removeItem(
             SESSION_KEY
           );
 
-          showLogin();
+          showLoginRequired();
+
+          return false;
 
         }
+
+
+        /*
+         * 認証成功
+         */
+
+        document.getElementById(
+          "loading"
+        ).style.display = "none";
+
+
+        document.getElementById(
+          "page-content"
+        ).style.display = "block";
+
+
+        return true;
 
 
       } catch (error) {
 
         console.error(error);
 
-        showLogin();
+        showLoginRequired();
+
+        return false;
 
       }
 
@@ -322,162 +528,207 @@
 
 
     /* =====================================================
-       ログイン
+       未ログイン時
        ===================================================== */
 
-    loginButton.addEventListener(
-      "click",
-      async () => {
+    function showLoginRequired() {
 
-        const username =
-          usernameInput.value.trim();
-
-        const password =
-          passwordInput.value;
+      document.getElementById(
+        "loading"
+      ).textContent =
+        "管理者ログインが必要です。";
 
 
-        loginMessage.style.display =
-          "none";
+      /*
+       * 少し待ってからログインページへ
+       */
+
+      setTimeout(() => {
+
+        window.location.href =
+          "ykadm_panel_1xyk5d.html";
+
+      }, 1000);
+
+    }
+
+
+
+    /* =====================================================
+       統計取得
+       ===================================================== */
+
+    async function loadStats() {
+
+      const session =
+        getSession();
+
+
+      if (!session) {
+
+        return;
+
+      }
+
+
+      const message =
+        document.getElementById(
+          "stats-message"
+        );
+
+
+      const reloadButton =
+        document.getElementById(
+          "reload-stats"
+        );
+
+
+      message.style.display =
+        "none";
+
+
+      reloadButton.disabled =
+        true;
+
+      reloadButton.textContent =
+        "読み込み中...";
+
+
+      try {
+
+        const response =
+          await fetch(
+            API_URL +
+            "/api/admin/stats",
+            {
+              method: "GET",
+
+              headers: {
+                "Authorization":
+                  "Bearer " + session
+              }
+            }
+          );
 
 
         if (
-          !username ||
-          !password
+          response.status === 401
         ) {
 
-          loginMessage.textContent =
-            "ユーザー名とパスワードを入力してください。";
+          sessionStorage.removeItem(
+            SESSION_KEY
+          );
 
-          loginMessage.style.display =
-            "block";
+          window.location.reload();
 
           return;
 
         }
 
 
-        loginButton.disabled =
-          true;
+        if (!response.ok) {
 
-        loginButton.textContent =
-          "ログイン中...";
-
-
-        try {
-
-          const response =
-            await fetch(
-              API_URL +
-              "/api/admin/login",
-              {
-                method: "POST",
-
-                headers: {
-                  "Content-Type":
-                    "application/json"
-                },
-
-                body:
-                  JSON.stringify({
-                    username:
-                      username,
-
-                    password:
-                      password
-                  })
-              }
-            );
-
-
-          const result =
-            await response.json();
-
-
-          if (
-            response.ok &&
-            result.success === true &&
-            result.session
-          ) {
-
-            /*
-             * セッションIDを保存
-             */
-
-            sessionStorage.setItem(
-              SESSION_KEY,
-              result.session
-            );
-
-
-            /*
-             * 入力欄をクリア
-             */
-
-            passwordInput.value =
-              "";
-
-
-            /*
-             * 管理画面へ
-             */
-
-            showAdmin();
-
-
-            return;
-
-          }
-
-
-          loginMessage.textContent =
-            "ユーザー名またはパスワードが違います。";
-
-          loginMessage.style.display =
-            "block";
-
-
-        } catch (error) {
-
-          console.error(error);
-
-          loginMessage.textContent =
-            "通信エラーが発生しました。";
-
-          loginMessage.style.display =
-            "block";
+          throw new Error(
+            "HTTP " +
+            response.status
+          );
 
         }
 
 
-        loginButton.disabled =
-          false;
+        const stats =
+          await response.json();
 
-        loginButton.textContent =
-          "ログイン";
+
+        /*
+         * 数値表示
+         */
+
+        document.getElementById(
+          "total-posts"
+        ).textContent =
+          stats.total_posts.toLocaleString(
+            "ja-JP"
+          );
+
+
+        document.getElementById(
+          "parent-posts"
+        ).textContent =
+          stats.parent_posts.toLocaleString(
+            "ja-JP"
+          );
+
+
+        document.getElementById(
+          "replies"
+        ).textContent =
+          stats.replies.toLocaleString(
+            "ja-JP"
+          );
+
+
+        document.getElementById(
+          "total-characters"
+        ).innerHTML =
+          stats.total_characters.toLocaleString(
+            "ja-JP"
+          ) +
+          '<span class="stat-unit">文字</span>';
+
+
+        document.getElementById(
+          "average-characters"
+        ).innerHTML =
+          Number(
+            stats.average_characters
+          ).toFixed(1) +
+          '<span class="stat-unit">文字</span>';
+
+
+        document.getElementById(
+          "today-posts"
+        ).textContent =
+          stats.today_posts.toLocaleString(
+            "ja-JP"
+          );
+
+
+        document.getElementById(
+          "month-posts"
+        ).textContent =
+          stats.this_month_posts.toLocaleString(
+            "ja-JP"
+          );
+
+
+        message.textContent =
+          "更新しました。";
+
+        message.style.display =
+          "block";
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "統計情報の取得に失敗しました。";
+
+        message.style.display =
+          "block";
 
       }
-    );
 
 
+      reloadButton.disabled =
+        false;
 
-    /* =====================================================
-       Enterキー
-       ===================================================== */
+      reloadButton.textContent =
+        "統計を更新";
 
-    passwordInput.addEventListener(
-      "keydown",
-      (event) => {
-
-        if (
-          event.key === "Enter"
-        ) {
-
-          loginButton.click();
-
-        }
-
-      }
-    );
+    }
 
 
 
@@ -485,53 +736,64 @@
        ログアウト
        ===================================================== */
 
-    logoutButton.addEventListener(
-      "click",
-      async () => {
+    document
+      .getElementById("logout-button")
+      .addEventListener(
+        "click",
+        async () => {
 
-        const session =
-          getSession();
+          const session =
+            getSession();
 
 
-        if (session) {
+          if (session) {
 
-          try {
+            try {
 
-            await fetch(
-              API_URL +
-              "/api/admin/logout",
-              {
-                method: "POST",
+              await fetch(
+                API_URL +
+                "/api/admin/logout",
+                {
+                  method: "POST",
 
-                headers: {
-                  "Authorization":
-                    "Bearer " + session
+                  headers: {
+                    "Authorization":
+                      "Bearer " + session
+                  }
                 }
-              }
-            );
+              );
 
-          } catch (error) {
+            } catch (error) {
 
-            console.error(error);
+              console.error(error);
+
+            }
 
           }
 
+
+          sessionStorage.removeItem(
+            SESSION_KEY
+          );
+
+
+          window.location.reload();
+
         }
+      );
 
 
-        /*
-         * ブラウザからセッションを削除
-         */
 
-        sessionStorage.removeItem(
-          SESSION_KEY
-        );
+    /* =====================================================
+       統計更新ボタン
+       ===================================================== */
 
-
-        showLogin();
-
-      }
-    );
+    document
+      .getElementById("reload-stats")
+      .addEventListener(
+        "click",
+        loadStats
+      );
 
 
 
@@ -543,6 +805,7 @@
       document.getElementById(
         "resizer"
       );
+
 
     const sidebarEl =
       document.getElementById(
@@ -612,9 +875,28 @@
        初期処理
        ===================================================== */
 
-    checkSession();
+    async function initialize() {
+
+      const authenticated =
+        await checkSession();
+
+
+      if (!authenticated) {
+
+        return;
+
+      }
+
+
+      await loadStats();
+
+    }
+
+
+    initialize();
 
   </script>
+
 
 </body>
 </html>
