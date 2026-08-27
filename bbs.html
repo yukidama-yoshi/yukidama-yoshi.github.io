@@ -3,91 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <title>掲示板 - ゆきだまのホームページ</title>
-
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/bbs.css">
+  <style>
+    /* 文字数カウンター */
+    .char-count {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+      text-align: right;
+    }
+    .char-count.over {
+      color: #c00;
+      font-weight: bold;
+    }
+    .form-item {
+      margin-bottom: 14px;
+    }
+    .form-item label {
+      display: block;
+      margin-bottom: 4px;
+    }
+    .form-item input[type="text"],
+    .form-item textarea {
+      width: 100%;
+      max-width: 500px;
+      box-sizing: border-box;
+      padding: 6px;
+      font-family: "MS Gothic", "Osaka", sans-serif;
+    }
+    .form-item textarea {
+      height: 120px;
+      resize: vertical;
+    }
+  </style>
 </head>
-
 <body>
-
-  <div class="version-tag">Ver 1.6</div>
-
+  <div class="version-tag">Ver 1.7</div>
   <nav class="sidebar" id="sidebar"></nav>
-
   <div class="resizer" id="resizer"></div>
-
   <div class="main">
-
     <h1>掲示板</h1>
-
     <p>
       ゆきだまのホームページ 掲示板です。<br>
       ご自由に投稿してください。キリ番報告等もこちらで。<br>
       ※誰かを傷つける投稿や法令に違反するような投稿は絶対に行わないでください。
     </p>
 
-
     <!-- 返信先表示 -->
     <div id="reply-box" style="display:none;">
       <strong>返信先：</strong>
       <span id="reply-target-text"></span>
-
       <button id="cancel-reply" type="button">
         返信をやめる
       </button>
     </div>
 
-
     <!-- 投稿フォーム -->
     <div class="bbs-form">
-
       <h2>投稿</h2>
 
       <div class="form-item">
         <label for="name">名前：</label>
-        <input type="text" id="name">
+        <input
+          type="text"
+          id="name"
+          maxlength="30"
+          autocomplete="nickname"
+        >
+        <div class="char-count" id="name-count">0 / 30</div>
       </div>
 
       <div class="form-item">
         <label for="message">本文：</label>
-        <textarea id="message"></textarea>
+        <textarea
+          id="message"
+          maxlength="500"
+        ></textarea>
+        <div class="char-count" id="message-count">0 / 500</div>
       </div>
 
       <button id="post-button" type="button">
         投稿する
       </button>
-
     </div>
-
 
     <hr>
 
-
     <h2>投稿一覧</h2>
-
     <div id="posts">
       読み込み中...
     </div>
 
-
     <footer>
       <p>© 2026 ゆきだま. All rights reserved.</p>
     </footer>
-
   </div>
 
-
   <script src="js/load-sidebar.js"></script>
-
   <script src="js/bbs.js"></script>
 
-
   <script>
-    /* サイドバーリサイズ機能 */
+    /* =====================================================
+       リアルタイム文字数チェック
+       ===================================================== */
 
+    const nameInput = document.getElementById("name");
+    const messageInput = document.getElementById("message");
+    const nameCount = document.getElementById("name-count");
+    const messageCount = document.getElementById("message-count");
+
+    function updateCount(input, counter, max) {
+      const length = input.value.length;
+      counter.textContent = length + " / " + max;
+
+      if (length > max) {
+        counter.classList.add("over");
+      } else {
+        counter.classList.remove("over");
+      }
+    }
+
+    nameInput.addEventListener("input", () => {
+      updateCount(nameInput, nameCount, 30);
+    });
+
+    messageInput.addEventListener("input", () => {
+      updateCount(messageInput, messageCount, 500);
+    });
+
+    // 初期表示
+    updateCount(nameInput, nameCount, 30);
+    updateCount(messageInput, messageCount, 500);
+
+
+    /* =====================================================
+       サイドバーリサイズ機能
+       ===================================================== */
     const resizer = document.getElementById('resizer');
     const sidebarEl = document.getElementById('sidebar');
-
     let isResizing = false;
 
     resizer.addEventListener('mousedown', () => {
@@ -95,42 +149,30 @@
       document.body.style.cursor = 'ew-resize';
     });
 
-
     document.addEventListener('mousemove', (e) => {
-
       if (!isResizing) return;
-
       if (e.clientX > 100 && e.clientX < 600) {
         sidebarEl.style.width = e.clientX + 'px';
       }
-
     });
-
 
     document.addEventListener('mouseup', () => {
-
       isResizing = false;
       document.body.style.cursor = 'default';
-
     });
 
 
-    /* 管理者モード */
-
+    /* =====================================================
+       管理者モード
+       ===================================================== */
     const urlParams = new URLSearchParams(window.location.search);
-
     if (urlParams.get('admin') === '1') {
-
       localStorage.setItem(
         'is_admin_yukidama',
         'true'
       );
-
       alert("管理者モードを有効にしました。\n 注：実際に管理者向けの機能を使うには、管理者パスワードでのログインが必要です。");
-
     }
-
   </script>
-
 </body>
 </html>
