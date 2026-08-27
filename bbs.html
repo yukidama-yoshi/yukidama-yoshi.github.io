@@ -17,6 +17,14 @@
       color: #c00;
       font-weight: bold;
     }
+
+    /* 超過時の入力欄強調 */
+    .form-item input.over,
+    .form-item textarea.over {
+      border-color: #c00;
+      background-color: #fff5f5;
+    }
+
     .form-item {
       margin-bottom: 14px;
     }
@@ -31,15 +39,22 @@
       box-sizing: border-box;
       padding: 6px;
       font-family: "MS Gothic", "Osaka", sans-serif;
+      border: 1px solid #aaa;
     }
     .form-item textarea {
       height: 120px;
       resize: vertical;
     }
+
+    /* 投稿ボタン無効時 */
+    #post-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
-  <div class="version-tag">Ver 1.7</div>
+  <div class="version-tag">Ver 1.8</div>
   <nav class="sidebar" id="sidebar"></nav>
   <div class="resizer" id="resizer"></div>
   <div class="main">
@@ -68,7 +83,6 @@
         <input
           type="text"
           id="name"
-          maxlength="30"
           autocomplete="nickname"
         >
         <div class="char-count" id="name-count">0 / 30</div>
@@ -76,10 +90,7 @@
 
       <div class="form-item">
         <label for="message">本文：</label>
-        <textarea
-          id="message"
-          maxlength="500"
-        ></textarea>
+        <textarea id="message"></textarea>
         <div class="char-count" id="message-count">0 / 500</div>
       </div>
 
@@ -105,13 +116,17 @@
 
   <script>
     /* =====================================================
-       リアルタイム文字数チェック
+       リアルタイム文字数チェック（強制カットなし）
        ===================================================== */
 
-    const nameInput = document.getElementById("name");
-    const messageInput = document.getElementById("message");
-    const nameCount = document.getElementById("name-count");
-    const messageCount = document.getElementById("message-count");
+    const nameInput     = document.getElementById("name");
+    const messageInput  = document.getElementById("message");
+    const nameCount     = document.getElementById("name-count");
+    const messageCount  = document.getElementById("message-count");
+    const postButton    = document.getElementById("post-button");
+
+    const NAME_MAX    = 30;
+    const MESSAGE_MAX = 500;
 
     function updateCount(input, counter, max) {
       const length = input.value.length;
@@ -119,22 +134,35 @@
 
       if (length > max) {
         counter.classList.add("over");
+        input.classList.add("over");
+        counter.textContent = length + " / " + max + "（文字数超過）";
       } else {
         counter.classList.remove("over");
+        input.classList.remove("over");
       }
+
+      // どちらかが超過していたら投稿ボタンを無効化
+      updatePostButtonState();
+    }
+
+    function updatePostButtonState() {
+      const nameOver    = nameInput.value.length > NAME_MAX;
+      const messageOver = messageInput.value.length > MESSAGE_MAX;
+
+      postButton.disabled = nameOver || messageOver;
     }
 
     nameInput.addEventListener("input", () => {
-      updateCount(nameInput, nameCount, 30);
+      updateCount(nameInput, nameCount, NAME_MAX);
     });
 
     messageInput.addEventListener("input", () => {
-      updateCount(messageInput, messageCount, 500);
+      updateCount(messageInput, messageCount, MESSAGE_MAX);
     });
 
     // 初期表示
-    updateCount(nameInput, nameCount, 30);
-    updateCount(messageInput, messageCount, 500);
+    updateCount(nameInput, nameCount, NAME_MAX);
+    updateCount(messageInput, messageCount, MESSAGE_MAX);
 
 
     /* =====================================================
