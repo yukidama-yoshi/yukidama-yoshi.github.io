@@ -21,7 +21,6 @@
 
     #loading {
       padding: 40px;
-      text-align: left;
     }
 
 
@@ -30,7 +29,7 @@
        ========================================= */
 
     .admin-panel {
-      max-width: 800px;
+      max-width: 900px;
     }
 
 
@@ -108,7 +107,64 @@
     }
 
 
-    #stats-message {
+    /* =========================================
+       投稿管理
+       ========================================= */
+
+    .post-filter {
+      margin-bottom: 15px;
+    }
+
+
+    .post-filter button {
+      margin-right: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+
+
+    .admin-post {
+      border-bottom: 1px dotted #999;
+      padding: 15px 0;
+    }
+
+
+    .admin-post-header {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+
+    .admin-post-message {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      margin-bottom: 10px;
+    }
+
+
+    .admin-post-info {
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 8px;
+    }
+
+
+    .deleted-post {
+      opacity: 0.65;
+      background: #f5f5f5;
+      padding: 10px;
+    }
+
+
+    .deleted-label {
+      color: #a00;
+      font-weight: bold;
+    }
+
+
+    #stats-message,
+    #posts-message {
       margin-top: 10px;
       font-size: 13px;
       color: #555;
@@ -116,7 +172,7 @@
 
 
     /* =========================================
-       スマホなど
+       スマホ
        ========================================= */
 
     @media (max-width: 600px) {
@@ -152,6 +208,7 @@
   ></div>
 
 
+
   <!-- =========================================
        認証確認中
        ========================================= -->
@@ -165,7 +222,7 @@
 
 
   <!-- =========================================
-       ページ本体
+       管理画面本体
        ========================================= -->
 
   <div
@@ -176,6 +233,12 @@
     <h1>
       管理者パネル
     </h1>
+
+
+    <p>
+      掲示板の管理を行います。
+    </p>
+
 
 
     <div class="admin-panel">
@@ -254,9 +317,6 @@
               id="total-characters"
             >
               -
-              <span class="stat-unit">
-                文字
-              </span>
             </div>
 
           </div>
@@ -273,9 +333,6 @@
               id="average-characters"
             >
               -
-              <span class="stat-unit">
-                文字
-              </span>
             </div>
 
           </div>
@@ -313,6 +370,22 @@
           </div>
 
 
+          <div class="stat-item">
+
+            <div class="stat-label">
+              投稿データ容量（概算）
+            </div>
+
+            <div
+              class="stat-value"
+              id="estimated-size"
+            >
+              -
+            </div>
+
+          </div>
+
+
         </div>
 
 
@@ -333,30 +406,72 @@
           style="display:none;"
         ></div>
 
+      </div>
+
+
+
+      <!-- =====================================
+           投稿管理
+           ===================================== -->
+
+      <div class="admin-box">
+
+        <h2>
+          投稿管理
+        </h2>
+
+
+        <div class="post-filter">
+
+          <button
+            class="admin-button"
+            data-filter="all"
+          >
+            すべて
+          </button>
+
+          <button
+            class="admin-button"
+            data-filter="active"
+          >
+            公開中
+          </button>
+
+          <button
+            class="admin-button"
+            data-filter="deleted"
+          >
+            削除済み
+          </button>
+
+        </div>
+
+
+        <div
+          id="admin-posts"
+        >
+          読み込み中...
+        </div>
+
+
+        <div
+          id="posts-message"
+          style="display:none;"
+        ></div>
 
       </div>
 
 
 
       <!-- =====================================
-           管理メニュー
+           管理者操作
            ===================================== -->
 
       <div class="admin-box">
 
         <h2>
-          管理メニュー
+          管理者操作
         </h2>
-
-
-        <p>
-          現在は統計情報のみ利用できます。
-        </p>
-
-
-        <p>
-          投稿管理・削除機能は後から追加します。
-        </p>
 
 
         <button
@@ -413,9 +528,15 @@
       "kziban_admin_session";
 
 
+    let adminPosts = [];
+
+    let currentFilter =
+      "all";
+
+
 
     /* =====================================================
-       セッション取得
+       セッション
        ===================================================== */
 
     function getSession() {
@@ -502,12 +623,14 @@
 
         document.getElementById(
           "loading"
-        ).style.display = "none";
+        ).style.display =
+          "none";
 
 
         document.getElementById(
           "page-content"
-        ).style.display = "block";
+        ).style.display =
+          "block";
 
 
         return true;
@@ -528,7 +651,7 @@
 
 
     /* =====================================================
-       未ログイン時
+       ログイン要求
        ===================================================== */
 
     function showLoginRequired() {
@@ -538,10 +661,6 @@
       ).textContent =
         "管理者ログインが必要です。";
 
-
-      /*
-       * 少し待ってからログインページへ
-       */
 
       setTimeout(() => {
 
@@ -555,7 +674,7 @@
 
 
     /* =====================================================
-       統計取得
+       統計情報
        ===================================================== */
 
     async function loadStats() {
@@ -565,9 +684,7 @@
 
 
       if (!session) {
-
         return;
-
       }
 
 
@@ -577,7 +694,7 @@
         );
 
 
-      const reloadButton =
+      const button =
         document.getElementById(
           "reload-stats"
         );
@@ -587,10 +704,10 @@
         "none";
 
 
-      reloadButton.disabled =
+      button.disabled =
         true;
 
-      reloadButton.textContent =
+      button.textContent =
         "読み込み中...";
 
 
@@ -640,65 +757,82 @@
           await response.json();
 
 
-        /*
-         * 数値表示
-         */
-
         document.getElementById(
           "total-posts"
         ).textContent =
-          stats.total_posts.toLocaleString(
-            "ja-JP"
-          );
+          stats.total_posts
+            .toLocaleString("ja-JP") +
+          " 件";
 
 
         document.getElementById(
           "parent-posts"
         ).textContent =
-          stats.parent_posts.toLocaleString(
-            "ja-JP"
-          );
+          stats.parent_posts
+            .toLocaleString("ja-JP") +
+          " 件";
 
 
         document.getElementById(
           "replies"
         ).textContent =
-          stats.replies.toLocaleString(
-            "ja-JP"
-          );
+          stats.replies
+            .toLocaleString("ja-JP") +
+          " 件";
 
 
         document.getElementById(
           "total-characters"
-        ).innerHTML =
-          stats.total_characters.toLocaleString(
-            "ja-JP"
-          ) +
-          '<span class="stat-unit">文字</span>';
+        ).textContent =
+          stats.total_characters
+            .toLocaleString("ja-JP") +
+          " 文字";
 
 
         document.getElementById(
           "average-characters"
-        ).innerHTML =
+        ).textContent =
           Number(
             stats.average_characters
           ).toFixed(1) +
-          '<span class="stat-unit">文字</span>';
+          " 文字";
 
 
         document.getElementById(
           "today-posts"
         ).textContent =
-          stats.today_posts.toLocaleString(
-            "ja-JP"
-          );
+          stats.today_posts
+            .toLocaleString("ja-JP") +
+          " 件";
 
 
         document.getElementById(
           "month-posts"
         ).textContent =
-          stats.this_month_posts.toLocaleString(
-            "ja-JP"
+          stats.this_month_posts
+            .toLocaleString("ja-JP") +
+          " 件";
+
+
+        /*
+         * 投稿データ容量の概算
+         *
+         * 現在はWorkerから総文字数を取得しているため、
+         * 1文字あたり3バイトとして単純計算します。
+         *
+         * 日本語を含むUTF-8では実際のサイズと
+         * 完全には一致しないため「概算」です。
+         */
+
+        const estimatedBytes =
+          stats.total_characters * 3;
+
+
+        document.getElementById(
+          "estimated-size"
+        ).textContent =
+          formatBytes(
+            estimatedBytes
           );
 
 
@@ -722,13 +856,559 @@
       }
 
 
-      reloadButton.disabled =
+      button.disabled =
         false;
 
-      reloadButton.textContent =
+      button.textContent =
         "統計を更新";
 
     }
+
+
+
+    /* =====================================================
+       バイト数 → KB / MB / GB
+       ===================================================== */
+
+    function formatBytes(bytes) {
+
+      if (bytes < 1024) {
+
+        return (
+          bytes.toLocaleString(
+            "ja-JP"
+          ) +
+          " B"
+        );
+
+      }
+
+
+      if (
+        bytes <
+        1024 * 1024
+      ) {
+
+        return (
+          (bytes / 1024)
+            .toFixed(2) +
+          " KB"
+        );
+
+      }
+
+
+      if (
+        bytes <
+        1024 * 1024 * 1024
+      ) {
+
+        return (
+          (bytes / 1024 / 1024)
+            .toFixed(2) +
+          " MB"
+        );
+
+      }
+
+
+      return (
+        (bytes /
+          1024 /
+          1024 /
+          1024)
+          .toFixed(2) +
+        " GB"
+      );
+
+    }
+
+
+
+    /* =====================================================
+       管理者用投稿一覧
+       ===================================================== */
+
+    async function loadAdminPosts() {
+
+      const session =
+        getSession();
+
+
+      if (!session) {
+        return;
+      }
+
+
+      const postsArea =
+        document.getElementById(
+          "admin-posts"
+        );
+
+
+      postsArea.textContent =
+        "読み込み中...";
+
+
+      try {
+
+        const response =
+          await fetch(
+            API_URL +
+            "/api/admin/posts",
+            {
+              method: "GET",
+
+              headers: {
+                "Authorization":
+                  "Bearer " + session
+              }
+            }
+          );
+
+
+        if (
+          response.status === 401
+        ) {
+
+          sessionStorage.removeItem(
+            SESSION_KEY
+          );
+
+          window.location.reload();
+
+          return;
+
+        }
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "HTTP " +
+            response.status
+          );
+
+        }
+
+
+        adminPosts =
+          await response.json();
+
+
+        renderAdminPosts();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        postsArea.textContent =
+          "投稿一覧の取得に失敗しました。";
+
+      }
+
+    }
+
+
+
+    /* =====================================================
+       投稿一覧表示
+       ===================================================== */
+
+    function renderAdminPosts() {
+
+      const postsArea =
+        document.getElementById(
+          "admin-posts"
+        );
+
+
+      postsArea.innerHTML =
+        "";
+
+
+      let filteredPosts;
+
+
+      if (
+        currentFilter === "active"
+      ) {
+
+        filteredPosts =
+          adminPosts.filter(
+            post =>
+              post.deleted === 0
+          );
+
+      } else if (
+        currentFilter === "deleted"
+      ) {
+
+        filteredPosts =
+          adminPosts.filter(
+            post =>
+              post.deleted === 1
+          );
+
+      } else {
+
+        filteredPosts =
+          adminPosts;
+
+      }
+
+
+      if (
+        filteredPosts.length === 0
+      ) {
+
+        postsArea.textContent =
+          "該当する投稿はありません。";
+
+        return;
+
+      }
+
+
+      filteredPosts.forEach(
+        post => {
+
+          postsArea.appendChild(
+            createAdminPostElement(
+              post
+            )
+          );
+
+        }
+      );
+
+    }
+
+
+
+    /* =====================================================
+       管理用投稿要素
+       ===================================================== */
+
+    function createAdminPostElement(
+      post
+    ) {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.className =
+        "admin-post";
+
+
+      if (
+        post.deleted === 1
+      ) {
+
+        div.classList.add(
+          "deleted-post"
+        );
+
+      }
+
+
+      const header =
+        document.createElement(
+          "div"
+        );
+
+
+      header.className =
+        "admin-post-header";
+
+
+      header.textContent =
+        "ID " +
+        post.id +
+        "　" +
+        post.name +
+        "　" +
+        new Date(
+          post.created_at
+        ).toLocaleString(
+          "ja-JP"
+        );
+
+
+      div.appendChild(
+        header
+      );
+
+
+      const info =
+        document.createElement(
+          "div"
+        );
+
+
+      info.className =
+        "admin-post-info";
+
+
+      info.textContent =
+        post.parent_id === null
+          ? "親投稿"
+          : "返信（親投稿ID: " +
+            post.parent_id +
+            "）";
+
+
+      div.appendChild(
+        info
+      );
+
+
+      const message =
+        document.createElement(
+          "div"
+        );
+
+
+      message.className =
+        "admin-post-message";
+
+
+      message.textContent =
+        post.message;
+
+
+      div.appendChild(
+        message
+      );
+
+
+      if (
+        post.deleted === 1
+      ) {
+
+        const deletedLabel =
+          document.createElement(
+            "div"
+          );
+
+
+        deletedLabel.className =
+          "deleted-label";
+
+
+        deletedLabel.textContent =
+          "削除済み";
+
+
+        div.appendChild(
+          deletedLabel
+        );
+
+      } else {
+
+        const deleteButton =
+          document.createElement(
+            "button"
+          );
+
+
+        deleteButton.className =
+          "admin-button";
+
+
+        deleteButton.textContent =
+          "削除";
+
+
+        deleteButton.addEventListener(
+          "click",
+          () => {
+
+            deletePost(
+              post.id
+            );
+
+          }
+        );
+
+
+        div.appendChild(
+          deleteButton
+        );
+
+      }
+
+
+      return div;
+
+    }
+
+
+
+    /* =====================================================
+       投稿削除
+       ===================================================== */
+
+    async function deletePost(
+      id
+    ) {
+
+      const confirmed =
+        confirm(
+          "投稿ID " +
+          id +
+          " を削除しますか？\n\n" +
+          "削除後は通常の掲示板には表示されなくなります。"
+        );
+
+
+      if (!confirmed) {
+
+        return;
+
+      }
+
+
+      const session =
+        getSession();
+
+
+      if (!session) {
+
+        alert(
+          "ログイン状態が無効です。"
+        );
+
+        window.location.reload();
+
+        return;
+
+      }
+
+
+      try {
+
+        const response =
+          await fetch(
+            API_URL +
+            "/api/admin/posts/" +
+            id,
+            {
+              method: "DELETE",
+
+              headers: {
+                "Authorization":
+                  "Bearer " + session
+              }
+            }
+          );
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          response.status === 401
+        ) {
+
+          sessionStorage.removeItem(
+            SESSION_KEY
+          );
+
+          window.location.reload();
+
+          return;
+
+        }
+
+
+        if (
+          !response.ok ||
+          result.success !== true
+        ) {
+
+          alert(
+            "投稿の削除に失敗しました。"
+          );
+
+          return;
+
+        }
+
+
+        /*
+         * 一覧を再取得
+         */
+
+        await loadAdminPosts();
+
+
+        /*
+         * 統計も更新
+         */
+
+        await loadStats();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(
+          "通信エラーが発生しました。"
+        );
+
+      }
+
+    }
+
+
+
+    /* =====================================================
+       フィルター
+       ===================================================== */
+
+    document
+      .querySelectorAll(
+        "[data-filter]"
+      )
+      .forEach(
+        button => {
+
+          button.addEventListener(
+            "click",
+            () => {
+
+              currentFilter =
+                button.dataset.filter;
+
+              renderAdminPosts();
+
+            }
+          );
+
+        }
+      );
+
+
+
+    /* =====================================================
+       統計更新
+       ===================================================== */
+
+    document
+      .getElementById(
+        "reload-stats"
+      )
+      .addEventListener(
+        "click",
+        loadStats
+      );
 
 
 
@@ -737,7 +1417,9 @@
        ===================================================== */
 
     document
-      .getElementById("logout-button")
+      .getElementById(
+        "logout-button"
+      )
       .addEventListener(
         "click",
         async () => {
@@ -758,7 +1440,8 @@
 
                   headers: {
                     "Authorization":
-                      "Bearer " + session
+                      "Bearer " +
+                      session
                   }
                 }
               );
@@ -780,19 +1463,6 @@
           window.location.reload();
 
         }
-      );
-
-
-
-    /* =====================================================
-       統計更新ボタン
-       ===================================================== */
-
-    document
-      .getElementById("reload-stats")
-      .addEventListener(
-        "click",
-        loadStats
       );
 
 
@@ -836,9 +1506,7 @@
       (e) => {
 
         if (!isResizing) {
-
           return;
-
         }
 
 
@@ -872,7 +1540,7 @@
 
 
     /* =====================================================
-       初期処理
+       初期化
        ===================================================== */
 
     async function initialize() {
@@ -882,13 +1550,19 @@
 
 
       if (!authenticated) {
-
         return;
-
       }
 
 
-      await loadStats();
+      /*
+       * 認証成功後に初めて
+       * 管理画面のデータを取得
+       */
+
+      await Promise.all([
+        loadStats(),
+        loadAdminPosts()
+      ]);
 
     }
 
