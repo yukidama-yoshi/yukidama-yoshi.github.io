@@ -397,7 +397,7 @@
 
 
     /* =====================================================
-       全消去ボタン
+       危険ボタン共通
        ===================================================== */
 
     .danger-button {
@@ -418,6 +418,9 @@
         "MS Gothic",
         "Osaka",
         sans-serif;
+
+      margin-right: 10px;
+      margin-bottom: 8px;
 
     }
 
@@ -440,41 +443,11 @@
 
 
     /* =====================================================
-       バックアップ復元
+       全消去・復元モーダル共通
        ===================================================== */
 
-    .import-description {
-
-      margin-bottom: 12px;
-
-      color: #555;
-
-    }
-
-
-    .import-file-row {
-
-      margin-bottom: 12px;
-
-    }
-
-
-    .import-file-row input[type="file"] {
-
-      font-family:
-        "MS Gothic",
-        "Osaka",
-        sans-serif;
-
-    }
-
-
-
-    /* =====================================================
-       全消去モーダル
-       ===================================================== */
-
-    #wipe-overlay {
+    #wipe-overlay,
+    #import-overlay {
 
       display: none;
 
@@ -495,7 +468,8 @@
     }
 
 
-    .wipe-dialog {
+    .wipe-dialog,
+    .import-dialog {
 
       max-width: 650px;
 
@@ -511,7 +485,8 @@
     }
 
 
-    .wipe-header {
+    .wipe-header,
+    .import-header {
 
       background: #300;
 
@@ -522,7 +497,8 @@
     }
 
 
-    .wipe-header h2 {
+    .wipe-header h2,
+    .import-header h2 {
 
       margin: 0;
 
@@ -531,28 +507,32 @@
     }
 
 
-    .wipe-body {
+    .wipe-body,
+    .import-body {
 
       padding: 20px;
 
     }
 
 
-    .wipe-step {
+    .wipe-step,
+    .import-step {
 
       display: none;
 
     }
 
 
-    .wipe-step.active {
+    .wipe-step.active,
+    .import-step.active {
 
       display: block;
 
     }
 
 
-    .wipe-warning {
+    .wipe-warning,
+    .import-warning {
 
       border: 2px solid #900;
 
@@ -567,14 +547,16 @@
     }
 
 
-    .wipe-warning strong {
+    .wipe-warning strong,
+    .import-warning strong {
 
       color: #900;
 
     }
 
 
-    .wipe-code {
+    .wipe-code,
+    .import-code {
 
       display: inline-block;
 
@@ -599,7 +581,8 @@
     }
 
 
-    .wipe-input {
+    .wipe-input,
+    .import-input {
 
       box-sizing: border-box;
 
@@ -619,7 +602,8 @@
     }
 
 
-    .wipe-buttons {
+    .wipe-buttons,
+    .import-buttons {
 
       margin-top: 20px;
 
@@ -632,7 +616,8 @@
     }
 
 
-    .wipe-normal-button {
+    .wipe-normal-button,
+    .import-normal-button {
 
       cursor: pointer;
 
@@ -646,7 +631,8 @@
     }
 
 
-    .wipe-final {
+    .wipe-final,
+    .import-final {
 
       background: #111;
 
@@ -659,7 +645,8 @@
     }
 
 
-    .wipe-final h3 {
+    .wipe-final h3,
+    .import-final h3 {
 
       color: #ff5555;
 
@@ -668,7 +655,8 @@
     }
 
 
-    .wipe-countdown {
+    .wipe-countdown,
+    .import-countdown {
 
       font-size: 30px;
 
@@ -683,7 +671,8 @@
     }
 
 
-    .wipe-final-button {
+    .wipe-final-button,
+    .import-final-button {
 
       cursor: pointer;
 
@@ -709,7 +698,8 @@
     }
 
 
-    .wipe-final-button:disabled {
+    .wipe-final-button:disabled,
+    .import-final-button:disabled {
 
       cursor: default;
 
@@ -718,7 +708,8 @@
     }
 
 
-    .wipe-cancel-button {
+    .wipe-cancel-button,
+    .import-cancel-button {
 
       cursor: pointer;
 
@@ -738,7 +729,8 @@
     }
 
 
-    .wipe-error {
+    .wipe-error,
+    .import-error {
 
       display: none;
 
@@ -755,7 +747,8 @@
     }
 
 
-    .backup-check {
+    .backup-check,
+    .import-check {
 
       margin-top: 15px;
 
@@ -768,9 +761,23 @@
     }
 
 
-    .backup-check label {
+    .backup-check label,
+    .import-check label {
 
       cursor: pointer;
+
+    }
+
+
+    .import-file-area {
+
+      margin: 15px 0;
+
+      padding: 12px;
+
+      border: 1px dashed #888;
+
+      background: #f9f9f9;
 
     }
 
@@ -804,7 +811,7 @@
        ===================================================== -->
 
   <div class="version-tag">
-    Ver 1.7
+    Ver 1.8
   </div>
 
 
@@ -1241,8 +1248,9 @@
 
         <div class="danger-description">
 
-          この操作は通常の「削除」とは異なり、
-          データベース上の投稿データを物理的に削除します。
+          これらの操作は通常の「削除」とは異なり、
+          データベース上の投稿データを物理的に操作します。<br>
+          実行前に十分注意してください。
 
         </div>
 
@@ -1255,54 +1263,14 @@
           ログ全削除（超危険）
         </button>
 
-      </div>
-
-
-
-      <!-- =================================================
-           バックアップから復元
-           ================================================= -->
-
-      <div class="admin-box">
-
-        <h2>
-          バックアップから復元
-        </h2>
-
-
-        <div class="import-description">
-
-          以前ダウンロードしたバックアップJSONを読み込み、
-          現在の投稿データをすべて置き換えます。<br>
-          <strong style="color:#700;">この操作は取り消せません。実行前に必要に応じてバックアップを取ってください。</strong>
-
-        </div>
-
-
-        <div class="import-file-row">
-
-          <input
-            type="file"
-            id="import-file"
-            accept=".json,application/json"
-          >
-
-        </div>
-
 
         <button
           type="button"
-          class="admin-button"
-          id="import-button"
+          class="danger-button"
+          id="open-import-button"
         >
-          バックアップを読み込んで復元
+          バックアップ復元（超危険）
         </button>
-
-
-        <div
-          class="admin-message"
-          id="import-message"
-        ></div>
 
       </div>
 
@@ -1340,9 +1308,7 @@
        全消去確認画面
        ===================================================== -->
 
-  <div
-    id="wipe-overlay"
-  >
+  <div id="wipe-overlay">
 
     <div class="wipe-dialog">
 
@@ -1359,20 +1325,13 @@
       <div class="wipe-body">
 
 
-        <!-- =================================================
-             STEP 1
-             ================================================= -->
+        <!-- STEP 1 -->
 
-        <div
-          class="wipe-step active"
-          id="wipe-step-1"
-        >
+        <div class="wipe-step active" id="wipe-step-1">
 
           <div class="wipe-warning">
 
-            <strong>
-              警告
-            </strong>
+            <strong>警告</strong>
 
             <br><br>
 
@@ -1401,20 +1360,11 @@
 
           <div class="wipe-buttons">
 
-            <button
-              type="button"
-              class="wipe-normal-button"
-              id="wipe-step1-next"
-            >
+            <button type="button" class="wipe-normal-button" id="wipe-step1-next">
               続行する
             </button>
 
-
-            <button
-              type="button"
-              class="wipe-cancel-button"
-              id="wipe-cancel-1"
-            >
+            <button type="button" class="wipe-cancel-button" id="wipe-cancel-1">
               キャンセル
             </button>
 
@@ -1424,14 +1374,9 @@
 
 
 
-        <!-- =================================================
-             STEP 2
-             ================================================= -->
+        <!-- STEP 2 -->
 
-        <div
-          class="wipe-step"
-          id="wipe-step-2"
-        >
+        <div class="wipe-step" id="wipe-step-2">
 
           <h3>
             確認文字列を入力してください
@@ -1444,10 +1389,7 @@
           </p>
 
 
-          <div
-            class="wipe-code"
-            id="wipe-code"
-          >
+          <div class="wipe-code" id="wipe-code">
             --------
           </div>
 
@@ -1464,30 +1406,18 @@
           >
 
 
-          <div
-            class="wipe-error"
-            id="wipe-code-error"
-          >
+          <div class="wipe-error" id="wipe-code-error">
             確認文字列が一致しません。
           </div>
 
 
           <div class="wipe-buttons">
 
-            <button
-              type="button"
-              class="wipe-normal-button"
-              id="wipe-step2-next"
-            >
+            <button type="button" class="wipe-normal-button" id="wipe-step2-next">
               次へ
             </button>
 
-
-            <button
-              type="button"
-              class="wipe-cancel-button"
-              id="wipe-cancel-2"
-            >
+            <button type="button" class="wipe-cancel-button" id="wipe-cancel-2">
               キャンセル
             </button>
 
@@ -1497,14 +1427,9 @@
 
 
 
-        <!-- =================================================
-             STEP 3
-             ================================================= -->
+        <!-- STEP 3 -->
 
-        <div
-          class="wipe-step"
-          id="wipe-step-3"
-        >
+        <div class="wipe-step" id="wipe-step-3">
 
           <h3>
             管理者パスワードを入力してください
@@ -1525,30 +1450,18 @@
           >
 
 
-          <div
-            class="wipe-error"
-            id="wipe-password-error"
-          >
+          <div class="wipe-error" id="wipe-password-error">
             ユーザー名またはパスワードが違います。
           </div>
 
 
           <div class="wipe-buttons">
 
-            <button
-              type="button"
-              class="wipe-normal-button"
-              id="wipe-step3-next"
-            >
+            <button type="button" class="wipe-normal-button" id="wipe-step3-next">
               再認証して次へ
             </button>
 
-
-            <button
-              type="button"
-              class="wipe-cancel-button"
-              id="wipe-cancel-3"
-            >
+            <button type="button" class="wipe-cancel-button" id="wipe-cancel-3">
               キャンセル
             </button>
 
@@ -1558,14 +1471,9 @@
 
 
 
-        <!-- =================================================
-             STEP 4
-             ================================================= -->
+        <!-- STEP 4 -->
 
-        <div
-          class="wipe-step"
-          id="wipe-step-4"
-        >
+        <div class="wipe-step" id="wipe-step-4">
 
           <h3>
             バックアップ
@@ -1586,11 +1494,7 @@
           </div>
 
 
-          <button
-            type="button"
-            class="wipe-normal-button"
-            id="download-backup"
-          >
+          <button type="button" class="wipe-normal-button" id="download-backup">
             バックアップデータをダウンロード
           </button>
 
@@ -1599,10 +1503,7 @@
 
             <label>
 
-              <input
-                type="checkbox"
-                id="backup-confirm"
-              >
+              <input type="checkbox" id="backup-confirm">
 
               バックアップデータをダウンロードしました
 
@@ -1613,21 +1514,11 @@
 
           <div class="wipe-buttons">
 
-            <button
-              type="button"
-              class="wipe-normal-button"
-              id="wipe-step4-next"
-              disabled
-            >
+            <button type="button" class="wipe-normal-button" id="wipe-step4-next" disabled>
               次へ
             </button>
 
-
-            <button
-              type="button"
-              class="wipe-cancel-button"
-              id="wipe-cancel-4"
-            >
+            <button type="button" class="wipe-cancel-button" id="wipe-cancel-4">
               キャンセル
             </button>
 
@@ -1637,14 +1528,9 @@
 
 
 
-        <!-- =================================================
-             STEP 5
-             ================================================= -->
+        <!-- STEP 5 -->
 
-        <div
-          class="wipe-step"
-          id="wipe-step-5"
-        >
+        <div class="wipe-step" id="wipe-step-5">
 
           <div class="wipe-final">
 
@@ -1654,77 +1540,51 @@
 
 
             <p>
-
               ここから先へ進むと、
               データベース上の全投稿が物理的に削除されます。
-
             </p>
 
 
             <p>
-
               削除済み投稿も含め、
               現在保存されている投稿データはすべて対象です。
-
             </p>
 
 
             <p>
-
               <strong>
                 本当に削除する場合のみ、
                 下の最終確認へ進んでください。
               </strong>
-
             </p>
 
 
-            <div
-              class="wipe-countdown"
-              id="wipe-countdown"
-            >
+            <div class="wipe-countdown" id="wipe-countdown">
               30
             </div>
 
 
             <p style="text-align:center;">
-
-              秒後に完全削除の命令がサーバーに送信されます。
-
-              <br>
-
+              秒後に完全削除の命令がサーバーに送信されます。<br>
               30秒以内なら「キャンセル」で中止できます。
-
             </p>
 
 
-            <button
-              type="button"
-              class="wipe-final-button"
-              id="wipe-final-button"
-              disabled
-            >
+            <button type="button" class="wipe-final-button" id="wipe-final-button" disabled>
               最終確認へ
             </button>
 
 
             <div style="margin-top:10px;">
 
-              <button
-                type="button"
-                class="wipe-cancel-button"
-                id="wipe-cancel-5"
-              >
+              <button type="button" class="wipe-cancel-button" id="wipe-cancel-5">
                 キャンセル
               </button>
 
             </div>
 
 
-            <div
-              class="wipe-error"
-              id="wipe-final-error"
-            ></div>
+            <div class="wipe-error" id="wipe-final-error"></div>
 
           </div>
 
@@ -1732,14 +1592,9 @@
 
 
 
-        <!-- =================================================
-             STEP 6
-             ================================================= -->
+        <!-- STEP 6 -->
 
-        <div
-          class="wipe-step"
-          id="wipe-step-6"
-        >
+        <div class="wipe-step" id="wipe-step-6">
 
           <div class="wipe-final">
 
@@ -1749,55 +1604,37 @@
 
 
             <p>
-
               これは最後の確認です。
-
             </p>
 
 
             <p>
-
               「完全に削除する」を押すと、
               サーバーに削除命令が送信されます。
-
             </p>
 
 
             <p>
-
               <strong>
                 この操作は取り消せません。
               </strong>
-
             </p>
 
 
             <div class="wipe-buttons">
 
-              <button
-                type="button"
-                class="wipe-final-button"
-                id="execute-wipe-button"
-              >
+              <button type="button" class="wipe-final-button" id="execute-wipe-button">
                 完全に削除する
               </button>
 
-
-              <button
-                type="button"
-                class="wipe-cancel-button"
-                id="wipe-cancel-6"
-              >
+              <button type="button" class="wipe-cancel-button" id="wipe-cancel-6">
                 キャンセル
               </button>
 
             </div>
 
 
-            <div
-              class="wipe-error"
-              id="wipe-execute-error"
-            ></div>
+            <div class="wipe-error" id="wipe-execute-error"></div>
 
           </div>
 
@@ -1805,14 +1642,9 @@
 
 
 
-        <!-- =================================================
-             完了
-             ================================================= -->
+        <!-- 完了 -->
 
-        <div
-          class="wipe-step"
-          id="wipe-step-complete"
-        >
+        <div class="wipe-step" id="wipe-step-complete">
 
           <h3>
             完全削除が完了しました
@@ -1826,11 +1658,379 @@
 
           <div class="wipe-buttons">
 
-            <button
-              type="button"
-              class="wipe-normal-button"
-              id="wipe-complete-close"
+            <button type="button" class="wipe-normal-button" id="wipe-complete-close">
+              管理画面へ戻る
+            </button>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =====================================================
+       バックアップ復元確認画面
+       ===================================================== -->
+
+  <div id="import-overlay">
+
+    <div class="import-dialog">
+
+
+      <div class="import-header">
+
+        <h2>
+          バックアップから復元
+        </h2>
+
+      </div>
+
+
+      <div class="import-body">
+
+
+        <!-- STEP 1 -->
+
+        <div class="import-step active" id="import-step-1">
+
+          <div class="import-warning">
+
+            <strong>警告</strong>
+
+            <br><br>
+
+            この操作は現在のデータベース上の投稿データを
+            <strong>すべて削除し、バックアップ内容で上書き</strong>
+            します。
+
+            <br><br>
+
+            公開中・削除済みを含むすべての投稿が対象です。
+
+            <br><br>
+
+            <strong>
+              この操作は取り消すことができません。
+            </strong>
+
+          </div>
+
+
+          <p>
+            本当に続行しますか？
+          </p>
+
+
+          <div class="import-buttons">
+
+            <button type="button" class="import-normal-button" id="import-step1-next">
+              続行する
+            </button>
+
+            <button type="button" class="import-cancel-button" id="import-cancel-1">
+              キャンセル
+            </button>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- STEP 2 -->
+
+        <div class="import-step" id="import-step-2">
+
+          <h3>
+            確認文字列を入力してください
+          </h3>
+
+
+          <p>
+            誤操作防止のため、下に表示された文字列を
+            正確に入力してください。
+          </p>
+
+
+          <div class="import-code" id="import-code">
+            --------
+          </div>
+
+
+          <br>
+
+
+          <input
+            type="text"
+            class="import-input"
+            id="import-code-input"
+            autocomplete="off"
+            spellcheck="false"
+          >
+
+
+          <div class="import-error" id="import-code-error">
+            確認文字列が一致しません。
+          </div>
+
+
+          <div class="import-buttons">
+
+            <button type="button" class="import-normal-button" id="import-step2-next">
+              次へ
+            </button>
+
+            <button type="button" class="import-cancel-button" id="import-cancel-2">
+              キャンセル
+            </button>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- STEP 3 -->
+
+        <div class="import-step" id="import-step-3">
+
+          <h3>
+            管理者パスワードを入力してください
+          </h3>
+
+
+          <p>
+            この操作を実行するには、
+            管理者パスワードによる再認証が必要です。
+          </p>
+
+
+          <input
+            type="password"
+            class="import-input"
+            id="import-password"
+            autocomplete="current-password"
+          >
+
+
+          <div class="import-error" id="import-password-error">
+            ユーザー名またはパスワードが違います。
+          </div>
+
+
+          <div class="import-buttons">
+
+            <button type="button" class="import-normal-button" id="import-step3-next">
+              再認証して次へ
+            </button>
+
+            <button type="button" class="import-cancel-button" id="import-cancel-3">
+              キャンセル
+            </button>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- STEP 4：ファイル選択 -->
+
+        <div class="import-step" id="import-step-4">
+
+          <h3>
+            バックアップファイルを選択
+          </h3>
+
+
+          <div class="import-warning">
+
+            以前ダウンロードしたバックアップJSONを選択してください。<br>
+            選択した内容で現在のデータが完全に置き換えられます。
+
+          </div>
+
+
+          <div class="import-file-area">
+
+            <input
+              type="file"
+              id="import-file"
+              accept=".json,application/json"
             >
+
+          </div>
+
+
+          <div class="import-check">
+
+            <label>
+
+              <input type="checkbox" id="import-file-confirm">
+
+              正しいバックアップファイルを選択しました
+
+            </label>
+
+          </div>
+
+
+          <div class="import-error" id="import-file-error"></div>
+
+
+          <div class="import-buttons">
+
+            <button type="button" class="import-normal-button" id="import-step4-next" disabled>
+              次へ
+            </button>
+
+            <button type="button" class="import-cancel-button" id="import-cancel-4">
+              キャンセル
+            </button>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- STEP 5：最終警告 -->
+
+        <div class="import-step" id="import-step-5">
+
+          <div class="import-final">
+
+            <h3>
+              最終警告
+            </h3>
+
+
+            <p>
+              ここから先へ進むと、
+              現在のデータベースがバックアップ内容で上書きされます。
+            </p>
+
+
+            <p>
+              既存の投稿データはすべて削除されます。
+            </p>
+
+
+            <p>
+              <strong>
+                本当に復元する場合のみ、
+                下の最終確認へ進んでください。
+              </strong>
+            </p>
+
+
+            <div class="import-countdown" id="import-countdown">
+              30
+            </div>
+
+
+            <p style="text-align:center;">
+              秒後に復元命令がサーバーに送信されます。<br>
+              30秒以内なら「キャンセル」で中止できます。
+            </p>
+
+
+            <button type="button" class="import-final-button" id="import-final-button" disabled>
+              最終確認へ
+            </button>
+
+
+            <div style="margin-top:10px;">
+
+              <button type="button" class="import-cancel-button" id="import-cancel-5">
+                キャンセル
+              </button>
+
+            </div>
+
+
+            <div class="import-error" id="import-final-error"></div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- STEP 6：実行 -->
+
+        <div class="import-step" id="import-step-6">
+
+          <div class="import-final">
+
+            <h3>
+              本当に復元しますか？
+            </h3>
+
+
+            <p>
+              これは最後の確認です。
+            </p>
+
+
+            <p>
+              「完全に復元する」を押すと、
+              サーバーに復元命令が送信されます。
+            </p>
+
+
+            <p>
+              <strong>
+                この操作は取り消せません。
+              </strong>
+            </p>
+
+
+            <div class="import-buttons">
+
+              <button type="button" class="import-final-button" id="execute-import-button">
+                完全に復元する
+              </button>
+
+              <button type="button" class="import-cancel-button" id="import-cancel-6">
+                キャンセル
+              </button>
+
+            </div>
+
+
+            <div class="import-error" id="import-execute-error"></div>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- 完了 -->
+
+        <div class="import-step" id="import-step-complete">
+
+          <h3>
+            復元が完了しました
+          </h3>
+
+
+          <p id="import-complete-text">
+            バックアップからの復元が完了しました。
+          </p>
+
+
+          <div class="import-buttons">
+
+            <button type="button" class="import-normal-button" id="import-complete-close">
               管理画面へ戻る
             </button>
 
@@ -1892,6 +2092,22 @@
     let wipeSeconds = 30;
 
 
+    // インポート用
+    let importCode = "";
+
+
+    let importReauthSession = "";
+
+
+    let importCountdownTimer = null;
+
+
+    let importSeconds = 30;
+
+
+    let importParsedBody = null;
+
+
 
     /* =====================================================
        DOM
@@ -1918,6 +2134,12 @@
     const wipeOverlay =
       document.getElementById(
         "wipe-overlay"
+      );
+
+
+    const importOverlay =
+      document.getElementById(
+        "import-overlay"
       );
 
 
@@ -3167,6 +3389,8 @@
 
       closeWipe();
 
+      closeImport();
+
 
       showLoginScreen();
 
@@ -3306,243 +3530,6 @@
 
 
           showLoginScreen();
-
-        }
-      );
-
-
-
-    /* =====================================================
-       バックアップから復元
-       ===================================================== */
-
-    document
-      .getElementById(
-        "import-button"
-      )
-      .addEventListener(
-        "click",
-        async () => {
-
-          const fileInput =
-            document.getElementById(
-              "import-file"
-            );
-
-
-          const message =
-            document.getElementById(
-              "import-message"
-            );
-
-
-          const button =
-            document.getElementById(
-              "import-button"
-            );
-
-
-          message.textContent =
-            "";
-
-
-          const file =
-            fileInput.files[0];
-
-
-          if (!file) {
-
-            message.textContent =
-              "ファイルを選択してください。";
-
-            return;
-
-          }
-
-
-          const confirmed =
-            window.confirm(
-              "選択したバックアップで現在の投稿データをすべて置き換えます。\n\n" +
-              "この操作は取り消せません。\n\n" +
-              "本当に実行しますか？"
-            );
-
-
-          if (!confirmed) {
-
-            return;
-
-          }
-
-
-          const session =
-            getSession();
-
-
-          if (!session) {
-
-            showLoginScreen();
-
-            return;
-
-          }
-
-
-          button.disabled =
-            true;
-
-
-          button.textContent =
-            "復元中...";
-
-
-          try {
-
-            const text =
-              await file.text();
-
-
-            let body;
-
-
-            try {
-
-              body =
-                JSON.parse(text);
-
-            } catch (parseError) {
-
-              message.textContent =
-                "JSONの解析に失敗しました。正しいバックアップファイルを選択してください。";
-
-              return;
-
-            }
-
-
-            // バックアップ形式 or posts配列のみ 両対応
-            if (
-              !body.posts &&
-              Array.isArray(body)
-            ) {
-
-              body = {
-                posts: body
-              };
-
-            }
-
-
-            if (
-              !body ||
-              !Array.isArray(body.posts)
-            ) {
-
-              message.textContent =
-                "バックアップデータの形式が不正です。";
-
-              return;
-
-            }
-
-
-            const response =
-              await fetch(
-                API_URL +
-                "/api/admin/import",
-                {
-                  method: "POST",
-
-                  headers: {
-                    "Content-Type":
-                      "application/json",
-
-                    "Authorization":
-                      "Bearer " +
-                      session
-                  },
-
-                  body: JSON.stringify(
-                    body
-                  )
-                }
-              );
-
-
-            if (
-              response.status === 401
-            ) {
-
-              handleUnauthorized();
-
-              return;
-
-            }
-
-
-            const result =
-              await response.json();
-
-
-            if (
-              !response.ok ||
-              result.success !== true
-            ) {
-
-              message.textContent =
-                result.error ||
-                "復元に失敗しました。";
-
-              return;
-
-            }
-
-
-            const count =
-              Number(
-                result.imported_count ?? 0
-              );
-
-
-            message.textContent =
-              "復元が完了しました。インポート件数: " +
-              count.toLocaleString(
-                "ja-JP"
-              ) +
-              " 件";
-
-
-            // ファイル選択をクリア
-            fileInput.value =
-              "";
-
-
-            // 統計と投稿一覧を再取得
-            await Promise.all([
-              loadStats(),
-              loadAdminPosts()
-            ]);
-
-
-          } catch (error) {
-
-            console.error(error);
-
-
-            message.textContent =
-              "通信エラーが発生しました。";
-
-
-          } finally {
-
-            button.disabled =
-              false;
-
-
-            button.textContent =
-              "バックアップを読み込んで復元";
-
-          }
 
         }
       );
@@ -3924,13 +3911,6 @@
 
           try {
 
-            /*
-             * 既存のログインAPIを使用して
-             * パスワードをサーバー側で再確認する。
-             *
-             * 成功すると新しいセッションが発行される。
-             */
-
             const response =
               await fetch(
                 API_URL +
@@ -3977,17 +3957,9 @@
             }
 
 
-            /*
-             * 全消去専用の再認証セッション。
-             */
-
             wipeReauthSession =
               result.session;
 
-
-            /*
-             * パスワードを保持しない。
-             */
 
             document
               .getElementById(
@@ -4331,11 +4303,6 @@
             "none";
 
 
-          /*
-           * 再認証セッションが存在しない場合は
-           * 絶対に削除処理を実行しない。
-           */
-
           if (!wipeReauthSession) {
 
             error.textContent =
@@ -4431,10 +4398,6 @@
             }
 
 
-            /*
-             * 成功。
-             */
-
             const deletedCount =
               Number(
                 result.deleted_count ?? 0
@@ -4451,10 +4414,6 @@
               ) +
               "件";
 
-
-            /*
-             * 全消去後は現在の投稿一覧を空にする。
-             */
 
             adminPosts = [];
 
@@ -4513,9 +4472,974 @@
           closeWipe();
 
 
-          /*
-           * 統計・投稿一覧を再取得。
-           */
+          await Promise.all([
+            loadStats(),
+            loadAdminPosts()
+          ]);
+
+        }
+      );
+
+
+
+    /* =====================================================
+       ========== バックアップ復元関連 ==========
+       ===================================================== */
+
+
+    /* =====================================================
+       インポート：ステップ切り替え
+       ===================================================== */
+
+    function showImportStep(
+      stepNumber
+    ) {
+
+      document
+        .querySelectorAll(
+          ".import-step"
+        )
+        .forEach(
+          step => {
+
+            step.classList.remove(
+              "active"
+            );
+
+          }
+        );
+
+
+      const step =
+        document.getElementById(
+          "import-step-" +
+          stepNumber
+        );
+
+
+      if (step) {
+
+        step.classList.add(
+          "active"
+        );
+
+      }
+
+    }
+
+
+
+    /* =====================================================
+       インポート：ランダム確認文字列
+       ===================================================== */
+
+    function generateImportCode() {
+
+      const characters =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+
+      let result = "";
+
+
+      for (
+        let i = 0;
+        i < 8;
+        i++
+      ) {
+
+        result +=
+          characters[
+            Math.floor(
+              Math.random() *
+              characters.length
+            )
+          ];
+
+      }
+
+
+      return result;
+
+    }
+
+
+
+    /* =====================================================
+       インポート：開始
+       ===================================================== */
+
+    document
+      .getElementById(
+        "open-import-button"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          const session =
+            getSession();
+
+
+          if (!session) {
+
+            showLoginScreen();
+
+            return;
+
+          }
+
+
+          importCode =
+            generateImportCode();
+
+
+          document.getElementById(
+            "import-code"
+          ).textContent =
+            importCode;
+
+
+          document.getElementById(
+            "import-code-input"
+          ).value =
+            "";
+
+
+          document.getElementById(
+            "import-password"
+          ).value =
+            "";
+
+
+          document.getElementById(
+            "import-file"
+          ).value =
+            "";
+
+
+          document.getElementById(
+            "import-file-confirm"
+          ).checked =
+            false;
+
+
+          document.getElementById(
+            "import-step4-next"
+          ).disabled =
+            true;
+
+
+          document.getElementById(
+            "import-code-error"
+          ).style.display =
+            "none";
+
+
+          document.getElementById(
+            "import-password-error"
+          ).style.display =
+            "none";
+
+
+          document.getElementById(
+            "import-file-error"
+          ).style.display =
+            "none";
+
+
+          importReauthSession =
+            "";
+
+
+          importParsedBody =
+            null;
+
+
+          showImportStep(1);
+
+
+          importOverlay.style.display =
+            "block";
+
+
+          document.body.style.overflow =
+            "hidden";
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート：閉じる
+       ===================================================== */
+
+    function closeImport() {
+
+      if (
+        importCountdownTimer !== null
+      ) {
+
+        clearInterval(
+          importCountdownTimer
+        );
+
+        importCountdownTimer =
+          null;
+
+      }
+
+
+      importOverlay.style.display =
+        "none";
+
+
+      document.body.style.overflow =
+        "";
+
+
+      importReauthSession =
+        "";
+
+
+      importCode =
+        "";
+
+
+      importParsedBody =
+        null;
+
+    }
+
+
+
+    /* =====================================================
+       インポート：キャンセル
+       ===================================================== */
+
+    [
+      "import-cancel-1",
+      "import-cancel-2",
+      "import-cancel-3",
+      "import-cancel-4",
+      "import-cancel-5",
+      "import-cancel-6"
+    ]
+      .forEach(
+        id => {
+
+          document
+            .getElementById(id)
+            .addEventListener(
+              "click",
+              () => {
+
+                closeImport();
+
+              }
+            );
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート STEP 1 → STEP 2
+       ===================================================== */
+
+    document
+      .getElementById(
+        "import-step1-next"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          showImportStep(2);
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート STEP 2 → STEP 3
+       ===================================================== */
+
+    document
+      .getElementById(
+        "import-step2-next"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          const input =
+            document
+              .getElementById(
+                "import-code-input"
+              )
+              .value
+              .trim()
+              .toUpperCase();
+
+
+          const error =
+            document.getElementById(
+              "import-code-error"
+            );
+
+
+          if (
+            input !== importCode
+          ) {
+
+            error.style.display =
+              "block";
+
+
+            return;
+
+          }
+
+
+          error.style.display =
+            "none";
+
+
+          showImportStep(3);
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート STEP 3：パスワード再認証
+       ===================================================== */
+
+    document
+      .getElementById(
+        "import-step3-next"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          const username =
+            sessionStorage.getItem(
+              USERNAME_KEY
+            );
+
+
+          const password =
+            document
+              .getElementById(
+                "import-password"
+              )
+              .value;
+
+
+          const button =
+            document.getElementById(
+              "import-step3-next"
+            );
+
+
+          const error =
+            document.getElementById(
+              "import-password-error"
+            );
+
+
+          error.style.display =
+            "none";
+
+
+          if (
+            !username ||
+            !password
+          ) {
+
+            error.style.display =
+              "block";
+
+
+            return;
+
+          }
+
+
+          button.disabled =
+            true;
+
+
+          button.textContent =
+            "認証中...";
+
+
+          try {
+
+            const response =
+              await fetch(
+                API_URL +
+                "/api/admin/login",
+                {
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json"
+                  },
+
+                  body: JSON.stringify({
+                    username:
+                      username,
+
+                    password:
+                      password
+                  })
+                }
+              );
+
+
+            const result =
+              await response.json();
+
+
+            if (
+              !response.ok ||
+              result.success !== true ||
+              !result.session
+            ) {
+
+              error.textContent =
+                "ユーザー名またはパスワードが違います。";
+
+
+              error.style.display =
+                "block";
+
+
+              return;
+
+            }
+
+
+            importReauthSession =
+              result.session;
+
+
+            document
+              .getElementById(
+                "import-password"
+              )
+              .value = "";
+
+
+            showImportStep(4);
+
+
+          } catch (requestError) {
+
+            console.error(
+              requestError
+            );
+
+
+            error.textContent =
+              "認証処理に失敗しました。";
+
+
+            error.style.display =
+              "block";
+
+
+          } finally {
+
+            button.disabled =
+              false;
+
+
+            button.textContent =
+              "再認証して次へ";
+
+          }
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート：ファイル確認チェック
+       ===================================================== */
+
+    document
+      .getElementById(
+        "import-file-confirm"
+      )
+      .addEventListener(
+        "change",
+        event => {
+
+          document.getElementById(
+            "import-step4-next"
+          ).disabled =
+            !event.target.checked;
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート STEP 4 → STEP 5
+       ===================================================== */
+
+    document
+      .getElementById(
+        "import-step4-next"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          const fileInput =
+            document.getElementById(
+              "import-file"
+            );
+
+
+          const error =
+            document.getElementById(
+              "import-file-error"
+            );
+
+
+          error.style.display =
+            "none";
+
+
+          if (
+            !document.getElementById(
+              "import-file-confirm"
+            ).checked
+          ) {
+
+            return;
+
+          }
+
+
+          const file =
+            fileInput.files[0];
+
+
+          if (!file) {
+
+            error.textContent =
+              "ファイルを選択してください。";
+
+            error.style.display =
+              "block";
+
+            return;
+
+          }
+
+
+          try {
+
+            const text =
+              await file.text();
+
+
+            let body =
+              JSON.parse(text);
+
+
+            // 配列だけの場合にも対応
+            if (
+              Array.isArray(body)
+            ) {
+
+              body = {
+                posts: body
+              };
+
+            }
+
+
+            if (
+              !body ||
+              !Array.isArray(body.posts)
+            ) {
+
+              error.textContent =
+                "バックアップデータの形式が不正です。";
+
+              error.style.display =
+                "block";
+
+              return;
+
+            }
+
+
+            if (
+              body.posts.length > 1000
+            ) {
+
+              error.textContent =
+                "投稿数が多すぎます（最大1000件）。";
+
+              error.style.display =
+                "block";
+
+              return;
+
+            }
+
+
+            importParsedBody =
+              body;
+
+
+            startImportCountdown();
+
+
+          } catch (parseError) {
+
+            error.textContent =
+              "JSONの解析に失敗しました。正しいバックアップファイルを選択してください。";
+
+            error.style.display =
+              "block";
+
+          }
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート：30秒カウントダウン
+       ===================================================== */
+
+    function startImportCountdown() {
+
+      importSeconds =
+        30;
+
+
+      document.getElementById(
+        "import-countdown"
+      ).textContent =
+        importSeconds;
+
+
+      document.getElementById(
+        "import-final-button"
+      ).disabled =
+        true;
+
+
+      showImportStep(5);
+
+
+      if (
+        importCountdownTimer !== null
+      ) {
+
+        clearInterval(
+          importCountdownTimer
+        );
+
+      }
+
+
+      importCountdownTimer =
+        setInterval(
+          () => {
+
+            importSeconds--;
+
+
+            document.getElementById(
+              "import-countdown"
+            ).textContent =
+              importSeconds;
+
+
+            if (
+              importSeconds <= 0
+            ) {
+
+              clearInterval(
+                importCountdownTimer
+              );
+
+
+              importCountdownTimer =
+                null;
+
+
+              document.getElementById(
+                "import-countdown"
+              ).textContent =
+                "0";
+
+
+              document.getElementById(
+                "import-final-button"
+              ).disabled =
+                false;
+
+            }
+
+          },
+          1000
+        );
+
+    }
+
+
+
+    /* =====================================================
+       インポート STEP 5 → STEP 6
+       ===================================================== */
+
+    document
+      .getElementById(
+        "import-final-button"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          if (
+            importCountdownTimer !== null
+          ) {
+
+            return;
+
+          }
+
+
+          showImportStep(6);
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート STEP 6：実行
+       ===================================================== */
+
+    document
+      .getElementById(
+        "execute-import-button"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          const error =
+            document.getElementById(
+              "import-execute-error"
+            );
+
+
+          error.style.display =
+            "none";
+
+
+          if (
+            !importReauthSession ||
+            !importParsedBody
+          ) {
+
+            error.textContent =
+              "再認証またはファイル読み込みが必要です。";
+
+            error.style.display =
+              "block";
+
+            return;
+
+          }
+
+
+          const confirmed =
+            window.confirm(
+              "最終確認です。\n\n" +
+              "現在の投稿データをすべて削除し、\n" +
+              "バックアップ内容で上書きします。\n\n" +
+              "本当に復元しますか？"
+            );
+
+
+          if (!confirmed) {
+
+            return;
+
+          }
+
+
+          const button =
+            document.getElementById(
+              "execute-import-button"
+            );
+
+
+          button.disabled =
+            true;
+
+
+          button.textContent =
+            "復元処理中...";
+
+
+          try {
+
+            const response =
+              await fetch(
+                API_URL +
+                "/api/admin/import",
+                {
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json",
+
+                    "Authorization":
+                      "Bearer " +
+                      importReauthSession
+                  },
+
+                  body: JSON.stringify(
+                    importParsedBody
+                  )
+                }
+              );
+
+
+            const result =
+              await response.json();
+
+
+            if (
+              response.status === 401
+            ) {
+
+              error.textContent =
+                "管理者認証が無効になっています。";
+
+              error.style.display =
+                "block";
+
+              return;
+
+            }
+
+
+            if (
+              !response.ok ||
+              result.success !== true
+            ) {
+
+              error.textContent =
+                result.error ||
+                "バックアップからの復元に失敗しました。";
+
+              error.style.display =
+                "block";
+
+              return;
+
+            }
+
+
+            const importedCount =
+              Number(
+                result.imported_count ?? 0
+              );
+
+
+            document.getElementById(
+              "import-complete-text"
+            ).textContent =
+              "バックアップからの復元が完了しました。" +
+              " インポート件数：" +
+              importedCount.toLocaleString(
+                "ja-JP"
+              ) +
+              "件";
+
+
+            importReauthSession =
+              "";
+
+
+            importParsedBody =
+              null;
+
+
+            showImportStep(
+              "complete"
+            );
+
+
+          } catch (requestError) {
+
+            console.error(
+              requestError
+            );
+
+
+            error.textContent =
+              "通信エラーが発生しました。";
+
+            error.style.display =
+              "block";
+
+
+          } finally {
+
+            button.disabled =
+              false;
+
+
+            button.textContent =
+              "完全に復元する";
+
+          }
+
+        }
+      );
+
+
+
+    /* =====================================================
+       インポート完了
+       ===================================================== */
+
+    document
+      .getElementById(
+        "import-complete-close"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          closeImport();
+
 
           await Promise.all([
             loadStats(),
@@ -4609,11 +5533,6 @@
 
     async function initialize() {
 
-      /*
-       * 認証確認が終わるまで
-       * 管理画面を表示しない。
-       */
-
       const authenticated =
         await checkSession();
 
@@ -4624,10 +5543,6 @@
 
       }
 
-
-      /*
-       * 認証成功後にデータ取得。
-       */
 
       await Promise.all([
         loadStats(),
