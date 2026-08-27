@@ -1,37 +1,98 @@
-/* 掲示板 */
+/* ==========================
+   掲示板
+   ========================== */
 
 .bbs-form {
   border: 1px solid #ccc;
-  background: rgba(255,255,255,0.8);
+  background: rgba(255, 255, 255, 0.8);
   padding: 15px;
   max-width: 600px;
+  box-sizing: border-box;
 }
 
 
 .bbs-form h2 {
   font-size: 18px;
   margin-top: 0;
+  margin-bottom: 15px;
 }
 
+
+/* 投稿フォームの各項目 */
+
+.form-item {
+  margin-bottom: 15px;
+}
+
+
+.form-item label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+
+/* 名前入力欄 */
 
 .bbs-form input {
+  display: block;
   width: 250px;
+  box-sizing: border-box;
+
+  font-family: "MS Gothic", "Osaka", monospace;
+  font-size: 16px;
 }
 
 
+/* 本文入力欄 */
+
 .bbs-form textarea {
+  display: block;
   width: 100%;
   max-width: 550px;
   height: 120px;
+  box-sizing: border-box;
+  resize: vertical;
+
+  font-family: "MS Gothic", "Osaka", monospace;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
+
+/* 投稿ボタン */
 
 .bbs-form button {
-  margin-top: 10px;
+  margin-top: 5px;
   cursor: pointer;
+
+  font-family: "MS Gothic", "Osaka", monospace;
 }
 
 
+/* ==========================
+   返信先
+   ========================== */
+
+#reply-box {
+  margin-bottom: 15px;
+  padding: 10px;
+
+  border: 1px solid #999;
+  background: #ffffe0;
+}
+
+
+#reply-box button {
+  margin-left: 15px;
+  cursor: pointer;
+
+  font-family: "MS Gothic", "Osaka", monospace;
+}
+
+
+/* ==========================
+   投稿一覧
+   ========================== */
 
 #posts {
   max-width: 700px;
@@ -52,12 +113,37 @@
 
 .post-message {
   margin: 10px 0;
+
+  /*
+   * 投稿者が入力した改行は保持する。
+   * HTML側のインデントなどは本文に混ざらない。
+   */
   white-space: pre-wrap;
 }
 
 
+/* 投稿操作ボタン */
+
+.post-actions {
+  margin-top: 5px;
+}
+
+
+.post-actions button {
+  cursor: pointer;
+
+  font-family: "MS Gothic", "Osaka", monospace;
+}
+
+
+/* ==========================
+   返信
+   ========================== */
+
 .reply {
   margin-left: 30px;
+
   border-left: 1px dotted #999;
+
   padding-left: 15px;
 }
