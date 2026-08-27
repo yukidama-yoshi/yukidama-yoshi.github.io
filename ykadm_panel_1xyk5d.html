@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>管理者ログイン - ゆきだまのホームページ</title>
+
+  <title>管理者パネル - ゆきだまのホームページ</title>
 
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/bbs.css">
@@ -18,163 +19,314 @@
 
   <div class="main">
 
-    <h1>管理者ログイン</h1>
-
-    <p>
-      掲示板の管理者用ページです。管理ページを使う権限をお持ちの方は、以下に認証情報を入力してください。
-    </p>
+    <h1>管理者パネル</h1>
 
 
-    <div class="bbs-form">
+    <!-- =========================================
+         ログイン画面
+         ========================================= -->
 
-      <h2>ログイン</h2>
+    <div id="login-area">
 
-      <div class="admin-login-field">
-        <label for="username">
-          ユーザー名：
-        </label>
+      <p>
+        掲示板の管理者用ページです。
+      </p>
 
-        <input
-          type="text"
-          id="username"
-          autocomplete="username"
-        >
+
+      <div class="bbs-form">
+
+        <h2>管理者ログイン</h2>
+
+
+        <div class="admin-login-field">
+
+          <label for="username">
+            ユーザー名：
+          </label>
+
+          <input
+            type="text"
+            id="username"
+            autocomplete="username"
+          >
+
+        </div>
+
+
+        <br>
+
+
+        <div class="admin-login-field">
+
+          <label for="password">
+            パスワード：
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            autocomplete="current-password"
+          >
+
+        </div>
+
+
+        <br>
+
+
+        <button id="login-button">
+          ログイン
+        </button>
+
+
+        <p
+          id="login-message"
+          style="display:none;"
+        ></p>
+
       </div>
-
-
-      <br>
-
-
-      <div class="admin-login-field">
-        <label for="password">
-          パスワード：
-        </label>
-
-        <input
-          type="password"
-          id="password"
-          autocomplete="current-password"
-        >
-      </div>
-
-
-      <br>
-
-
-      <button id="login-button">
-        ログイン
-      </button>
-
-
-      <p
-        id="login-message"
-        style="display:none;"
-      ></p>
 
     </div>
+
+
+
+    <!-- =========================================
+         管理画面
+         ========================================= -->
+
+    <div
+      id="admin-area"
+      style="display:none;"
+    >
+
+      <p>
+        管理者としてログインしています。
+      </p>
+
+
+      <div class="bbs-form">
+
+        <h2>管理者メニュー</h2>
+
+
+        <p>
+          現在は認証機能のみ実装されています。
+        </p>
+
+
+        <button id="logout-button">
+          ログアウト
+        </button>
+
+      </div>
+
+    </div>
+
 
 
     <hr>
 
 
     <p>
-      <a href="bbs.html">掲示板へ戻る</a>
+      <a href="bbs.html">
+        掲示板へ戻る
+      </a>
     </p>
 
 
     <footer>
-      <p>© 2026 ゆきだま. All rights reserved.</p>
+
+      <p>
+        © 2026 ゆきだま. All rights reserved.
+      </p>
+
     </footer>
 
   </div>
+
 
 
   <script src="js/load-sidebar.js"></script>
 
 
   <script>
-    /* ==========================
-       サイドバーリサイズ機能
-       ========================== */
-
-    const resizer =
-      document.getElementById('resizer');
-
-    const sidebarEl =
-      document.getElementById('sidebar');
-
-    let isResizing = false;
-
-
-    resizer.addEventListener(
-      'mousedown',
-      () => {
-
-        isResizing = true;
-
-        document.body.style.cursor =
-          'ew-resize';
-
-      }
-    );
-
-
-    document.addEventListener(
-      'mousemove',
-      (e) => {
-
-        if (!isResizing) return;
-
-        if (
-          e.clientX > 100 &&
-          e.clientX < 600
-        ) {
-
-          sidebarEl.style.width =
-            e.clientX + 'px';
-
-        }
-
-      }
-    );
-
-
-    document.addEventListener(
-      'mouseup',
-      () => {
-
-        isResizing = false;
-
-        document.body.style.cursor =
-          'default';
-
-      }
-    );
-
-
-    /* ==========================
-       管理者ログイン
-       ========================== */
+    /* =====================================================
+       設定
+       ===================================================== */
 
     const API_URL =
-      "https://kziban-api.y-bb0.workers.dev/api/admin/login";
+      "https://kziban-api.y-bb0.workers.dev";
+
+
+    const SESSION_KEY =
+      "kziban_admin_session";
+
+
+
+    /* =====================================================
+       要素取得
+       ===================================================== */
+
+    const loginArea =
+      document.getElementById("login-area");
+
+    const adminArea =
+      document.getElementById("admin-area");
 
 
     const usernameInput =
-      document.getElementById('username');
+      document.getElementById("username");
 
     const passwordInput =
-      document.getElementById('password');
+      document.getElementById("password");
+
 
     const loginButton =
-      document.getElementById('login-button');
+      document.getElementById("login-button");
+
+    const logoutButton =
+      document.getElementById("logout-button");
+
 
     const loginMessage =
-      document.getElementById('login-message');
+      document.getElementById("login-message");
 
+
+
+    /* =====================================================
+       セッション取得
+       ===================================================== */
+
+    function getSession() {
+
+      return sessionStorage.getItem(
+        SESSION_KEY
+      );
+
+    }
+
+
+
+    /* =====================================================
+       ログイン画面表示
+       ===================================================== */
+
+    function showLogin() {
+
+      loginArea.style.display =
+        "block";
+
+      adminArea.style.display =
+        "none";
+
+    }
+
+
+
+    /* =====================================================
+       管理画面表示
+       ===================================================== */
+
+    function showAdmin() {
+
+      loginArea.style.display =
+        "none";
+
+      adminArea.style.display =
+        "block";
+
+    }
+
+
+
+    /* =====================================================
+       セッション確認
+       ===================================================== */
+
+    async function checkSession() {
+
+      const session =
+        getSession();
+
+
+      if (!session) {
+
+        showLogin();
+
+        return;
+
+      }
+
+
+      try {
+
+        const response =
+          await fetch(
+            API_URL +
+            "/api/admin/check",
+            {
+              method: "GET",
+
+              headers: {
+                "Authorization":
+                  "Bearer " + session
+              }
+            }
+          );
+
+
+        if (!response.ok) {
+
+          sessionStorage.removeItem(
+            SESSION_KEY
+          );
+
+          showLogin();
+
+          return;
+
+        }
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          result.authenticated === true
+        ) {
+
+          showAdmin();
+
+        } else {
+
+          sessionStorage.removeItem(
+            SESSION_KEY
+          );
+
+          showLogin();
+
+        }
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        showLogin();
+
+      }
+
+    }
+
+
+
+    /* =====================================================
+       ログイン
+       ===================================================== */
 
     loginButton.addEventListener(
-      'click',
+      "click",
       async () => {
 
         const username =
@@ -184,38 +336,39 @@
           passwordInput.value;
 
 
-        /* 入力チェック */
+        loginMessage.style.display =
+          "none";
 
-        if (!username || !password) {
+
+        if (
+          !username ||
+          !password
+        ) {
 
           loginMessage.textContent =
             "ユーザー名とパスワードを入力してください。";
 
           loginMessage.style.display =
-            'block';
+            "block";
 
           return;
 
         }
 
 
-        /* ボタンを一時的に無効化 */
-
-        loginButton.disabled = true;
+        loginButton.disabled =
+          true;
 
         loginButton.textContent =
           "ログイン中...";
-
-
-        loginMessage.style.display =
-          'none';
 
 
         try {
 
           const response =
             await fetch(
-              API_URL,
+              API_URL +
+              "/api/admin/login",
               {
                 method: "POST",
 
@@ -224,10 +377,14 @@
                     "application/json"
                 },
 
-                body: JSON.stringify({
-                  username: username,
-                  password: password
-                })
+                body:
+                  JSON.stringify({
+                    username:
+                      username,
+
+                    password:
+                      password
+                  })
               }
             );
 
@@ -236,45 +393,47 @@
             await response.json();
 
 
-          /* ==========================
-             ログイン成功
-             ========================== */
-
           if (
             response.ok &&
-            result.success === true
+            result.success === true &&
+            result.session
           ) {
 
-            loginMessage.textContent =
-              "ログインに成功しました。";
+            /*
+             * セッションIDを保存
+             */
 
-            loginMessage.style.display =
-              'block';
+            sessionStorage.setItem(
+              SESSION_KEY,
+              result.session
+            );
 
 
             /*
-             * 現段階ではまだ
-             * 管理画面へ移動しません。
-             *
-             * 次の段階でセッション認証を
-             * 実装してから管理画面へ進めます。
+             * 入力欄をクリア
              */
+
+            passwordInput.value =
+              "";
+
+
+            /*
+             * 管理画面へ
+             */
+
+            showAdmin();
+
 
             return;
 
           }
 
 
-          /* ==========================
-             ログイン失敗
-             ========================== */
-
           loginMessage.textContent =
-            result.error ||
             "ユーザー名またはパスワードが違います。";
 
           loginMessage.style.display =
-            'block';
+            "block";
 
 
         } catch (error) {
@@ -285,14 +444,13 @@
             "通信エラーが発生しました。";
 
           loginMessage.style.display =
-            'block';
+            "block";
 
         }
 
 
-        /* ボタンを元に戻す */
-
-        loginButton.disabled = false;
+        loginButton.disabled =
+          false;
 
         loginButton.textContent =
           "ログイン";
@@ -301,13 +459,18 @@
     );
 
 
-    /* Enterキーでもログイン */
+
+    /* =====================================================
+       Enterキー
+       ===================================================== */
 
     passwordInput.addEventListener(
-      'keydown',
+      "keydown",
       (event) => {
 
-        if (event.key === 'Enter') {
+        if (
+          event.key === "Enter"
+        ) {
 
           loginButton.click();
 
@@ -315,6 +478,141 @@
 
       }
     );
+
+
+
+    /* =====================================================
+       ログアウト
+       ===================================================== */
+
+    logoutButton.addEventListener(
+      "click",
+      async () => {
+
+        const session =
+          getSession();
+
+
+        if (session) {
+
+          try {
+
+            await fetch(
+              API_URL +
+              "/api/admin/logout",
+              {
+                method: "POST",
+
+                headers: {
+                  "Authorization":
+                    "Bearer " + session
+                }
+              }
+            );
+
+          } catch (error) {
+
+            console.error(error);
+
+          }
+
+        }
+
+
+        /*
+         * ブラウザからセッションを削除
+         */
+
+        sessionStorage.removeItem(
+          SESSION_KEY
+        );
+
+
+        showLogin();
+
+      }
+    );
+
+
+
+    /* =====================================================
+       サイドバーリサイズ
+       ===================================================== */
+
+    const resizer =
+      document.getElementById(
+        "resizer"
+      );
+
+    const sidebarEl =
+      document.getElementById(
+        "sidebar"
+      );
+
+
+    let isResizing =
+      false;
+
+
+    resizer.addEventListener(
+      "mousedown",
+      () => {
+
+        isResizing =
+          true;
+
+        document.body.style.cursor =
+          "ew-resize";
+
+      }
+    );
+
+
+    document.addEventListener(
+      "mousemove",
+      (e) => {
+
+        if (!isResizing) {
+
+          return;
+
+        }
+
+
+        if (
+          e.clientX > 100 &&
+          e.clientX < 600
+        ) {
+
+          sidebarEl.style.width =
+            e.clientX + "px";
+
+        }
+
+      }
+    );
+
+
+    document.addEventListener(
+      "mouseup",
+      () => {
+
+        isResizing =
+          false;
+
+        document.body.style.cursor =
+          "default";
+
+      }
+    );
+
+
+
+    /* =====================================================
+       初期処理
+       ===================================================== */
+
+    checkSession();
 
   </script>
 
