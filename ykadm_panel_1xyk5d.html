@@ -440,6 +440,37 @@
 
 
     /* =====================================================
+       バックアップ復元
+       ===================================================== */
+
+    .import-description {
+
+      margin-bottom: 12px;
+
+      color: #555;
+
+    }
+
+
+    .import-file-row {
+
+      margin-bottom: 12px;
+
+    }
+
+
+    .import-file-row input[type="file"] {
+
+      font-family:
+        "MS Gothic",
+        "Osaka",
+        sans-serif;
+
+    }
+
+
+
+    /* =====================================================
        全消去モーダル
        ===================================================== */
 
@@ -773,7 +804,7 @@
        ===================================================== -->
 
   <div class="version-tag">
-    Ver 1.6
+    Ver 1.7
   </div>
 
 
@@ -1223,6 +1254,55 @@
         >
           ログ全削除（超危険）
         </button>
+
+      </div>
+
+
+
+      <!-- =================================================
+           バックアップから復元
+           ================================================= -->
+
+      <div class="admin-box">
+
+        <h2>
+          バックアップから復元
+        </h2>
+
+
+        <div class="import-description">
+
+          以前ダウンロードしたバックアップJSONを読み込み、
+          現在の投稿データをすべて置き換えます。<br>
+          <strong style="color:#700;">この操作は取り消せません。実行前に必要に応じてバックアップを取ってください。</strong>
+
+        </div>
+
+
+        <div class="import-file-row">
+
+          <input
+            type="file"
+            id="import-file"
+            accept=".json,application/json"
+          >
+
+        </div>
+
+
+        <button
+          type="button"
+          class="admin-button"
+          id="import-button"
+        >
+          バックアップを読み込んで復元
+        </button>
+
+
+        <div
+          class="admin-message"
+          id="import-message"
+        ></div>
 
       </div>
 
@@ -3226,6 +3306,243 @@
 
 
           showLoginScreen();
+
+        }
+      );
+
+
+
+    /* =====================================================
+       バックアップから復元
+       ===================================================== */
+
+    document
+      .getElementById(
+        "import-button"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+
+          const fileInput =
+            document.getElementById(
+              "import-file"
+            );
+
+
+          const message =
+            document.getElementById(
+              "import-message"
+            );
+
+
+          const button =
+            document.getElementById(
+              "import-button"
+            );
+
+
+          message.textContent =
+            "";
+
+
+          const file =
+            fileInput.files[0];
+
+
+          if (!file) {
+
+            message.textContent =
+              "ファイルを選択してください。";
+
+            return;
+
+          }
+
+
+          const confirmed =
+            window.confirm(
+              "選択したバックアップで現在の投稿データをすべて置き換えます。\n\n" +
+              "この操作は取り消せません。\n\n" +
+              "本当に実行しますか？"
+            );
+
+
+          if (!confirmed) {
+
+            return;
+
+          }
+
+
+          const session =
+            getSession();
+
+
+          if (!session) {
+
+            showLoginScreen();
+
+            return;
+
+          }
+
+
+          button.disabled =
+            true;
+
+
+          button.textContent =
+            "復元中...";
+
+
+          try {
+
+            const text =
+              await file.text();
+
+
+            let body;
+
+
+            try {
+
+              body =
+                JSON.parse(text);
+
+            } catch (parseError) {
+
+              message.textContent =
+                "JSONの解析に失敗しました。正しいバックアップファイルを選択してください。";
+
+              return;
+
+            }
+
+
+            // バックアップ形式 or posts配列のみ 両対応
+            if (
+              !body.posts &&
+              Array.isArray(body)
+            ) {
+
+              body = {
+                posts: body
+              };
+
+            }
+
+
+            if (
+              !body ||
+              !Array.isArray(body.posts)
+            ) {
+
+              message.textContent =
+                "バックアップデータの形式が不正です。";
+
+              return;
+
+            }
+
+
+            const response =
+              await fetch(
+                API_URL +
+                "/api/admin/import",
+                {
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json",
+
+                    "Authorization":
+                      "Bearer " +
+                      session
+                  },
+
+                  body: JSON.stringify(
+                    body
+                  )
+                }
+              );
+
+
+            if (
+              response.status === 401
+            ) {
+
+              handleUnauthorized();
+
+              return;
+
+            }
+
+
+            const result =
+              await response.json();
+
+
+            if (
+              !response.ok ||
+              result.success !== true
+            ) {
+
+              message.textContent =
+                result.error ||
+                "復元に失敗しました。";
+
+              return;
+
+            }
+
+
+            const count =
+              Number(
+                result.imported_count ?? 0
+              );
+
+
+            message.textContent =
+              "復元が完了しました。インポート件数: " +
+              count.toLocaleString(
+                "ja-JP"
+              ) +
+              " 件";
+
+
+            // ファイル選択をクリア
+            fileInput.value =
+              "";
+
+
+            // 統計と投稿一覧を再取得
+            await Promise.all([
+              loadStats(),
+              loadAdminPosts()
+            ]);
+
+
+          } catch (error) {
+
+            console.error(error);
+
+
+            message.textContent =
+              "通信エラーが発生しました。";
+
+
+          } finally {
+
+            button.disabled =
+              false;
+
+
+            button.textContent =
+              "バックアップを読み込んで復元";
+
+          }
 
         }
       );
