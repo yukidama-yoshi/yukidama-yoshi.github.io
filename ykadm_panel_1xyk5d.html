@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
   <meta charset="UTF-8">
 
   <title>管理者パネル - ゆきだまのホームページ</title>
@@ -10,175 +12,352 @@
 
   <style>
 
-    /* =========================================
-       認証確認中
-       ========================================= */
-
-    #page-content {
-      display: none;
-    }
-
+    /* =====================================================
+       初期状態
+       ===================================================== */
 
     #loading {
       padding: 40px;
     }
 
 
-    /* =========================================
+    #login-screen,
+    #admin-screen {
+      display: none;
+    }
+
+
+    /* =====================================================
+       ログイン画面
+       ===================================================== */
+
+    .login-box {
+
+      max-width: 400px;
+
+      border: 1px solid #ccc;
+
+      background: rgba(255,255,255,0.8);
+
+      padding: 20px;
+
+      margin-top: 20px;
+
+    }
+
+
+    .login-box h2 {
+
+      font-size: 18px;
+
+      margin-top: 0;
+
+      border-bottom: 1px solid #ccc;
+
+      padding-bottom: 5px;
+
+    }
+
+
+    .login-row {
+
+      margin-bottom: 15px;
+
+    }
+
+
+    .login-row label {
+
+      display: block;
+
+      margin-bottom: 5px;
+
+    }
+
+
+    .login-row input {
+
+      box-sizing: border-box;
+
+      width: 100%;
+
+      max-width: 350px;
+
+      padding: 6px;
+
+      font-family:
+        "MS Gothic",
+        "Osaka",
+        sans-serif;
+
+    }
+
+
+    .login-button {
+
+      cursor: pointer;
+
+      padding: 6px 15px;
+
+      font-family:
+        "MS Gothic",
+        "Osaka",
+        sans-serif;
+
+    }
+
+
+    .login-button:disabled {
+
+      cursor: default;
+
+    }
+
+
+    #login-error {
+
+      display: none;
+
+      margin-top: 15px;
+
+      padding: 8px;
+
+      border: 1px solid #cc9999;
+
+      background: #fff0f0;
+
+      color: #900;
+
+    }
+
+
+    /* =====================================================
        管理画面
-       ========================================= */
+       ===================================================== */
 
     .admin-panel {
+
       max-width: 900px;
+
     }
 
 
     .admin-box {
+
       border: 1px solid #ccc;
+
       background: rgba(255,255,255,0.8);
+
       padding: 15px;
+
       margin-bottom: 20px;
+
     }
 
 
     .admin-box h2 {
+
       font-size: 18px;
+
       margin-top: 0;
+
       border-bottom: 1px solid #ccc;
+
       padding-bottom: 5px;
+
     }
 
 
-    /* =========================================
-       統計
-       ========================================= */
+    /* =====================================================
+       統計情報
+       ===================================================== */
 
     .stats-grid {
+
       display: grid;
+
       grid-template-columns:
         repeat(2, minmax(200px, 1fr));
 
       gap: 10px;
+
     }
 
 
     .stat-item {
+
       border: 1px solid #ccc;
+
       background: #fff;
+
       padding: 10px;
+
     }
 
 
     .stat-label {
+
       font-size: 13px;
+
       color: #555;
+
     }
 
 
     .stat-value {
+
       font-size: 22px;
+
       font-weight: bold;
+
       margin-top: 3px;
+
     }
 
 
-    .stat-unit {
-      font-size: 13px;
-      font-weight: normal;
-    }
-
-
-    /* =========================================
+    /* =====================================================
        ボタン
-       ========================================= */
+       ===================================================== */
 
     .admin-button {
+
       cursor: pointer;
+
       padding: 5px 12px;
+
       font-family:
         "MS Gothic",
         "Osaka",
-        monospace;
+        sans-serif;
+
     }
 
 
     .admin-button:disabled {
+
       cursor: default;
+
     }
 
 
-    /* =========================================
-       投稿管理
-       ========================================= */
+    /* =====================================================
+       投稿フィルター
+       ===================================================== */
 
     .post-filter {
+
       margin-bottom: 15px;
+
     }
 
 
     .post-filter button {
+
       margin-right: 5px;
+
       margin-bottom: 5px;
+
       cursor: pointer;
+
     }
 
 
+    /* =====================================================
+       管理用投稿
+       ===================================================== */
+
     .admin-post {
+
       border-bottom: 1px dotted #999;
+
       padding: 15px 0;
+
+    }
+
+
+    .admin-post:last-child {
+
+      border-bottom: none;
+
     }
 
 
     .admin-post-header {
+
       font-size: 14px;
+
       color: #555;
+
       margin-bottom: 8px;
+
     }
 
 
     .admin-post-message {
+
       white-space: pre-wrap;
+
       overflow-wrap: anywhere;
+
       margin-bottom: 10px;
+
     }
 
 
     .admin-post-info {
+
       font-size: 12px;
+
       color: #777;
+
       margin-bottom: 8px;
+
     }
 
 
     .deleted-post {
+
       opacity: 0.65;
+
       background: #f5f5f5;
+
       padding: 10px;
+
     }
 
 
     .deleted-label {
+
       color: #a00;
+
       font-weight: bold;
+
+      margin-top: 8px;
+
     }
 
 
-    #stats-message,
-    #posts-message {
+    .admin-message {
+
       margin-top: 10px;
+
       font-size: 13px;
+
       color: #555;
+
     }
 
 
-    /* =========================================
-       スマホ
-       ========================================= */
+    /* =====================================================
+       スマートフォン
+       ===================================================== */
 
     @media (max-width: 600px) {
 
       .stats-grid {
+
         grid-template-columns: 1fr;
+
       }
 
     }
@@ -209,9 +388,9 @@
 
 
 
-  <!-- =========================================
+  <!-- =====================================================
        認証確認中
-       ========================================= -->
+       ===================================================== -->
 
   <div id="loading">
 
@@ -221,13 +400,119 @@
 
 
 
-  <!-- =========================================
-       管理画面本体
-       ========================================= -->
+  <!-- =====================================================
+       ログイン画面
+       ===================================================== -->
 
   <div
     class="main"
-    id="page-content"
+    id="login-screen"
+  >
+
+    <h1>
+      管理者ログイン
+    </h1>
+
+
+    <p>
+      管理者パネルを利用するにはログインしてください。
+    </p>
+
+
+    <div class="login-box">
+
+      <h2>
+        ログイン
+      </h2>
+
+
+      <form id="login-form">
+
+
+        <div class="login-row">
+
+          <label for="login-username">
+            ユーザー名
+          </label>
+
+          <input
+            type="text"
+            id="login-username"
+            autocomplete="username"
+            required
+          >
+
+        </div>
+
+
+
+        <div class="login-row">
+
+          <label for="login-password">
+            パスワード
+          </label>
+
+          <input
+            type="password"
+            id="login-password"
+            autocomplete="current-password"
+            required
+          >
+
+        </div>
+
+
+
+        <button
+          type="submit"
+          class="login-button"
+          id="login-button"
+        >
+          ログイン
+        </button>
+
+
+        <div
+          id="login-error"
+        >
+          ユーザー名またはパスワードが違います。
+        </div>
+
+
+      </form>
+
+    </div>
+
+
+    <p>
+
+      <a href="bbs.html">
+        掲示板へ戻る
+      </a>
+
+    </p>
+
+
+    <footer>
+
+      <p>
+        © 2026 ゆきだま.
+        All rights reserved.
+      </p>
+
+    </footer>
+
+  </div>
+
+
+
+  <!-- =====================================================
+       管理画面
+       ===================================================== -->
+
+  <div
+    class="main"
+    id="admin-screen"
   >
 
     <h1>
@@ -240,13 +525,13 @@
     </p>
 
 
-
     <div class="admin-panel">
 
 
-      <!-- =====================================
+
+      <!-- =================================================
            統計情報
-           ===================================== -->
+           ================================================= -->
 
       <div class="admin-box">
 
@@ -274,6 +559,7 @@
           </div>
 
 
+
           <div class="stat-item">
 
             <div class="stat-label">
@@ -288,6 +574,7 @@
             </div>
 
           </div>
+
 
 
           <div class="stat-item">
@@ -306,6 +593,7 @@
           </div>
 
 
+
           <div class="stat-item">
 
             <div class="stat-label">
@@ -320,6 +608,7 @@
             </div>
 
           </div>
+
 
 
           <div class="stat-item">
@@ -338,6 +627,7 @@
           </div>
 
 
+
           <div class="stat-item">
 
             <div class="stat-label">
@@ -354,6 +644,7 @@
           </div>
 
 
+
           <div class="stat-item">
 
             <div class="stat-label">
@@ -368,6 +659,7 @@
             </div>
 
           </div>
+
 
 
           <div class="stat-item">
@@ -392,8 +684,8 @@
         <div style="margin-top:15px;">
 
           <button
-            id="reload-stats"
             class="admin-button"
+            id="reload-stats"
           >
             統計を更新
           </button>
@@ -402,17 +694,17 @@
 
 
         <div
+          class="admin-message"
           id="stats-message"
-          style="display:none;"
         ></div>
 
       </div>
 
 
 
-      <!-- =====================================
+      <!-- =================================================
            投稿管理
-           ===================================== -->
+           ================================================= -->
 
       <div class="admin-box">
 
@@ -430,12 +722,14 @@
             すべて
           </button>
 
+
           <button
             class="admin-button"
             data-filter="active"
           >
             公開中
           </button>
+
 
           <button
             class="admin-button"
@@ -447,25 +741,25 @@
         </div>
 
 
-        <div
-          id="admin-posts"
-        >
+        <div id="admin-posts">
+
           読み込み中...
+
         </div>
 
 
         <div
+          class="admin-message"
           id="posts-message"
-          style="display:none;"
         ></div>
 
       </div>
 
 
 
-      <!-- =====================================
+      <!-- =================================================
            管理者操作
-           ===================================== -->
+           ================================================= -->
 
       <div class="admin-box">
 
@@ -475,8 +769,8 @@
 
 
         <button
-          id="logout-button"
           class="admin-button"
+          id="logout-button"
         >
           ログアウト
         </button>
@@ -487,14 +781,15 @@
     </div>
 
 
-
     <hr>
 
 
     <p>
+
       <a href="bbs.html">
         掲示板へ戻る
       </a>
+
     </p>
 
 
@@ -524,19 +819,87 @@
       "https://kziban-api.y-bb0.workers.dev";
 
 
+    /*
+     * 管理者セッションの保存場所
+     */
+
     const SESSION_KEY =
       "kziban_admin_session";
 
 
+    /*
+     * 投稿一覧
+     */
+
     let adminPosts = [];
 
-    let currentFilter =
-      "all";
+
+    /*
+     * 現在のフィルター
+     */
+
+    let currentFilter = "all";
 
 
 
     /* =====================================================
-       セッション
+       DOM
+       ===================================================== */
+
+    const loading =
+      document.getElementById(
+        "loading"
+      );
+
+
+    const loginScreen =
+      document.getElementById(
+        "login-screen"
+      );
+
+
+    const adminScreen =
+      document.getElementById(
+        "admin-screen"
+      );
+
+
+
+    /* =====================================================
+       画面切り替え
+       ===================================================== */
+
+    function showLoginScreen() {
+
+      loading.style.display =
+        "none";
+
+      adminScreen.style.display =
+        "none";
+
+      loginScreen.style.display =
+        "block";
+
+    }
+
+
+    function showAdminScreen() {
+
+      loading.style.display =
+        "none";
+
+      loginScreen.style.display =
+        "none";
+
+      adminScreen.style.display =
+        "block";
+
+    }
+
+
+
+    /* =====================================================
+       セッション取得
        ===================================================== */
 
     function getSession() {
@@ -550,7 +913,7 @@
 
 
     /* =====================================================
-       認証確認
+       セッション確認
        ===================================================== */
 
     async function checkSession() {
@@ -559,9 +922,16 @@
         getSession();
 
 
+      /*
+       * セッションがない
+       *
+       * リロードは絶対にしない。
+       * ログイン画面へ切り替える。
+       */
+
       if (!session) {
 
-        showLoginRequired();
+        showLoginScreen();
 
         return false;
 
@@ -591,7 +961,7 @@
             SESSION_KEY
           );
 
-          showLoginRequired();
+          showLoginScreen();
 
           return false;
 
@@ -610,7 +980,7 @@
             SESSION_KEY
           );
 
-          showLoginRequired();
+          showLoginScreen();
 
           return false;
 
@@ -621,17 +991,7 @@
          * 認証成功
          */
 
-        document.getElementById(
-          "loading"
-        ).style.display =
-          "none";
-
-
-        document.getElementById(
-          "page-content"
-        ).style.display =
-          "block";
-
+        showAdminScreen();
 
         return true;
 
@@ -640,7 +1000,13 @@
 
         console.error(error);
 
-        showLoginRequired();
+        /*
+         * 通信エラーの場合は、
+         * 勝手にログアウト扱いにはしない。
+         */
+
+        loading.textContent =
+          "管理者認証の確認に失敗しました。";
 
         return false;
 
@@ -651,25 +1017,184 @@
 
 
     /* =====================================================
-       ログイン要求
+       ログイン
        ===================================================== */
 
-    function showLoginRequired() {
+    document
+      .getElementById(
+        "login-form"
+      )
+      .addEventListener(
+        "submit",
+        async (event) => {
 
-      document.getElementById(
-        "loading"
-      ).textContent =
-        "管理者ログインが必要です。";
+          event.preventDefault();
 
 
-      setTimeout(() => {
+          const username =
+            document
+              .getElementById(
+                "login-username"
+              )
+              .value
+              .trim();
 
-        window.location.href =
-          "ykadm_panel_1xyk5d.html";
 
-      }, 1000);
+          const password =
+            document
+              .getElementById(
+                "login-password"
+              )
+              .value;
 
-    }
+
+          const button =
+            document
+              .getElementById(
+                "login-button"
+              );
+
+
+          const errorBox =
+            document
+              .getElementById(
+                "login-error"
+              );
+
+
+          errorBox.style.display =
+            "none";
+
+
+          if (
+            !username ||
+            !password
+          ) {
+
+            errorBox.textContent =
+              "ユーザー名またはパスワードが違います。";
+
+            errorBox.style.display =
+              "block";
+
+            return;
+
+          }
+
+
+          button.disabled =
+            true;
+
+          button.textContent =
+            "ログイン中...";
+
+
+          try {
+
+            const response =
+              await fetch(
+                API_URL +
+                "/api/admin/login",
+                {
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json"
+                  },
+
+                  body: JSON.stringify({
+                    username:
+                      username,
+
+                    password:
+                      password
+                  })
+                }
+              );
+
+
+            const result =
+              await response.json();
+
+
+            if (
+              !response.ok ||
+              result.success !== true ||
+              !result.session
+            ) {
+
+              errorBox.textContent =
+                "ユーザー名またはパスワードが違います。";
+
+              errorBox.style.display =
+                "block";
+
+              return;
+
+            }
+
+
+            /*
+             * セッションを保存
+             */
+
+            sessionStorage.setItem(
+              SESSION_KEY,
+              result.session
+            );
+
+
+            /*
+             * フォームをリセット
+             */
+
+            document
+              .getElementById(
+                "login-password"
+              )
+              .value = "";
+
+
+            /*
+             * 管理画面へ
+             */
+
+            showAdminScreen();
+
+
+            /*
+             * 管理画面のデータ取得
+             */
+
+            await Promise.all([
+              loadStats(),
+              loadAdminPosts()
+            ]);
+
+
+          } catch (error) {
+
+            console.error(error);
+
+            errorBox.textContent =
+              "ログイン処理に失敗しました。";
+
+            errorBox.style.display =
+              "block";
+
+          } finally {
+
+            button.disabled =
+              false;
+
+            button.textContent =
+              "ログイン";
+
+          }
+
+        }
+      );
 
 
 
@@ -684,14 +1209,10 @@
 
 
       if (!session) {
+
         return;
+
       }
-
-
-      const message =
-        document.getElementById(
-          "stats-message"
-        );
 
 
       const button =
@@ -700,8 +1221,10 @@
         );
 
 
-      message.style.display =
-        "none";
+      const message =
+        document.getElementById(
+          "stats-message"
+        );
 
 
       button.disabled =
@@ -709,6 +1232,10 @@
 
       button.textContent =
         "読み込み中...";
+
+
+      message.textContent =
+        "";
 
 
       try {
@@ -732,11 +1259,7 @@
           response.status === 401
         ) {
 
-          sessionStorage.removeItem(
-            SESSION_KEY
-          );
-
-          window.location.reload();
+          await handleUnauthorized();
 
           return;
 
@@ -760,32 +1283,44 @@
         document.getElementById(
           "total-posts"
         ).textContent =
-          stats.total_posts
-            .toLocaleString("ja-JP") +
+          Number(
+            stats.total_posts
+          ).toLocaleString(
+            "ja-JP"
+          ) +
           " 件";
 
 
         document.getElementById(
           "parent-posts"
         ).textContent =
-          stats.parent_posts
-            .toLocaleString("ja-JP") +
+          Number(
+            stats.parent_posts
+          ).toLocaleString(
+            "ja-JP"
+          ) +
           " 件";
 
 
         document.getElementById(
           "replies"
         ).textContent =
-          stats.replies
-            .toLocaleString("ja-JP") +
+          Number(
+            stats.replies
+          ).toLocaleString(
+            "ja-JP"
+          ) +
           " 件";
 
 
         document.getElementById(
           "total-characters"
         ).textContent =
-          stats.total_characters
-            .toLocaleString("ja-JP") +
+          Number(
+            stats.total_characters
+          ).toLocaleString(
+            "ja-JP"
+          ) +
           " 文字";
 
 
@@ -801,31 +1336,40 @@
         document.getElementById(
           "today-posts"
         ).textContent =
-          stats.today_posts
-            .toLocaleString("ja-JP") +
+          Number(
+            stats.today_posts
+          ).toLocaleString(
+            "ja-JP"
+          ) +
           " 件";
 
 
         document.getElementById(
           "month-posts"
         ).textContent =
-          stats.this_month_posts
-            .toLocaleString("ja-JP") +
+          Number(
+            stats.this_month_posts
+          ).toLocaleString(
+            "ja-JP"
+          ) +
           " 件";
 
 
         /*
          * 投稿データ容量の概算
          *
-         * 現在はWorkerから総文字数を取得しているため、
-         * 1文字あたり3バイトとして単純計算します。
+         * 現在のWorkerの統計APIでは
+         * 文字数を取得しているため、
+         * ここでは1文字3バイトとして
+         * 概算する。
          *
-         * 日本語を含むUTF-8では実際のサイズと
-         * 完全には一致しないため「概算」です。
+         * D1そのものの使用容量ではない。
          */
 
         const estimatedBytes =
-          stats.total_characters * 3;
+          Number(
+            stats.total_characters
+          ) * 3;
 
 
         document.getElementById(
@@ -839,9 +1383,6 @@
         message.textContent =
           "更新しました。";
 
-        message.style.display =
-          "block";
-
 
       } catch (error) {
 
@@ -850,27 +1391,35 @@
         message.textContent =
           "統計情報の取得に失敗しました。";
 
-        message.style.display =
-          "block";
+      } finally {
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          "統計を更新";
 
       }
-
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        "統計を更新";
 
     }
 
 
 
     /* =====================================================
-       バイト数 → KB / MB / GB
+       バイト数表示
        ===================================================== */
 
     function formatBytes(bytes) {
+
+      if (
+        !Number.isFinite(bytes) ||
+        bytes < 0
+      ) {
+
+        return "-";
+
+      }
+
 
       if (bytes < 1024) {
 
@@ -904,7 +1453,9 @@
       ) {
 
         return (
-          (bytes / 1024 / 1024)
+          (bytes /
+            1024 /
+            1024)
             .toFixed(2) +
           " MB"
         );
@@ -936,7 +1487,9 @@
 
 
       if (!session) {
+
         return;
+
       }
 
 
@@ -946,8 +1499,18 @@
         );
 
 
+      const message =
+        document.getElementById(
+          "posts-message"
+        );
+
+
       postsArea.textContent =
         "読み込み中...";
+
+
+      message.textContent =
+        "";
 
 
       try {
@@ -971,11 +1534,7 @@
           response.status === 401
         ) {
 
-          sessionStorage.removeItem(
-            SESSION_KEY
-          );
-
-          window.location.reload();
+          await handleUnauthorized();
 
           return;
 
@@ -1038,7 +1597,9 @@
         filteredPosts =
           adminPosts.filter(
             post =>
-              post.deleted === 0
+              Number(
+                post.deleted
+              ) === 0
           );
 
       } else if (
@@ -1048,7 +1609,9 @@
         filteredPosts =
           adminPosts.filter(
             post =>
-              post.deleted === 1
+              Number(
+                post.deleted
+              ) === 1
           );
 
       } else {
@@ -1105,9 +1668,13 @@
         "admin-post";
 
 
-      if (
-        post.deleted === 1
-      ) {
+      const deleted =
+        Number(
+          post.deleted
+        ) === 1;
+
+
+      if (deleted) {
 
         div.classList.add(
           "deleted-post"
@@ -1115,6 +1682,10 @@
 
       }
 
+
+      /*
+       * ヘッダー
+       */
 
       const header =
         document.createElement(
@@ -1126,12 +1697,7 @@
         "admin-post-header";
 
 
-      header.textContent =
-        "ID " +
-        post.id +
-        "　" +
-        post.name +
-        "　" +
+      const date =
         new Date(
           post.created_at
         ).toLocaleString(
@@ -1139,10 +1705,23 @@
         );
 
 
+      header.textContent =
+        "ID " +
+        post.id +
+        "　" +
+        post.name +
+        "　" +
+        date;
+
+
       div.appendChild(
         header
       );
 
+
+      /*
+       * 投稿種別
+       */
 
       const info =
         document.createElement(
@@ -1154,18 +1733,31 @@
         "admin-post-info";
 
 
-      info.textContent =
+      if (
         post.parent_id === null
-          ? "親投稿"
-          : "返信（親投稿ID: " +
-            post.parent_id +
-            "）";
+      ) {
+
+        info.textContent =
+          "親投稿";
+
+      } else {
+
+        info.textContent =
+          "返信（親投稿ID: " +
+          post.parent_id +
+          "）";
+
+      }
 
 
       div.appendChild(
         info
       );
 
+
+      /*
+       * 本文
+       */
 
       const message =
         document.createElement(
@@ -1186,61 +1778,69 @@
       );
 
 
-      if (
-        post.deleted === 1
-      ) {
+      /*
+       * 削除済み
+       */
 
-        const deletedLabel =
+      if (deleted) {
+
+        const label =
           document.createElement(
             "div"
           );
 
 
-        deletedLabel.className =
+        label.className =
           "deleted-label";
 
 
-        deletedLabel.textContent =
+        label.textContent =
           "削除済み";
 
 
         div.appendChild(
-          deletedLabel
-        );
-
-      } else {
-
-        const deleteButton =
-          document.createElement(
-            "button"
-          );
-
-
-        deleteButton.className =
-          "admin-button";
-
-
-        deleteButton.textContent =
-          "削除";
-
-
-        deleteButton.addEventListener(
-          "click",
-          () => {
-
-            deletePost(
-              post.id
-            );
-
-          }
+          label
         );
 
 
-        div.appendChild(
-          deleteButton
-        );
+        return div;
 
       }
+
+
+      /*
+       * 削除ボタン
+       */
+
+      const deleteButton =
+        document.createElement(
+          "button"
+        );
+
+
+      deleteButton.className =
+        "admin-button";
+
+
+      deleteButton.textContent =
+        "削除";
+
+
+      deleteButton.addEventListener(
+        "click",
+        () => {
+
+          deletePost(
+            post.id
+          );
+
+        }
+      );
+
+
+      div.appendChild(
+        deleteButton
+      );
 
 
       return div;
@@ -1258,11 +1858,11 @@
     ) {
 
       const confirmed =
-        confirm(
+        window.confirm(
           "投稿ID " +
           id +
           " を削除しますか？\n\n" +
-          "削除後は通常の掲示板には表示されなくなります。"
+          "削除すると通常の掲示板には表示されなくなります。"
         );
 
 
@@ -1279,11 +1879,7 @@
 
       if (!session) {
 
-        alert(
-          "ログイン状態が無効です。"
-        );
-
-        window.location.reload();
+        showLoginScreen();
 
         return;
 
@@ -1296,7 +1892,9 @@
           await fetch(
             API_URL +
             "/api/admin/posts/" +
-            id,
+            encodeURIComponent(
+              id
+            ),
             {
               method: "DELETE",
 
@@ -1308,23 +1906,19 @@
           );
 
 
-        const result =
-          await response.json();
-
-
         if (
           response.status === 401
         ) {
 
-          sessionStorage.removeItem(
-            SESSION_KEY
-          );
-
-          window.location.reload();
+          await handleUnauthorized();
 
           return;
 
         }
+
+
+        const result =
+          await response.json();
 
 
         if (
@@ -1342,17 +1936,13 @@
 
 
         /*
-         * 一覧を再取得
+         * 投稿一覧と統計を更新
          */
 
-        await loadAdminPosts();
-
-
-        /*
-         * 統計も更新
-         */
-
-        await loadStats();
+        await Promise.all([
+          loadAdminPosts(),
+          loadStats()
+        ]);
 
 
       } catch (error) {
@@ -1364,6 +1954,37 @@
         );
 
       }
+
+    }
+
+
+
+    /* =====================================================
+       認証切れ
+       ===================================================== */
+
+    async function handleUnauthorized() {
+
+      sessionStorage.removeItem(
+        SESSION_KEY
+      );
+
+
+      adminPosts = [];
+
+
+      showLoginScreen();
+
+
+      document.getElementById(
+        "login-error"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "login-password"
+      ).value = "";
 
     }
 
@@ -1428,6 +2049,10 @@
             getSession();
 
 
+          /*
+           * サーバー側のセッションも削除
+           */
+
           if (session) {
 
             try {
@@ -1455,12 +2080,23 @@
           }
 
 
+          /*
+           * ブラウザ側のセッション削除
+           */
+
           sessionStorage.removeItem(
             SESSION_KEY
           );
 
 
-          window.location.reload();
+          adminPosts = [];
+
+
+          /*
+           * リロードせずログイン画面へ
+           */
+
+          showLoginScreen();
 
         }
       );
@@ -1503,20 +2139,22 @@
 
     document.addEventListener(
       "mousemove",
-      (e) => {
+      (event) => {
 
         if (!isResizing) {
+
           return;
+
         }
 
 
         if (
-          e.clientX > 100 &&
-          e.clientX < 600
+          event.clientX > 100 &&
+          event.clientX < 600
         ) {
 
           sidebarEl.style.width =
-            e.clientX + "px";
+            event.clientX + "px";
 
         }
 
@@ -1545,18 +2183,26 @@
 
     async function initialize() {
 
+      /*
+       * ここではまだ管理画面を表示しない。
+       *
+       * 認証確認が終わってから
+       * ログイン画面または管理画面を表示する。
+       */
+
       const authenticated =
         await checkSession();
 
 
       if (!authenticated) {
+
         return;
+
       }
 
 
       /*
-       * 認証成功後に初めて
-       * 管理画面のデータを取得
+       * 認証成功後にデータ取得
        */
 
       await Promise.all([
@@ -1573,4 +2219,5 @@
 
 
 </body>
+
 </html>
