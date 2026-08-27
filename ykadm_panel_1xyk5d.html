@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/common.css">
   <link rel="stylesheet" href="css/bbs.css">
 
+
   <style>
 
     /* =====================================================
@@ -25,6 +26,7 @@
     #admin-screen {
       display: none;
     }
+
 
 
     /* =====================================================
@@ -131,6 +133,7 @@
     }
 
 
+
     /* =====================================================
        管理画面
        ===================================================== */
@@ -166,6 +169,7 @@
       padding-bottom: 5px;
 
     }
+
 
 
     /* =====================================================
@@ -215,6 +219,7 @@
     }
 
 
+
     /* =====================================================
        ボタン
        ===================================================== */
@@ -240,26 +245,65 @@
     }
 
 
+
     /* =====================================================
        投稿フィルター
        ===================================================== */
 
     .post-filter {
 
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 6px;
+
       margin-bottom: 15px;
 
     }
 
 
-    .post-filter button {
-
-      margin-right: 5px;
-
-      margin-bottom: 5px;
+    .filter-button {
 
       cursor: pointer;
 
+      padding: 6px 14px;
+
+      border: 1px solid #aaa;
+
+      background: #eee;
+
+      font-family:
+        "MS Gothic",
+        "Osaka",
+        sans-serif;
+
     }
+
+
+    .filter-button:hover {
+
+      background: #ddd;
+
+    }
+
+
+    /*
+     * 現在選択中のフィルター
+     */
+
+    .filter-button.active {
+
+      background: #555;
+
+      color: #fff;
+
+      border-color: #333;
+
+      font-weight: bold;
+
+    }
+
 
 
     /* =====================================================
@@ -334,8 +378,15 @@
 
       margin-top: 8px;
 
+      margin-bottom: 8px;
+
     }
 
+
+
+    /* =====================================================
+       管理用メッセージ
+       ===================================================== */
 
     .admin-message {
 
@@ -346,6 +397,7 @@
       color: #555;
 
     }
+
 
 
     /* =====================================================
@@ -367,13 +419,23 @@
 </head>
 
 
+
 <body>
 
+
+  <!-- =====================================================
+       バージョン
+       ===================================================== -->
 
   <div class="version-tag">
     Ver 1.6
   </div>
 
+
+
+  <!-- =====================================================
+       サイドバー
+       ===================================================== -->
 
   <nav
     class="sidebar"
@@ -470,6 +532,7 @@
         >
           ログイン
         </button>
+
 
 
         <div
@@ -713,10 +776,18 @@
         </h2>
 
 
-        <div class="post-filter">
+        <!-- フィルター -->
+
+        <div
+          class="post-filter"
+          role="group"
+          aria-label="投稿フィルター"
+        >
+
 
           <button
-            class="admin-button"
+            type="button"
+            class="filter-button active"
             data-filter="all"
           >
             すべて
@@ -724,7 +795,8 @@
 
 
           <button
-            class="admin-button"
+            type="button"
+            class="filter-button"
             data-filter="active"
           >
             公開中
@@ -732,14 +804,19 @@
 
 
           <button
-            class="admin-button"
+            type="button"
+            class="filter-button"
             data-filter="deleted"
           >
             削除済み
           </button>
 
+
         </div>
 
+
+
+        <!-- 投稿一覧 -->
 
         <div id="admin-posts">
 
@@ -781,6 +858,7 @@
     </div>
 
 
+
     <hr>
 
 
@@ -806,6 +884,11 @@
 
 
 
+  <!-- =====================================================
+       JavaScript
+       ===================================================== -->
+
+
   <script src="js/load-sidebar.js"></script>
 
 
@@ -819,26 +902,15 @@
       "https://kziban-api.y-bb0.workers.dev";
 
 
-    /*
-     * 管理者セッションの保存場所
-     */
-
     const SESSION_KEY =
       "kziban_admin_session";
 
 
-    /*
-     * 投稿一覧
-     */
-
     let adminPosts = [];
 
 
-    /*
-     * 現在のフィルター
-     */
-
-    let currentFilter = "all";
+    let currentFilter =
+      "all";
 
 
 
@@ -874,8 +946,10 @@
       loading.style.display =
         "none";
 
+
       adminScreen.style.display =
         "none";
+
 
       loginScreen.style.display =
         "block";
@@ -888,8 +962,10 @@
       loading.style.display =
         "none";
 
+
       loginScreen.style.display =
         "none";
+
 
       adminScreen.style.display =
         "block";
@@ -923,10 +999,8 @@
 
 
       /*
-       * セッションがない
-       *
-       * リロードは絶対にしない。
-       * ログイン画面へ切り替える。
+       * セッションがない場合、
+       * リロードせずログイン画面を表示する。
        */
 
       if (!session) {
@@ -949,7 +1023,8 @@
 
               headers: {
                 "Authorization":
-                  "Bearer " + session
+                  "Bearer " +
+                  session
               }
             }
           );
@@ -961,7 +1036,9 @@
             SESSION_KEY
           );
 
+
           showLoginScreen();
+
 
           return false;
 
@@ -980,7 +1057,9 @@
             SESSION_KEY
           );
 
+
           showLoginScreen();
+
 
           return false;
 
@@ -993,6 +1072,7 @@
 
         showAdminScreen();
 
+
         return true;
 
 
@@ -1000,13 +1080,15 @@
 
         console.error(error);
 
+
         /*
-         * 通信エラーの場合は、
-         * 勝手にログアウト扱いにはしない。
+         * 通信そのものに失敗した場合は
+         * ログイン画面へ飛ばさない。
          */
 
         loading.textContent =
           "管理者認証の確認に失敗しました。";
+
 
         return false;
 
@@ -1074,8 +1156,10 @@
             errorBox.textContent =
               "ユーザー名またはパスワードが違います。";
 
+
             errorBox.style.display =
               "block";
+
 
             return;
 
@@ -1084,6 +1168,7 @@
 
           button.disabled =
             true;
+
 
           button.textContent =
             "ログイン中...";
@@ -1127,8 +1212,10 @@
               errorBox.textContent =
                 "ユーザー名またはパスワードが違います。";
 
+
               errorBox.style.display =
                 "block";
+
 
               return;
 
@@ -1136,7 +1223,7 @@
 
 
             /*
-             * セッションを保存
+             * セッション保存
              */
 
             sessionStorage.setItem(
@@ -1146,7 +1233,7 @@
 
 
             /*
-             * フォームをリセット
+             * パスワード欄を空にする
              */
 
             document
@@ -1157,14 +1244,14 @@
 
 
             /*
-             * 管理画面へ
+             * 管理画面表示
              */
 
             showAdminScreen();
 
 
             /*
-             * 管理画面のデータ取得
+             * データ取得
              */
 
             await Promise.all([
@@ -1177,16 +1264,20 @@
 
             console.error(error);
 
+
             errorBox.textContent =
               "ログイン処理に失敗しました。";
 
+
             errorBox.style.display =
               "block";
+
 
           } finally {
 
             button.disabled =
               false;
+
 
             button.textContent =
               "ログイン";
@@ -1199,7 +1290,7 @@
 
 
     /* =====================================================
-       統計情報
+       統計情報取得
        ===================================================== */
 
     async function loadStats() {
@@ -1230,6 +1321,7 @@
       button.disabled =
         true;
 
+
       button.textContent =
         "読み込み中...";
 
@@ -1249,7 +1341,8 @@
 
               headers: {
                 "Authorization":
-                  "Bearer " + session
+                  "Bearer " +
+                  session
               }
             }
           );
@@ -1259,7 +1352,7 @@
           response.status === 401
         ) {
 
-          await handleUnauthorized();
+          handleUnauthorized();
 
           return;
 
@@ -1356,14 +1449,10 @@
 
 
         /*
-         * 投稿データ容量の概算
+         * 現在は文字数から概算。
          *
-         * 現在のWorkerの統計APIでは
-         * 文字数を取得しているため、
-         * ここでは1文字3バイトとして
-         * 概算する。
-         *
-         * D1そのものの使用容量ではない。
+         * 日本語などを含むUTF-8データを
+         * 厳密に測定した値ではない。
          */
 
         const estimatedBytes =
@@ -1388,13 +1477,16 @@
 
         console.error(error);
 
+
         message.textContent =
           "統計情報の取得に失敗しました。";
+
 
       } finally {
 
         button.disabled =
           false;
+
 
         button.textContent =
           "統計を更新";
@@ -1449,7 +1541,9 @@
 
       if (
         bytes <
-        1024 * 1024 * 1024
+        1024 *
+        1024 *
+        1024
       ) {
 
         return (
@@ -1477,7 +1571,7 @@
 
 
     /* =====================================================
-       管理者用投稿一覧
+       管理者用投稿一覧取得
        ===================================================== */
 
     async function loadAdminPosts() {
@@ -1524,7 +1618,8 @@
 
               headers: {
                 "Authorization":
-                  "Bearer " + session
+                  "Bearer " +
+                  session
               }
             }
           );
@@ -1534,7 +1629,7 @@
           response.status === 401
         ) {
 
-          await handleUnauthorized();
+          handleUnauthorized();
 
           return;
 
@@ -1561,6 +1656,7 @@
       } catch (error) {
 
         console.error(error);
+
 
         postsArea.textContent =
           "投稿一覧の取得に失敗しました。";
@@ -1629,6 +1725,7 @@
         postsArea.textContent =
           "該当する投稿はありません。";
 
+
         return;
 
       }
@@ -1683,9 +1780,10 @@
       }
 
 
-      /*
-       * ヘッダー
-       */
+
+      /* -----------------------------------------------------
+         ヘッダー
+         ----------------------------------------------------- */
 
       const header =
         document.createElement(
@@ -1719,9 +1817,10 @@
       );
 
 
-      /*
-       * 投稿種別
-       */
+
+      /* -----------------------------------------------------
+         投稿種別
+         ----------------------------------------------------- */
 
       const info =
         document.createElement(
@@ -1755,9 +1854,10 @@
       );
 
 
-      /*
-       * 本文
-       */
+
+      /* -----------------------------------------------------
+         本文
+         ----------------------------------------------------- */
 
       const message =
         document.createElement(
@@ -1778,9 +1878,10 @@
       );
 
 
-      /*
-       * 削除済み
-       */
+
+      /* -----------------------------------------------------
+         削除済み
+         ----------------------------------------------------- */
 
       if (deleted) {
 
@@ -1803,19 +1904,64 @@
         );
 
 
+
+        /*
+         * 復活ボタン
+         */
+
+        const restoreButton =
+          document.createElement(
+            "button"
+          );
+
+
+        restoreButton.type =
+          "button";
+
+
+        restoreButton.className =
+          "admin-button";
+
+
+        restoreButton.textContent =
+          "復活";
+
+
+        restoreButton.addEventListener(
+          "click",
+          () => {
+
+            restorePost(
+              post.id
+            );
+
+          }
+        );
+
+
+        div.appendChild(
+          restoreButton
+        );
+
+
         return div;
 
       }
 
 
-      /*
-       * 削除ボタン
-       */
+
+      /* -----------------------------------------------------
+         削除ボタン
+         ----------------------------------------------------- */
 
       const deleteButton =
         document.createElement(
           "button"
         );
+
+
+      deleteButton.type =
+        "button";
 
 
       deleteButton.className =
@@ -1900,7 +2046,8 @@
 
               headers: {
                 "Authorization":
-                  "Bearer " + session
+                  "Bearer " +
+                  session
               }
             }
           );
@@ -1910,7 +2057,7 @@
           response.status === 401
         ) {
 
-          await handleUnauthorized();
+          handleUnauthorized();
 
           return;
 
@@ -1930,13 +2077,14 @@
             "投稿の削除に失敗しました。"
           );
 
+
           return;
 
         }
 
 
         /*
-         * 投稿一覧と統計を更新
+         * 投稿一覧・統計を更新
          */
 
         await Promise.all([
@@ -1948,6 +2096,121 @@
       } catch (error) {
 
         console.error(error);
+
+
+        alert(
+          "通信エラーが発生しました。"
+        );
+
+      }
+
+    }
+
+
+
+    /* =====================================================
+       投稿復活
+       ===================================================== */
+
+    async function restorePost(
+      id
+    ) {
+
+      const confirmed =
+        window.confirm(
+          "投稿ID " +
+          id +
+          " を復活させますか？\n\n" +
+          "復活すると通常の掲示板に再び表示されます。"
+        );
+
+
+      if (!confirmed) {
+
+        return;
+
+      }
+
+
+      const session =
+        getSession();
+
+
+      if (!session) {
+
+        showLoginScreen();
+
+        return;
+
+      }
+
+
+      try {
+
+        const response =
+          await fetch(
+            API_URL +
+            "/api/admin/posts/" +
+            encodeURIComponent(
+              id
+            ) +
+            "/restore",
+            {
+              method: "POST",
+
+              headers: {
+                "Authorization":
+                  "Bearer " +
+                  session
+              }
+            }
+          );
+
+
+        if (
+          response.status === 401
+        ) {
+
+          handleUnauthorized();
+
+          return;
+
+        }
+
+
+        const result =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          result.success !== true
+        ) {
+
+          alert(
+            "投稿の復活に失敗しました。"
+          );
+
+
+          return;
+
+        }
+
+
+        /*
+         * 投稿一覧・統計を更新
+         */
+
+        await Promise.all([
+          loadAdminPosts(),
+          loadStats()
+        ]);
+
+
+      } catch (error) {
+
+        console.error(error);
+
 
         alert(
           "通信エラーが発生しました。"
@@ -1963,7 +2226,7 @@
        認証切れ
        ===================================================== */
 
-    async function handleUnauthorized() {
+    function handleUnauthorized() {
 
       sessionStorage.removeItem(
         SESSION_KEY
@@ -1996,7 +2259,7 @@
 
     document
       .querySelectorAll(
-        "[data-filter]"
+        ".filter-button"
       )
       .forEach(
         button => {
@@ -2005,8 +2268,47 @@
             "click",
             () => {
 
+
+              /*
+               * 現在のフィルター変更
+               */
+
               currentFilter =
                 button.dataset.filter;
+
+
+              /*
+               * 全ボタンの選択状態を解除
+               */
+
+              document
+                .querySelectorAll(
+                  ".filter-button"
+                )
+                .forEach(
+                  otherButton => {
+
+                    otherButton.classList.remove(
+                      "active"
+                    );
+
+                  }
+                );
+
+
+              /*
+               * クリックされたボタンだけ
+               * 選択状態にする
+               */
+
+              button.classList.add(
+                "active"
+              );
+
+
+              /*
+               * 投稿一覧更新
+               */
 
               renderAdminPosts();
 
@@ -2050,7 +2352,7 @@
 
 
           /*
-           * サーバー側のセッションも削除
+           * サーバー側セッション削除
            */
 
           if (session) {
@@ -2081,7 +2383,7 @@
 
 
           /*
-           * ブラウザ側のセッション削除
+           * ブラウザ側セッション削除
            */
 
           sessionStorage.removeItem(
@@ -2130,6 +2432,7 @@
         isResizing =
           true;
 
+
         document.body.style.cursor =
           "ew-resize";
 
@@ -2169,6 +2472,7 @@
         isResizing =
           false;
 
+
         document.body.style.cursor =
           "default";
 
@@ -2184,10 +2488,9 @@
     async function initialize() {
 
       /*
-       * ここではまだ管理画面を表示しない。
-       *
-       * 認証確認が終わってから
-       * ログイン画面または管理画面を表示する。
+       * 認証確認が終わるまで
+       * ログイン画面・管理画面のどちらも
+       * 表示しない。
        */
 
       const authenticated =
