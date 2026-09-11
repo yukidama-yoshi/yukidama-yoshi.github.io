@@ -4,27 +4,41 @@
   <meta charset="UTF-8">
   <title>ゆきだまのホームページ - 入手済みソフト一覧</title>
   <link rel="stylesheet" href="../css/common.css">
+
   <style>
-    /* プルダウンメニューの配置用スタイル */
     .sort-container {
       margin-bottom: 15px;
     }
+
     .sort-select {
       padding: 4px 8px;
       font-size: 14px;
       cursor: pointer;
     }
+
+    .collection-title {
+      margin-top: 30px;
+      margin-bottom: 10px;
+    }
+
+    .collection-rate {
+      font-size: 13px;
+      margin-left: 10px;
+      color: #555;
+    }
   </style>
 </head>
+
 <body>
 
   <nav class="sidebar" id="sidebar"></nav>
-  
+
   <div class="resizer" id="resizer"></div>
 
   <div class="main">
+
     <h1>ゲームコレクション - 入手済みソフト一覧</h1>
-    
+
     <p>
       [ <a href="hard.html">入手済みハード一覧へ</a> ] ｜ 
       [ <a href="index.html">ゲームコレクショントップへ</a> ]
@@ -42,104 +56,302 @@
     <div id="soft-container"></div>
 
     <hr>
+
     <p><a href="../index.html">トップページへ戻る</a></p>
 
     <footer>
       <p>© 2026 ゆきだま. All rights reserved.</p>
     </footer>
+
   </div>
 
   <script src="../js/load-sidebar.js"></script>
 
   <script>
-    /* サイドバーリサイズ機能（共通） */
     const resizer = document.getElementById('resizer');
     const sidebarEl = document.getElementById('sidebar');
+
     let isResizing = false;
 
-    resizer.addEventListener('mousedown', () => { 
-      isResizing = true; 
-      document.body.style.cursor = 'ew-resize'; 
+    resizer.addEventListener('mousedown', () => {
+      isResizing = true;
+      document.body.style.cursor = 'ew-resize';
     });
 
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
+
       if (e.clientX > 100 && e.clientX < 600) {
         sidebarEl.style.width = e.clientX + 'px';
       }
     });
 
-    document.addEventListener('mouseup', () => { 
-      isResizing = false; 
-      document.body.style.cursor = 'default'; 
+    document.addEventListener('mouseup', () => {
+      isResizing = false;
+      document.body.style.cursor = 'default';
     });
 
-    // ハードごとにグループ分けした元のデータを保存するオブジェクト
+
+    /*
+     * ============================================================
+     * ゲームソフト一覧
+     * ============================================================
+     */
+
     let originalGroups = {};
+    let totalTitles = {};
 
-    /* softwares.csv の読み込み処理 */
-    fetch('softwares.csv')
-      .then(response => {
-        if (!response.ok) throw new Error('CSVの読み込みに失敗しました');
-        return response.text();
-      })
-      .then(text => {
-        const lines = text.trim().split('\n');
-        
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue; // 空行は飛ばす
-          
-          const cols = line.split(',');
-          if (cols.length < 3) continue;
 
-          const hwName = cols[0].trim();
-          const title = cols[1].trim();
-          const date = cols[2].trim();
+    /*
+     * CSV読み込み
+     */
 
-          // 英語表記のヘッダー行（hardware, title, date）を確実にスキップする
-          if (hwName.toLowerCase() === 'hardware' || title.toLowerCase() === 'title') {
-            continue;
-          }
-
-          // ハード名ごとに配列を作ってデータをストックする
-          if (!originalGroups[hwName]) {
-            originalGroups[hwName] = [];
-          }
-          originalGroups[hwName].push({ title, date });
+    Promise.all([
+      fetch('softwares.csv').then(response => {
+        if (!response.ok) {
+          throw new Error('softwares.csvの読み込みに失敗しました');
         }
 
-        // 初期表示（元のCSV順）
-        renderAllTables(originalGroups);
-        // プルダウンのイベントを設定
-        setupSortEvent();
-      })
-      .catch(error => {
-        console.error(error);
-        document.getElementById('soft-container').innerHTML = '<p>データの読み込みに失敗しました。</p>';
-      });
+        return response.text();
+      }),
 
-    /* すべてのハードの表を描画する関数 */
+      fetch('software-count.csv').then(response => {
+        if (!response.ok) {
+          throw new Error('software-count.csvの読み込みに失敗しました');
+        }
+
+        return response.text();
+      })
+    ])
+
+    .then(([softwareText, countText]) => {
+
+      /*
+       * ------------------------------------------------------------
+       * 入手済みソフトCSV
+       * ------------------------------------------------------------
+       */
+
+      const softwareLines = softwareText
+        .replace(/\r/g, '')
+        .split('\n');
+
+      for (let i = 0; i < softwareLines.length; i++) {
+
+        const line = softwareLines[i].trim();
+
+        if (!line) continue;
+
+        const cols = line.split(',');
+
+        /*
+         * ヘッダー
+         */
+        if (
+          cols[0]?.trim().toLowerCase() === 'hardware' ||
+          cols[1]?.trim().toLowerCase() === 'title'
+        ) {
+          continue;
+        }
+
+        /*
+         * ハード名だけの行にも対応
+         *
+         * 例：
+         * ゲームボーイ
+         * Wii
+         */
+        const hwName = cols[0]?.trim();
+
+        if (!hwName) continue;
+
+        const title = cols[1]?.trim() || '';
+        const date = cols[2]?.trim() || '';
+
+        if (!originalGroups[hwName]) {
+          originalGroups[hwName] = [];
+        }
+
+        /*
+         * タイトルが空欄なら、
+         * 「まだソフトが登録されていないハード」
+         * として扱う。
+         */
+        if (title !== '') {
+          originalGroups[hwName].push({
+            title: title,
+            date: date || '不明'
+          });
+        }
+      }
+
+
+      /*
+       * ------------------------------------------------------------
+       * 総タイトル数CSV
+       * ------------------------------------------------------------
+       */
+
+      const countLines = countText
+        .replace(/\r/g, '')
+        .split('\n');
+
+      for (let i = 0; i < countLines.length; i++) {
+
+        const line = countLines[i].trim();
+
+        if (!line) continue;
+
+        const cols = line.split(',');
+
+        if (cols.length < 2) continue;
+
+        const hwName = cols[0].trim();
+        const total = parseInt(cols[1].trim(), 10);
+
+        /*
+         * ヘッダー
+         */
+        if (hwName.toLowerCase() === 'hardware') {
+          continue;
+        }
+
+        if (!isNaN(total)) {
+          totalTitles[hwName] = total;
+        }
+      }
+
+
+      /*
+       * ------------------------------------------------------------
+       * 表示
+       * ------------------------------------------------------------
+       */
+
+      renderAllTables(originalGroups);
+
+      setupSortEvent();
+
+    })
+
+    .catch(error => {
+
+      console.error(error);
+
+      document.getElementById('soft-container').innerHTML =
+        '<p>データの読み込みに失敗しました。</p>';
+
+    });
+
+
+    /*
+     * ============================================================
+     * テーブル描画
+     * ============================================================
+     */
+
     function renderAllTables(groupsData) {
+
       const container = document.getElementById('soft-container');
-      container.innerHTML = ''; // 一度全体をクリア
+
+      container.innerHTML = '';
+
 
       for (const hwName in groupsData) {
-        // 各ハードの見出し（▼機種名）
+
+        const softwares = groupsData[hwName];
+
+        const ownedCount = softwares.length;
+        const totalCount = totalTitles[hwName];
+
+
+        /*
+         * ----------------------------------------------------------
+         * ハード名
+         * ----------------------------------------------------------
+         */
+
         const h3 = document.createElement('h3');
-        h3.textContent = `▼${hwName}`;
-        h3.style.marginTop = '30px';
+
+        h3.className = 'collection-title';
+
+
+        let titleText = `▼${hwName}　${ownedCount}`;
+
+        /*
+         * 総タイトル数が登録されている場合
+         */
+
+        if (typeof totalCount === 'number') {
+
+          const rate =
+            totalCount > 0
+              ? (ownedCount / totalCount * 100).toFixed(2)
+              : '0.00';
+
+          titleText += ` / ${totalCount}`;
+
+          const rateSpan = document.createElement('span');
+
+          rateSpan.className = 'collection-rate';
+
+          rateSpan.textContent = `（${rate}%）`;
+
+          h3.textContent = titleText;
+
+          h3.appendChild(rateSpan);
+
+        } else {
+
+          /*
+           * 総タイトル数がまだ登録されていない場合
+           */
+
+          h3.textContent = `${titleText} / ?`;
+
+        }
+
+
         container.appendChild(h3);
 
-        // テーブルの作成
+
+        /*
+         * ----------------------------------------------------------
+         * ソフトが0本ならテーブルを作らない
+         * ----------------------------------------------------------
+         */
+
+        if (softwares.length === 0) {
+
+          const emptyText = document.createElement('p');
+
+          emptyText.textContent = 'まだ入手済みソフトはありません。';
+
+          emptyText.style.fontSize = '14px';
+
+          container.appendChild(emptyText);
+
+          continue;
+        }
+
+
+        /*
+         * ----------------------------------------------------------
+         * テーブル
+         * ----------------------------------------------------------
+         */
+
         const table = document.createElement('table');
+
         table.setAttribute('border', '1');
         table.setAttribute('cellspacing', '0');
         table.setAttribute('cellpadding', '5');
+
         table.style.borderCollapse = 'collapse';
         table.style.width = '100%';
         table.style.fontSize = '14px';
         table.style.marginBottom = '20px';
+
 
         table.innerHTML = `
           <thead>
@@ -148,68 +360,128 @@
               <th style="width: 25%;">入手日</th>
             </tr>
           </thead>
+
           <tbody></tbody>
         `;
 
+
         const tbody = table.querySelector('tbody');
-        
-        // ストックされているソフト一覧を1行ずつ追加
-        groupsData[hwName].forEach(soft => {
+
+
+        /*
+         * ----------------------------------------------------------
+         * ソフトを追加
+         * ----------------------------------------------------------
+         */
+
+        softwares.forEach(soft => {
+
           const tr = document.createElement('tr');
-          
+
+
           const tdTitle = document.createElement('td');
+
           tdTitle.textContent = soft.title;
+
           tr.appendChild(tdTitle);
-          
+
+
           const tdDate = document.createElement('td');
+
           tdDate.textContent = soft.date;
+
           tr.appendChild(tdDate);
 
+
           tbody.appendChild(tr);
+
         });
 
+
         container.appendChild(table);
+
       }
+
     }
 
-    /* プルダウン切り替え時のソート処理 */
+
+    /*
+     * ============================================================
+     * 並び替え
+     * ============================================================
+     */
+
     function setupSortEvent() {
+
       const sortMenu = document.getElementById('sort-menu');
 
+
       sortMenu.addEventListener('change', (e) => {
+
         const selectedValue = e.target.value;
 
+
+        /*
+         * ----------------------------------------------------------
+         * 元の順番
+         * ----------------------------------------------------------
+         */
+
         if (selectedValue === 'default') {
-          // [並び替え] の場合は元のデータ構造のまま再描画
+
           renderAllTables(originalGroups);
+
           return;
+
         }
+
+
+        /*
+         * ----------------------------------------------------------
+         * 入手日順
+         * ----------------------------------------------------------
+         */
 
         let sortedGroups = {};
 
+
         for (const hwName in originalGroups) {
+
           let softs = [...originalGroups[hwName]];
 
-          softs.sort((a, b) => {
-            // 「不明」データは常に一番下に送る
-            if (a.date === '不明' && b.date !== '不明') return 1;
-            if (a.date !== '不明' && b.date === '不明') return -1;
-            if (a.date === '不明' && b.date === '不明') return 0;
 
-            if (selectedValue === 'date') {
-              // 入手日順（古い順）
-              return a.date.localeCompare(b.date, 'ja');
+          softs.sort((a, b) => {
+
+            if (a.date === '不明' && b.date !== '不明') {
+              return 1;
             }
-            return 0;
+
+            if (a.date !== '不明' && b.date === '不明') {
+              return -1;
+            }
+
+            if (a.date === '不明' && b.date === '不明') {
+              return 0;
+            }
+
+
+            return a.date.localeCompare(b.date, 'ja');
+
           });
 
+
           sortedGroups[hwName] = softs;
+
         }
 
-        // ソートが完了したデータを画面に反映
+
         renderAllTables(sortedGroups);
+
       });
+
     }
+
   </script>
+
 </body>
 </html>
