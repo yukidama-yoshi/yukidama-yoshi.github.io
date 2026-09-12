@@ -26,6 +26,12 @@
       margin-left: 10px;
       color: #555;
     }
+
+    .total-software-count {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
   </style>
 </head>
 
@@ -45,6 +51,8 @@
     </p>
 
     <hr>
+
+    <div id="total-software-count" class="total-software-count"></div>
 
     <div class="sort-container">
       <select id="sort-menu" class="sort-select">
@@ -144,9 +152,6 @@
 
         const cols = line.split(',');
 
-        /*
-         * ヘッダー
-         */
         if (
           cols[0]?.trim().toLowerCase() === 'hardware' ||
           cols[1]?.trim().toLowerCase() === 'title'
@@ -154,13 +159,6 @@
           continue;
         }
 
-        /*
-         * ハード名だけの行にも対応
-         *
-         * 例：
-         * ゲームボーイ
-         * Wii
-         */
         const hwName = cols[0]?.trim();
 
         if (!hwName) continue;
@@ -172,11 +170,6 @@
           originalGroups[hwName] = [];
         }
 
-        /*
-         * タイトルが空欄なら、
-         * 「まだソフトが登録されていないハード」
-         * として扱う。
-         */
         if (title !== '') {
           originalGroups[hwName].push({
             title: title,
@@ -209,9 +202,6 @@
         const hwName = cols[0].trim();
         const total = parseInt(cols[1].trim(), 10);
 
-        /*
-         * ヘッダー
-         */
         if (hwName.toLowerCase() === 'hardware') {
           continue;
         }
@@ -220,6 +210,27 @@
           totalTitles[hwName] = total;
         }
       }
+
+
+      /*
+       * ------------------------------------------------------------
+       * 全ハード合計ソフト数
+       * ------------------------------------------------------------
+       */
+
+      let totalSoftwareCount = 0;
+
+      for (const hwName in totalTitles) {
+
+        if (hwName === 'PC') {
+          continue;
+        }
+
+        totalSoftwareCount += totalTitles[hwName];
+      }
+
+      document.getElementById('total-software-count').textContent =
+        `全ハード合計ソフト数：${totalSoftwareCount.toLocaleString()}本`;
 
 
       /*
@@ -275,12 +286,8 @@
 
         h3.className = 'collection-title';
 
-
         let titleText = `▼${hwName}　${ownedCount}`;
 
-        /*
-         * 総タイトル数が登録されている場合
-         */
 
         if (typeof totalCount === 'number') {
 
@@ -303,14 +310,9 @@
 
         } else {
 
-          /*
-           * 総タイトル数がまだ登録されていない場合
-           */
-
           h3.textContent = `${titleText} / ?`;
 
         }
-
 
         container.appendChild(h3);
 
@@ -377,7 +379,6 @@
         softwares.forEach(soft => {
 
           const tr = document.createElement('tr');
-
 
           const tdTitle = document.createElement('td');
 
@@ -463,7 +464,6 @@
             if (a.date === '不明' && b.date === '不明') {
               return 0;
             }
-
 
             return a.date.localeCompare(b.date, 'ja');
 
