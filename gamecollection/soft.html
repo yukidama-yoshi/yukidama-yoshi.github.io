@@ -18,7 +18,7 @@
       display: inline-block;
       width: 1.2em;
       text-align: center;
-      transition: transform 0.15s ease;
+      transition: transform 0.25s ease;
       font-size: 0.95em;
       vertical-align: middle;
     }
@@ -38,11 +38,18 @@
     .hardware-section {
       margin-bottom: 10px;
     }
+    /* アニメーション用 */
     .hardware-content {
-      display: block;
+      overflow: hidden;
+      max-height: 3000px; /* 十分大きな値 */
+      opacity: 1;
+      transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.25s ease;
+      margin-bottom: 20px;
     }
     .hardware-content.collapsed {
-      display: none;
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: 0;
     }
   </style>
 </head>
@@ -301,7 +308,7 @@
           table.style.borderCollapse = 'collapse';
           table.style.width = '100%';
           table.style.fontSize = '14px';
-          table.style.marginBottom = '20px';
+          table.style.marginBottom = '0'; /* 親でマージンを制御 */
           table.innerHTML = `
             <thead>
               <tr style="background-color: #e0e0e0; text-align: left;">
@@ -332,7 +339,7 @@
 
         /*
          * ----------------------------------------------------------
-         * クリックで開閉
+         * クリックで開閉（アニメーション付き）
          * ----------------------------------------------------------
          */
         h3.addEventListener('click', () => {
