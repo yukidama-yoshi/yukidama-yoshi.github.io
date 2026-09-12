@@ -14,6 +14,17 @@
     .collection-title:hover {
       opacity: 0.8;
     }
+    .toggle-icon {
+      display: inline-block;
+      width: 1.2em;
+      text-align: center;
+      transition: transform 0.15s ease;
+      font-size: 0.95em;
+      vertical-align: middle;
+    }
+    .toggle-icon.collapsed {
+      transform: rotate(-90deg);
+    }
     .collection-rate {
       font-size: 13px;
       margin-left: 10px;
@@ -228,7 +239,12 @@
         h3.className = 'collection-title';
         h3.dataset.expanded = 'true';
 
-        let titleText = `▼${hwName}　${ownedCount}`;
+        // アイコン（同じ文字を回転させて使うので大きさ完全一致）
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'toggle-icon';
+        iconSpan.textContent = '▼';
+
+        let titleText = `${hwName}　${ownedCount}`;
         /*
          * 総タイトル数が登録されている場合
          */
@@ -238,7 +254,10 @@
               ? (ownedCount / totalCount * 100).toFixed(2)
               : '0.00';
           titleText += ` / ${totalCount}`;
-          h3.textContent = titleText;
+
+          h3.appendChild(iconSpan);
+          h3.appendChild(document.createTextNode(titleText));
+
           const rateSpan = document.createElement('span');
           rateSpan.className = 'collection-rate';
           rateSpan.textContent = `（${rate}%）`;
@@ -247,7 +266,8 @@
           /*
            * 総タイトル数がまだ登録されていない場合
            */
-          h3.textContent = `${titleText} / ?`;
+          h3.appendChild(iconSpan);
+          h3.appendChild(document.createTextNode(`${titleText} / ?`));
         }
 
         /*
@@ -319,14 +339,12 @@
           const isExpanded = h3.dataset.expanded === 'true';
           if (isExpanded) {
             content.classList.add('collapsed');
+            iconSpan.classList.add('collapsed');
             h3.dataset.expanded = 'false';
-            // ▼ → ▶ に変更
-            h3.childNodes[0].textContent = h3.childNodes[0].textContent.replace(/^▼/, '▶');
           } else {
             content.classList.remove('collapsed');
+            iconSpan.classList.remove('collapsed');
             h3.dataset.expanded = 'true';
-            // ▶ → ▼ に変更
-            h3.childNodes[0].textContent = h3.childNodes[0].textContent.replace(/^▶/, '▼');
           }
         });
 
