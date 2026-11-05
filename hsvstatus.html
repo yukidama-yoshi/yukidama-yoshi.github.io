@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -67,12 +66,12 @@
     <div class="status-list">
       <div class="status-item">
         <span class="status-label">sv.ykdm44.com ウェブサイト</span>
-        <span class="status-value checking" id="website-status">確認中...</span>
+        <span class="status-value checking" id="website-status">確認中</span>
       </div>
 
       <div class="status-item">
         <span class="status-label">サーバーステータスモニタ</span>
-        <span class="status-value checking" id="monitor-status">確認中...</span>
+        <span class="status-value checking" id="monitor-status">確認中</span>
       </div>
     </div>
 
@@ -91,7 +90,7 @@
     function setStatus(id, online) {
       const element = document.getElementById(id);
 
-      element.textContent = online ? "稼働しています" : "停止中";
+      element.textContent = online ? "正常に稼働しています" : "現在、死んでいるようです";
       element.className = "status-value " + (online ? "online" : "offline");
     }
 
@@ -129,4 +128,3 @@
   </script>
 </body>
 </html>
-```
