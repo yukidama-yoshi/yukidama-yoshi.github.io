@@ -1,0 +1,132 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>サーバー稼働状況 - ゆきだまのホームページ</title>
+  <link rel="stylesheet" href="css/common.css">
+
+  <style>
+    .status-list {
+      max-width: 600px;
+      margin-top: 25px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .status-label {
+      font-weight: bold;
+    }
+
+    .status-value {
+      font-weight: bold;
+      color: #777;
+    }
+
+    .online {
+      color: #16833b;
+    }
+
+    .offline {
+      color: #c62828;
+    }
+
+    .checking {
+      color: #777;
+    }
+
+    #last-check {
+      margin-top: 20px;
+      color: #777;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="version-tag">Server Status</div>
+
+  <nav class="sidebar" id="sidebar"></nav>
+  <div class="resizer" id="resizer"></div>
+
+  <div class="main">
+    <h1>サーバー稼働状況</h1>
+
+    <p>自宅サーバーの現在の稼働状況を表示しています。</p>
+
+    <div class="status-list">
+      <div class="status-item">
+        <span class="status-label">sv.ykdm44.com ウェブサイト</span>
+        <span class="status-value checking" id="website-status">確認中...</span>
+      </div>
+
+      <div class="status-item">
+        <span class="status-label">サーバーステータスモニタ</span>
+        <span class="status-value checking" id="monitor-status">確認中...</span>
+      </div>
+    </div>
+
+    <p id="last-check">確認中...</p>
+
+    <footer>
+      <p>© 2026 ゆきだま. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="js/load-sidebar.js"></script>
+
+  <script>
+    const API_URL = "https://sv.ykdm44.com/status/api/status";
+
+    function setStatus(id, online) {
+      const element = document.getElementById(id);
+
+      element.textContent = online ? "稼働しています" : "停止中";
+      element.className = "status-value " + (online ? "online" : "offline");
+    }
+
+    async function checkStatus() {
+      const website = document.getElementById("website-status");
+      const monitor = document.getElementById("monitor-status");
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "GET",
+          cache: "no-store",
+          signal: AbortSignal.timeout(5000)
+        });
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        setStatus("website-status", true);
+        setStatus("monitor-status", !!data.current_time);
+
+      } catch (error) {
+        setStatus("website-status", false);
+        setStatus("monitor-status", false);
+      }
+
+      document.getElementById("last-check").textContent =
+        "最終確認: " + new Date().toLocaleString("ja-JP");
+    }
+
+    checkStatus();
+    setInterval(checkStatus, 10000);
+  </script>
+</body>
+</html>
+```
